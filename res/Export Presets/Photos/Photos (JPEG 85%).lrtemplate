@@ -4,7 +4,6 @@ s = {
 	title = "Photos (JPEG 85%)",
 	type = "Export",
 	value = {
-		["at.homebrew.lrphotos_album"] = "unknown album",
 		["at.homebrew.lrphotos_createAlbum"] = true,
 		embeddedMetadataOption = "copyrightOnly",
 		exportServiceProvider = "at.homebrew.lrphotos",
