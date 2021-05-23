@@ -1,0 +1,5 @@
+"$$$/iPhotoExportService/Title=iPhoto"
+"$$$/iPhotoExportService/CreateAlbum=Nieuw Album:"
+"$$$/iPhotoExportService/UnknownAlbum=Uit Lightroom"
+"$$$/iPhotoExportService/ProgressMany=Bezig met importeren van ^1 foto's in Photos"
+"$$$/iPhotoExportService/ProgressOne=Bezig met importeren van de foto in Photos"
