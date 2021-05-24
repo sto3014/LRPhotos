@@ -107,13 +107,141 @@
 \f2\b \cf4 end
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 \
 \
+
+\f0\i \cf2 -- Extract checkDuplicates from the session file
+\f1\i0 \cf3 \
+
+\f2\b \cf4 on
+\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 (\cf3 sessionContents\cf3 )\
+	
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf10 false\cf3 \
+	
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 allLines\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf4 every
+\f1\b0 \cf3  
+\f0\i \cf7 paragraph
+\f1\i0 \cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 sessionContents\cf3 \
+	
+\f2\b \cf4 repeat
+\f1\b0 \cf3  
+\f2\b \cf4 with
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f2\b \cf4 in
+\f1\b0 \cf3  \cf3 allLines\cf3 \
+		
+\f2\b \cf4 try
+\f1\b0 \cf3 \
+			
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf10 contents\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 not
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf6 "="\cf3 \
+				
+\f2\b \cf4 if
+\f1\b0 \cf3  
+\f0\i \cf7 text item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf6 "check_duplicates"\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+					
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 checkuplicatesAsText\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f0\i \cf7 text item
+\f1\i0 \cf3  \cf9 2\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 aLine\cf3 \
+					
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf3 checkuplicatesAsText\cf3  
+\f2\b \cf4 as
+\f1\b0 \cf3  
+\f0\i \cf7 boolean
+\f1\i0 \cf3 \
+					
+\f2\b \cf4 exit
+\f1\b0 \cf3  
+\f2\b \cf4 repeat
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
+			
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
+		
+\f2\b \cf4 on
+\f1\b0 \cf3  
+\f2\b \cf4 error
+\f1\b0 \cf3  \cf3 e\cf3 \
+			
+\f2\b \cf11 log
+\f1\b0 \cf3  \cf6 "error in extractCheckDuplicates() while converting "\cf3  & \cf3 checkuplicatesAsText\cf3  & \cf6 " to boolean."\cf3 \
+			
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf10 false\cf3 \
+		
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 try
+\f1\b0 \cf3 \
+	
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 repeat
+\f1\b0 \cf3 \
+	
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf6 " "\cf3 \
+	
+\f2\b \cf4 return
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3 \
+
+\f2\b \cf4 end
+\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 \
 \
 
 \f0\i \cf2 -- Import exported photos in a new iPhoto album if needed
 \f1\i0 \cf3 \
 
 \f2\b \cf4 on
-\f1\b0 \cf3  \cf5 import\cf3 (\cf3 sourceFolder\cf3 , \cf3 albumName\cf3 )\
+\f1\b0 \cf3  \cf5 import\cf3 (\cf3 sourceFolder\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
 	
 \f2\b \cf4 set
 \f1\b0 \cf3  \cf3 thePath\cf3  
@@ -150,10 +278,38 @@
 \f2\b \cf4 then
 \f1\b0 \cf3 \
 			
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf10 true\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf11 import
+\f1\b0 \cf3  \cf3 sourceFolder\cf3 \
+			
+\f2\b \cf4 else
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
 \f2\b \cf11 import
 \f1\b0 \cf3  \cf3 sourceFolder\cf3  
 \f2\b \cf4 with
 \f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+			
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
 		
 \f2\b \cf4 else
 \f1\b0 \cf3 \
@@ -183,12 +339,59 @@
 \f2\b \cf4 if
 \f1\b0 \cf3 \
 			
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf10 true\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
 \f2\b \cf11 import
 \f1\b0 \cf3  \cf3 imageList\cf3  \cf11 into\cf3  
+\f0\i \cf7 container
+\f1\i0 \cf3  \cf3 albumName\cf3 \
+			
+\f2\b \cf4 else
+\f1\b0 \cf3 \
+				
+\f2\b \cf4 repeat
+\f1\b0 \cf3  
+\f2\b \cf4 with
+\f1\b0 \cf3  \cf3 image\cf3  
+\f2\b \cf4 in
+\f1\b0 \cf3  \cf3 imageList\cf3 \
+					
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 shortList\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \{\cf3 image\cf3 \}\
+					
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf11 import
+\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
 \f0\i \cf7 container
 \f1\i0 \cf3  \cf3 albumName\cf3  
 \f2\b \cf4 with
 \f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+				
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 repeat
+\f1\b0 \cf3 \
+			
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
 		
 \f2\b \cf4 end
 \f1\b0 \cf3  
@@ -202,6 +405,20 @@
 \f1\b0 \cf3  \cf9 2\cf3 \
 		
 \f0\i \cf2 -- end repeat
+\f1\i0 \cf3 \
+		
+\f0\i \cf2 (*\
+		log "images"\
+		repeat with image in imageList\
+			tell application "Finder" to set aName to name of image\
+			log aName\
+		end repeat\
+		log "medias"\
+		repeat with media in mediaList\
+			log (get the filename of media)\
+		end repeat\
+		log (count of mediaList)\
+		*)
 \f1\i0 \cf3 \
 	
 \f2\b \cf4 end
@@ -218,7 +435,7 @@
 \f1\i0 \cf3 \
 
 \f2\b \cf4 on
-\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 )\
+\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
 	
 \f2\b \cf8 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
@@ -231,8 +448,11 @@
 \f1\b0 \cf3  \cf3 sessionFile\cf3  \cf8 to\cf3  \cf9 0\cf3 \
 	
 \f2\b \cf8 write
-\f1\b0 \cf3  \cf6 "album_name=\
-export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
+\f1\b0 \cf3  \cf6 "album_name="\cf3  & \cf3 albumName\cf3  & \cf6 "\
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
+\cf6 export_done=true"\cf3  & \cf6 "\
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
+\cf6 check_duplicates="\cf3  & \cf3 checkDuplicates\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 	
 \f2\b \cf8 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
@@ -240,6 +460,9 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f2\b \cf4 end
 \f1\b0 \cf3  \cf5 updateSessionFile\cf3 \
 \
+
+\f0\i \cf2 --
+\f1\i0 \cf3 \
 
 \f2\b \cf4 on
 \f1\b0 \cf3  \cf5 getImageList\cf3 (\cf3 aFolder\cf3 )\
@@ -342,73 +565,6 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f2\b \cf4 end
 \f1\b0 \cf3  \cf5 getImageList\cf3 \
 \
-
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf5 replaceText\cf3 (\cf3 someText\cf3 , \cf3 oldItem\cf3 , \cf3 newItem\cf3 )\
-	
-\f0\i \cf2 (*\
-     replace all occurances of oldItem with newItem\
-          parameters -     someText [text]: the text containing the item(s) to change\
-                    oldItem [text, list of text]: the item to be replaced\
-                    newItem [text]: the item to replace with\
-          returns [text]:     the text with the item(s) replaced\
-    *)
-\f1\i0 \cf3 \
-	
-\f2\b \cf4 set
-\f1\b0 \cf3  \{\cf3 tempTID\cf3 , \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3 \} 
-\f2\b \cf4 to
-\f1\b0 \cf3  \{\cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3 , \cf3 oldItem\cf3 \}\
-	
-\f2\b \cf4 try
-\f1\b0 \cf3 \
-		
-\f2\b \cf4 set
-\f1\b0 \cf3  \{\cf3 itemList\cf3 , \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3 \} 
-\f2\b \cf4 to
-\f1\b0 \cf3  \{
-\f0\i \cf7 text items
-\f1\i0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 someText\cf3 , \cf3 newItem\cf3 \}\
-		
-\f2\b \cf4 set
-\f1\b0 \cf3  \{\cf3 someText\cf3 , \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3 \} 
-\f2\b \cf4 to
-\f1\b0 \cf3  \{\cf3 itemList\cf3  
-\f2\b \cf4 as
-\f1\b0 \cf3  
-\f0\i \cf7 text
-\f1\i0 \cf3 , \cf3 tempTID\cf3 \}\
-	
-\f2\b \cf4 on
-\f1\b0 \cf3  
-\f2\b \cf4 error
-\f1\b0 \cf3  \cf3 errorMessage\cf3  \cf11 number\cf3  \cf3 errorNumber\cf3  
-\f0\i \cf2 -- oops
-\f1\i0 \cf3 \
-		
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf3 tempTID\cf3 \
-		
-\f2\b \cf4 error
-\f1\b0 \cf3  \cf3 errorMessage\cf3  \cf11 number\cf3  \cf3 errorNumber\cf3  
-\f0\i \cf2 -- pass it on
-\f1\i0 \cf3 \
-	
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 try
-\f1\b0 \cf3 \
-	\
-	
-\f2\b \cf4 return
-\f1\b0 \cf3  \cf3 someText\cf3 \
-
-\f2\b \cf4 end
-\f1\b0 \cf3  \cf5 replaceText\cf3 \
 \
 
 \f0\i \cf2 -- Run the import script
@@ -470,13 +626,17 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 	
 \f2\b \cf4 set
+\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 (\cf3 sessionContents\cf3 )\
+	\
+	
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
 \f2\b \cf4 to
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 (\cf3 sessionContents\cf3 )\
-	\
-	\cf5 import\cf3 (\cf3 tempFolder\cf3 , \cf3 albumName\cf3 )\
-	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 )\
-	\
+	\cf5 import\cf3 (\cf3 tempFolder\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
+	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
 
 \f2\b \cf4 end
 \f1\b0 \cf3  

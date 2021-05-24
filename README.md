@@ -1,7 +1,7 @@
 # LRPhotos
 
 # Features
-Lightroom Classic plug-in which exports photos to Apple's Photos app:
+Lightroom Classic plug-in which imports photos into Apple's Photos app.
 * Export photos 
 * Include album name
 

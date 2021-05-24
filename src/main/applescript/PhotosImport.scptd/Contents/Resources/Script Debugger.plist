@@ -45,7 +45,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 		<key>CFBundleIconFile</key>
 		<string>applet</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.mycompany.iPhotoImport</string>
+		<string>at.homebrew.PhotosImport</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
@@ -53,7 +53,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.0</string>
+		<string>1.0.0</string>
 		<key>CFBundleSignature</key>
 		<string>aplt</string>
 		<key>CFBundleVersion</key>
@@ -62,6 +62,8 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 		<false/>
 		<key>LNSStayOpen</key>
 		<false/>
+		<key>LSMinimumSystemVersion</key>
+		<string>10.15.0</string>
 		<key>LSMinimumSystemVersionByArchitecture</key>
 		<dict>
 			<key>x86_64</key>
@@ -69,8 +71,30 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 		</dict>
 		<key>LSRequiresCarbon</key>
 		<true/>
+		<key>NSAppleEventsUsageDescription</key>
+		<string>This script needs to control other applications to run.</string>
+		<key>NSAppleMusicUsageDescription</key>
+		<string>This script needs access to your music to run.</string>
+		<key>NSCalendarsUsageDescription</key>
+		<string>This script needs access to your calendars to run.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>This script needs access to your camera to run.</string>
+		<key>NSContactsUsageDescription</key>
+		<string>This script needs access to your contacts to run.</string>
+		<key>NSHomeKitUsageDescription</key>
+		<string>This script needs access to your HomeKit Home to run.</string>
 		<key>NSHumanReadableCopyright</key>
 		<string>Copyright © 2021 , All Rights Reserved</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This script needs access to your microphone to run.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This script needs access to your photos to run.</string>
+		<key>NSRemindersUsageDescription</key>
+		<string>This script needs access to your reminders to run.</string>
+		<key>NSSiriUsageDescription</key>
+		<string>This script needs access to Siri to run.</string>
+		<key>NSSystemAdministrationUsageDescription</key>
+		<string>This script needs access to administer this system to run.</string>
 		<key>OSAAppletShowStartupScreen</key>
 		<false/>
 		<key>OSAAppletStayOpen</key>
@@ -90,7 +114,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 		<real>0.80000001192092896</real>
 		<key>viewControllers</key>
 		<dict>
-			<key>C3F785B0-524E-43B3-9CD8-B7236C03254B-1795-0000112A0A11060D</key>
+			<key>7A896B42-FFE0-4782-A613-C66C758C78B1-1795-0000147F5246875B</key>
 			<dict>
 				<key>debuggerViewState</key>
 				<dict>
@@ -117,17 +141,17 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 						<dict>
 							<key>3</key>
 							<array>
-								<integer>320</integer>
-								<integer>405</integer>
-								<integer>160</integer>
+								<integer>371</integer>
+								<integer>469</integer>
+								<integer>185</integer>
 							</array>
 							<key>5</key>
 							<array>
-								<integer>285</integer>
-								<integer>114</integer>
-								<integer>361</integer>
-								<integer>92</integer>
-								<integer>142</integer>
+								<integer>289</integer>
+								<integer>116</integer>
+								<integer>366</integer>
+								<integer>93</integer>
+								<integer>144</integer>
 							</array>
 						</dict>
 					</dict>
@@ -152,7 +176,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 						</dict>
 						<key>modes</key>
 						<array>
-							<string>mode.best</string>
+							<string>mode.source</string>
 						</array>
 						<key>positions2</key>
 						<dict>
@@ -171,7 +195,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 										<key>length</key>
 										<integer>0</integer>
 										<key>location</key>
-										<integer>7</integer>
+										<integer>1</integer>
 									</dict>
 								</array>
 								<key>LNSTextViewShowInvisibles</key>
@@ -183,7 +207,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 								<key>LNSTextViewWrapLines</key>
 								<true/>
 								<key>LNSVisibleRect</key>
-								<string>{{0, 0}, {424, 274.5}}</string>
+								<string>{{0, 0}, {587, 259.5}}</string>
 							</dict>
 						</dict>
 					</dict>
@@ -208,7 +232,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 					</dict>
 				</dict>
 				<key>eventLogHeight</key>
-				<real>242</real>
+				<real>122</real>
 				<key>eventLogViewState</key>
 				<dict>
 					<key>format</key>
@@ -239,7 +263,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 					<key>applications</key>
 					<dict>
 						<key>dividerPos2</key>
-						<real>144</real>
+						<real>244</real>
 						<key>searchFlags</key>
 						<integer>167784446</integer>
 					</dict>
@@ -251,9 +275,9 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 						<dict>
 							<key>3</key>
 							<array>
-								<integer>320</integer>
-								<integer>292</integer>
-								<integer>289</integer>
+								<integer>372</integer>
+								<integer>609</integer>
+								<integer>67</integer>
 							</array>
 						</dict>
 					</dict>
@@ -279,11 +303,11 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 					</dict>
 				</dict>
 				<key>mainSplit%</key>
-				<real>0.74322915077209473</real>
+				<real>0.69765627384185791</real>
 				<key>mainSplitPosition</key>
-				<real>493</real>
+				<real>580.5</real>
 				<key>modeIdentifier</key>
-				<string>tab.debug</string>
+				<string>tab.bps</string>
 				<key>resourcesViewState</key>
 				<dict>
 					<key>heights2</key>
@@ -292,8 +316,8 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 						<dict>
 							<key>2</key>
 							<array>
-								<integer>338</integer>
-								<integer>613</integer>
+								<integer>376</integer>
+								<integer>681</integer>
 							</array>
 						</dict>
 					</dict>
@@ -315,7 +339,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 								<key>length</key>
 								<integer>0</integer>
 								<key>location</key>
-								<integer>5</integer>
+								<integer>3589</integer>
 							</dict>
 						</array>
 						<key>LNSTextViewShowInvisibles</key>
@@ -327,7 +351,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 						<key>LNSTextViewWrapLines</key>
 						<false/>
 						<key>LNSVisibleRect</key>
-						<string>{{0, 519}, {1367, 760}}</string>
+						<string>{{0, 1228}, {1279.5, 854}}</string>
 						<key>ShowLineNumbers</key>
 						<false/>
 						<key>showCodeCoverage</key>
@@ -345,18 +369,18 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 				<key>tabHeights</key>
 				<dict>
 					<key>tab.bps</key>
-					<real>433</real>
-					<key>tab.debug</key>
 					<real>439</real>
+					<key>tab.debug</key>
+					<real>602</real>
 					<key>tab.rsrcs</key>
 					<real>433</real>
 				</dict>
 				<key>tabsHidden</key>
 				<false/>
 				<key>windowControllerID</key>
-				<string>C3F785B0-524E-43B3-9CD8-B7236C03254B-1795-0000112A0A11060D</string>
+				<string>7A896B42-FFE0-4782-A613-C66C758C78B1-1795-0000147F5246875B</string>
 				<key>windowFrame</key>
-				<string>0 50 1920 1125 0 0 1920 1175 </string>
+				<string>1 36 1920 1139 0 0 1920 1175 </string>
 			</dict>
 		</dict>
 		<key>windowControllers</key>
@@ -365,7 +389,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 				<key>controllerClass</key>
 				<string>SD8ScriptWindowController</string>
 				<key>controllerID</key>
-				<string>C3F785B0-524E-43B3-9CD8-B7236C03254B-1795-0000112A0A11060D</string>
+				<string>7A896B42-FFE0-4782-A613-C66C758C78B1-1795-0000147F5246875B</string>
 				<key>controllerState</key>
 				<dict>
 					<key>miniaturized</key>
@@ -373,7 +397,7 @@ XWJtdHV3fIeQn6OrAAAAAAAAAQEAAAAAAAAAGAAAAAAAAAAAAAAAAAAAALQ=</string>
 					<key>timerShowsDetail</key>
 					<false/>
 					<key>windowFrame</key>
-					<string>0 50 1920 1125 0 0 1920 1175 </string>
+					<string>1 36 1920 1139 0 0 1920 1175 </string>
 				</dict>
 			</dict>
 		</array>
