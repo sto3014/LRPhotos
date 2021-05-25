@@ -1,645 +1,646 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2580
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Italic;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Bold;
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Bold;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Italic;
 }
-{\colortbl;\red255\green255\blue255;\red128\green128\blue128;\red152\green168\blue186;\red193\green100\blue30;
+{\colortbl;\red255\green255\blue255;\red193\green100\blue30;\red152\green168\blue186;\red128\green128\blue128;
 \red193\green43\blue12;\red91\green144\blue62;\red193\green43\blue12;\red10\green112\blue204;\red241\green241\blue241;
 \red158\green128\blue255;\red193\green62\blue29;}
-{\*\expandedcolortbl;;\csgray\c57231;\cssrgb\c66091\c71675\c77923;\cssrgb\c80670\c47205\c15412;
-\cssrgb\c80784\c24706\c3922;\cssrgb\c42673\c62093\c31047;\cssrgb\c80806\c24819\c3785;\csgenericrgb\c3954\c44020\c79895;\csgray\c95739;
-\csgenericrgb\c62067\c50000\c100000;\cssrgb\c80806\c32775\c14607;}
+{\*\expandedcolortbl;;\csgenericrgb\c75632\c39316\c11947;\csgenericrgb\c59779\c65774\c73089;\csgray\c57231;
+\csgenericrgb\c75504\c16712\c4745;\csgenericrgb\c35846\c56374\c24421;\csgenericrgb\c75530\c16821\c4679;\csgenericrgb\c3954\c44020\c79895;\csgray\c95739;
+\csgenericrgb\c62067\c50000\c100000;\csgenericrgb\c75599\c24494\c11327;}
 \deftab480
 \pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
 
-\f0\i\fs24 \cf2 --
+\f0\b\fs24 \cf2 global
+\f1\b0 \cf3  \cf3 importAlbumName\cf3 , \cf3 trashAlbumName\cf3 \
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
+\cf3 \
+\
+
+\f2\i \cf4 -- Extract the album name from the session file
 \f1\i0 \cf3 \
 
-\f0\i \cf2 --
-\f1\i0 \cf3 \
-
-\f0\i \cf2 -- Extract the album name from the session file
-\f1\i0 \cf3 \
-
-\f2\b \cf4 on
+\f0\b \cf2 on
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 (\cf3 sessionContents\cf3 )\
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  \cf6 ""\cf3 \
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 allLines\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f2\b \cf4 every
+\f0\b \cf2 every
 \f1\b0 \cf3  
-\f0\i \cf7 paragraph
+\f2\i \cf7 paragraph
 \f1\i0 \cf3  
-\f2\b \cf4 of
+\f0\b \cf2 of
 \f1\b0 \cf3  \cf3 sessionContents\cf3 \
 	
-\f2\b \cf4 repeat
+\f0\b \cf2 repeat
 \f1\b0 \cf3  
-\f2\b \cf4 with
+\f0\b \cf2 with
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f2\b \cf4 in
+\f0\b \cf2 in
 \f1\b0 \cf3  \cf3 allLines\cf3 \
 		
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  (
-\f2\b \cf8 offset
+\f0\b \cf8 offset
 \f1\b0 \cf3  \cf8 of\cf3  \cf6 "="\cf3  \cf8 in\cf3  \cf3 aLine\cf3 )\
 		
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  > \cf9 0\cf3  
-\f2\b \cf4 then
+\f0\b \cf2 then
 \f1\b0 \cf3 \
 			
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 var\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f0\i \cf7 text
+\f2\i \cf7 text
 \f1\i0 \cf3  \cf9 1\cf3  
-\f2\b \cf4 thru
+\f0\b \cf2 thru
 \f1\b0 \cf3  (\cf3 equalSignOffset\cf3  - \cf9 1\cf3 ) 
-\f2\b \cf4 of
+\f0\b \cf2 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3  \cf3 var\cf3  = \cf6 "album_name"\cf3  
-\f2\b \cf4 then
+\f0\b \cf2 then
 \f1\b0 \cf3 \
 				
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f0\i \cf7 text
+\f2\i \cf7 text
 \f1\i0 \cf3  ((
-\f2\b \cf8 offset
+\f0\b \cf8 offset
 \f1\b0 \cf3  \cf8 of\cf3  \cf6 "="\cf3  \cf8 in\cf3  \cf3 aLine\cf3 ) + \cf9 1\cf3 ) 
-\f2\b \cf4 thru
+\f0\b \cf2 thru
 \f1\b0 \cf3  \cf9 -1\cf3  
-\f2\b \cf4 of
+\f0\b \cf2 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3 \
 		
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3 \
 	
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 repeat
+\f0\b \cf2 repeat
 \f1\b0 \cf3 \
 	
-\f2\b \cf4 return
+\f0\b \cf2 return
 \f1\b0 \cf3  \cf3 albumName\cf3 \
 
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 \
 \
-
-\f0\i \cf2 -- Extract checkDuplicates from the session file
-\f1\i0 \cf3 \
-
-\f2\b \cf4 on
-\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 (\cf3 sessionContents\cf3 )\
-	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf10 false\cf3 \
-	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 allLines\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf4 every
-\f1\b0 \cf3  
-\f0\i \cf7 paragraph
-\f1\i0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 sessionContents\cf3 \
-	
-\f2\b \cf4 repeat
-\f1\b0 \cf3  
-\f2\b \cf4 with
-\f1\b0 \cf3  \cf3 aLine\cf3  
-\f2\b \cf4 in
-\f1\b0 \cf3  \cf3 allLines\cf3 \
-		
-\f2\b \cf4 try
-\f1\b0 \cf3 \
-			
-\f2\b \cf4 if
-\f1\b0 \cf3  \cf10 contents\cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 aLine\cf3  
-\f2\b \cf4 is
-\f1\b0 \cf3  
-\f2\b \cf4 not
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f2\b \cf4 then
-\f1\b0 \cf3 \
-				
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf6 "="\cf3 \
-				
-\f2\b \cf4 if
-\f1\b0 \cf3  
-\f0\i \cf7 text item
-\f1\i0 \cf3  \cf9 1\cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 aLine\cf3  
-\f2\b \cf4 is
-\f1\b0 \cf3  
-\f2\b \cf4 equal to
-\f1\b0 \cf3  \cf6 "check_duplicates"\cf3  
-\f2\b \cf4 then
-\f1\b0 \cf3 \
-					
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 checkuplicatesAsText\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f0\i \cf7 text item
-\f1\i0 \cf3  \cf9 2\cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 aLine\cf3 \
-					
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf3 checkuplicatesAsText\cf3  
-\f2\b \cf4 as
-\f1\b0 \cf3  
-\f0\i \cf7 boolean
-\f1\i0 \cf3 \
-					
-\f2\b \cf4 exit
-\f1\b0 \cf3  
-\f2\b \cf4 repeat
-\f1\b0 \cf3 \
-				
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 if
-\f1\b0 \cf3 \
-			
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 if
-\f1\b0 \cf3 \
-		
-\f2\b \cf4 on
-\f1\b0 \cf3  
-\f2\b \cf4 error
-\f1\b0 \cf3  \cf3 e\cf3 \
-			
-\f2\b \cf11 log
-\f1\b0 \cf3  \cf6 "error in extractCheckDuplicates() while converting "\cf3  & \cf3 checkuplicatesAsText\cf3  & \cf6 " to boolean."\cf3 \
-			
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf10 false\cf3 \
-		
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 try
-\f1\b0 \cf3 \
-	
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 repeat
-\f1\b0 \cf3 \
-	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf6 " "\cf3 \
-	
-\f2\b \cf4 return
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3 \
-
-\f2\b \cf4 end
-\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 \
 \
 
-\f0\i \cf2 -- Import exported photos in a new iPhoto album if needed
+\f2\i \cf4 -- Extract photos from the photos file
 \f1\i0 \cf3 \
 
-\f2\b \cf4 on
-\f1\b0 \cf3  \cf5 import\cf3 (\cf3 sourceFolder\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf5 extractPhotos\cf3 (\cf3 photosContents\cf3 )\
 	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 thePath\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photos\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\}\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 allLines\cf3  
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f0\i \cf7 POSIX file
-\f1\i0 \cf3  \cf3 sourceFolder\cf3  
-\f2\b \cf4 as
+\f0\b \cf2 every
 \f1\b0 \cf3  
-\f0\i \cf7 alias
+\f2\i \cf7 paragraph
+\f1\i0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photosContents\cf3 \
+	
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 allLines\cf3 \
+		
+\f0\b \cf2 copy
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 the
+\f1\b0 \cf3  
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photos\cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 return
+\f1\b0 \cf3  \cf3 photos\cf3 \
+
+\f0\b \cf2 end
+\f1\b0 \cf3  \cf5 extractPhotos\cf3 \
+\
+\
+
+\f2\i \cf4 -- Import exported photos in a new iPhoto album if needed
 \f1\i0 \cf3 \
+
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf5 import\cf3 (\cf3 photos\cf3 , \cf3 albumName\cf3 )\
 	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 theFolder\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf3 thePath\cf3 \
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf6 ":"\cf3 \
+	\
 	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 imageList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf5 getImageList\cf3 (\cf3 theFolder\cf3 )\
-	
-\f2\b \cf4 tell
+\f0\b \cf2 tell
 \f1\b0 \cf3  
-\f0\i \cf7 application
+\f2\i \cf7 application
 \f1\i0 \cf3  \cf10 id\cf3  \cf6 "com.apple.photos"\cf3 \
 		
-\f2\b \cf4 if
-\f1\b0 \cf3  \cf3 albumName\cf3  
-\f2\b \cf4 is
-\f1\b0 \cf3  
-\f2\b \cf4 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f2\b \cf4 then
-\f1\b0 \cf3 \
-			
-\f2\b \cf4 if
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 is
-\f1\b0 \cf3  
-\f2\b \cf4 equal to
-\f1\b0 \cf3  \cf10 true\cf3  
-\f2\b \cf4 then
-\f1\b0 \cf3 \
-				
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf11 import
-\f1\b0 \cf3  \cf3 sourceFolder\cf3 \
-			
-\f2\b \cf4 else
-\f1\b0 \cf3 \
-				
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf11 import
-\f1\b0 \cf3  \cf3 sourceFolder\cf3  
-\f2\b \cf4 with
-\f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
-			
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 if
-\f1\b0 \cf3 \
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importedPhotos\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\}\
+		\
 		
-\f2\b \cf4 else
-\f1\b0 \cf3 \
-			
-\f2\b \cf4 if
+\f2\i \cf4 -- create trashAlbum
+\f1\i0 \cf3 \
+		
+\f0\b \cf2 if
 \f1\b0 \cf3  
-\f2\b \cf4 not
+\f0\b \cf2 not
 \f1\b0 \cf3  (
-\f2\b \cf11 exists
+\f0\b \cf11 exists
 \f1\b0 \cf3  
-\f0\i \cf7 album
-\f1\i0 \cf3  \cf3 albumName\cf3 ) 
-\f2\b \cf4 then
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 trashAlbumName\cf3 ) 
+\f0\b \cf2 then
 \f1\b0 \cf3 \
-				
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 lrAlbum\cf3  
-\f2\b \cf4 to
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 trashAlbum\cf3  
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f2\b \cf11 make
+\f0\b \cf11 make
 \f1\b0 \cf3  \cf11 new\cf3  
-\f0\i \cf7 album
-\f1\i0 \cf3  \cf11 named\cf3  \cf3 albumName\cf3 \
-			
-\f2\b \cf4 end
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf11 named\cf3  \cf3 trashAlbumName\cf3 \
+		
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 if
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+		\
+		
+\f2\i \cf4 -- create importAlbum
+\f1\i0 \cf3 \
+		
+\f0\b \cf2 if
+\f1\b0 \cf3  
+\f0\b \cf2 not
+\f1\b0 \cf3  (
+\f0\b \cf11 exists
+\f1\b0 \cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 importAlbumName\cf3 ) 
+\f0\b \cf2 then
 \f1\b0 \cf3 \
 			
-\f2\b \cf4 if
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 is
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importAlbum\cf3  
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f2\b \cf4 equal to
-\f1\b0 \cf3  \cf10 true\cf3  
-\f2\b \cf4 then
+\f0\b \cf11 make
+\f1\b0 \cf3  \cf11 new\cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf11 named\cf3  \cf3 importAlbumName\cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+		\
+		
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf3 photo\cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 photos\cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 thePhoto\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 text item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photo\cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 lrId\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 text item
+\f1\i0 \cf3  \cf9 2\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photo\cf3 \
+			
+\f0\b \cf2 local
+\f1\b0 \cf3  \cf3 photosId\cf3 \
+			
+\f0\b \cf2 try
 \f1\b0 \cf3 \
 				
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photosId\cf3  
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f2\b \cf11 import
-\f1\b0 \cf3  \cf3 imageList\cf3  \cf11 into\cf3  
-\f0\i \cf7 container
-\f1\i0 \cf3  \cf3 albumName\cf3 \
+\f2\i \cf7 text item
+\f1\i0 \cf3  \cf9 3\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photo\cf3 \
 			
-\f2\b \cf4 else
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 try
+\f1\b0 \cf3 \
+			\
+			
+\f2\i \cf4 -- if photosId is set, they LR photo was imported before and this should be moved to trashAlbum
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 photosId\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
 \f1\b0 \cf3 \
 				
-\f2\b \cf4 repeat
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 mediaItems\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (
+\f0\b \cf2 every
 \f1\b0 \cf3  
-\f2\b \cf4 with
-\f1\b0 \cf3  \cf3 image\cf3  
-\f2\b \cf4 in
-\f1\b0 \cf3  \cf3 imageList\cf3 \
+\f2\i \cf7 media item
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf10 id\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf3 photosId\cf3 )\
+				
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 mediaItems\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \{\} 
+\f0\b \cf2 then
+\f1\b0 \cf3 \
 					
-\f2\b \cf4 set
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 mediaItem\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 mediaItems\cf3 \
+					
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 shortList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \{\cf3 image\cf3 \}\
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\cf3 mediaItem\cf3 \}\
 					
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf11 import
-\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
-\f0\i \cf7 container
-\f1\i0 \cf3  \cf3 albumName\cf3  
-\f2\b \cf4 with
-\f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+\f0\b \cf11 add
+\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 to\cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 trashAlbum\cf3 \
 				
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 repeat
+\f0\b \cf2 if
 \f1\b0 \cf3 \
 			
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3 \
-		
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 if
-\f1\b0 \cf3 \
-		
-\f0\i \cf2 -- repeat while (class import)
+			
+\f2\i \cf4 -- now we import the LR photo
 \f1\i0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 shortList\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\cf3 thePhoto\cf3 \}\
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf11 import
+\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
+\f2\i \cf7 container
+\f1\i0 \cf3  \cf3 importAlbum\cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \{\} 
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photosId\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 get
+\f1\b0 \cf3  
+\f0\b \cf2 the
+\f1\b0 \cf3  \cf10 id\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  
+\f2\i \cf7 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 mediaList\cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 newEntry\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 thePhoto\cf3  & \cf6 ":"\cf3  & \cf3 lrId\cf3  & \cf6 ":"\cf3  & \cf3 photosId\cf3 \
+				
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf3 newEntry\cf3 \
+				
+\f0\b \cf2 copy
+\f1\b0 \cf3  \cf3 newEntry\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 the
+\f1\b0 \cf3  
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 importedPhotos\cf3 \
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 		
-\f2\b \cf11 delay
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+		
+\f0\b \cf11 delay
 \f1\b0 \cf3  \cf9 2\cf3 \
-		
-\f0\i \cf2 -- end repeat
-\f1\i0 \cf3 \
-		
-\f0\i \cf2 (*\
-		log "images"\
-		repeat with image in imageList\
-			tell application "Finder" to set aName to name of image\
-			log aName\
-		end repeat\
-		log "medias"\
-		repeat with media in mediaList\
-			log (get the filename of media)\
-		end repeat\
-		log (count of mediaList)\
-		*)
-\f1\i0 \cf3 \
 	
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 tell
+\f0\b \cf2 tell
 \f1\b0 \cf3 \
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 AppleScript's\cf3  \cf10 text item delimiters\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf6 " "\cf3 \
+	
+\f0\b \cf2 return
+\f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  \cf5 import\cf3 \
 \
 \
 
-\f0\i \cf2 -- Update status flag in session file to tell Lightroom we are finished here
+\f2\i \cf4 -- Update status flag in session file to tell Lightroom we are finished here
 \f1\i0 \cf3 \
 
-\f2\b \cf4 on
-\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 )\
 	
-\f2\b \cf8 open for access
+\f0\b \cf8 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
-\f2\b \cf4 with
+\f0\b \cf2 with
 \f1\b0 \cf3  \cf8 write permission\cf3 \
 	
-\f2\b \cf8 set eof
+\f0\b \cf8 set eof
 \f1\b0 \cf3  
-\f2\b \cf4 of
+\f0\b \cf2 of
 \f1\b0 \cf3  \cf3 sessionFile\cf3  \cf8 to\cf3  \cf9 0\cf3 \
 	
-\f2\b \cf8 write
+\f0\b \cf8 write
 \f1\b0 \cf3  \cf6 "album_name="\cf3  & \cf3 albumName\cf3  & \cf6 "\
-\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
-\cf6 export_done=true"\cf3  & \cf6 "\
-\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
-\cf6 check_duplicates="\cf3  & \cf3 checkDuplicates\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
+export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 	
-\f2\b \cf8 close access
+\f0\b \cf8 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  \cf5 updateSessionFile\cf3 \
-\
 
-\f0\i \cf2 --
+\f2\i \cf4 --
 \f1\i0 \cf3 \
 
-\f2\b \cf4 on
-\f1\b0 \cf3  \cf5 getImageList\cf3 (\cf3 aFolder\cf3 )\
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf5 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
 	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 extensionsList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \{\cf6 "jpg"\cf3 , \cf6 "png"\cf3 , \cf6 "tiff"\cf3 , \cf6 "JPG"\cf3 , \cf6 "jpeg"\cf3 , \cf6 "gif"\cf3 , \cf6 "JPEG"\cf3 , \cf6 "PNG"\cf3 , \cf6 "TIFF"\cf3 , \cf6 "GIF"\cf3 , \cf6 "MOV"\cf3 , \cf6 "mov"\cf3 , \cf6 "MP4"\cf3 , \cf6 "mp4"\cf3 , \cf6 "M4V"\cf3 , \cf6 "m4v"\cf3 , \cf6 "MPG"\cf3 , \cf6 "mpg"\cf3 , \cf6 "BMP"\cf3 , \cf6 "bmp"\cf3 , \cf6 "TIF"\cf3 , \cf6 "tif"\cf3 , \cf6 "AVI"\cf3 , \cf6 "avi"\cf3 , \cf6 "PSD"\cf3 , \cf6 "psd"\cf3 , \cf6 "ai"\cf3 , \cf6 "AI"\cf3 , \cf6 "orf"\cf3 , \cf6 "ORF"\cf3 , \cf6 "nef"\cf3 , \cf6 "NEF"\cf3 , \cf6 "crw"\cf3 , \cf6 "CRW"\cf3 , \cf6 "cr2"\cf3 , \cf6 "CR2"\cf3 , \cf6 "dng"\cf3 , \cf6 "DNG"\cf3 , \cf6 "PEF"\cf3 \}\
+\f0\b \cf8 open for access
+\f1\b0 \cf3  \cf3 photosFile\cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf8 write permission\cf3 \
 	
-\f2\b \cf4 with
+\f0\b \cf8 set eof
 \f1\b0 \cf3  
-\f2\b \cf4 timeout
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 photosFile\cf3  \cf8 to\cf3  \cf9 0\cf3 \
+	
+\f0\b \cf2 repeat
 \f1\b0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  (\cf9 30\cf3  * \cf9 60\cf3 ) 
-\f0\i \cf7 seconds
-\f1\i0 \cf3 \
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf3 thePhoto\cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 		
-\f2\b \cf4 tell
-\f1\b0 \cf3  
-\f0\i \cf7 application
-\f1\i0 \cf3  \cf6 "Finder"\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 theFiles\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f2\b \cf4 every
-\f1\b0 \cf3  
-\f0\i \cf7 file
-\f1\i0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 aFolder\cf3  
-\f2\b \cf4 whose
-\f1\b0 \cf3  \cf10 name extension\cf3  
-\f2\b \cf4 is
-\f1\b0 \cf3  
-\f2\b \cf4 in
-\f1\b0 \cf3  \cf3 extensionsList\cf3 \
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf3 thePhoto\cf3 \
+		
+\f0\b \cf8 write
+\f1\b0 \cf3  \cf3 thePhoto\cf3  \cf8 to\cf3  \cf3 photosFile\cf3 \
 	
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 timeout
+\f0\b \cf2 repeat
 \f1\b0 \cf3 \
 	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 imageList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \{\}\
-	
-\f2\b \cf4 repeat
-\f1\b0 \cf3  
-\f2\b \cf4 with
-\f1\b0 \cf3  \cf3 i\cf3  
-\f2\b \cf4 from
-\f1\b0 \cf3  \cf9 1\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f0\i \cf7 number
-\f1\i0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  
-\f0\i \cf7 items
-\f1\i0 \cf3  
-\f2\b \cf4 in
-\f1\b0 \cf3  \cf3 theFiles\cf3 \
-		
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 thisItem\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  
-\f0\i \cf7 item
-\f1\i0 \cf3  \cf3 i\cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 theFiles\cf3  
-\f2\b \cf4 as
-\f1\b0 \cf3  
-\f0\i \cf7 alias
-\f1\i0 \cf3 \
-		
-\f2\b \cf4 set
-\f1\b0 \cf3  
-\f2\b \cf4 the
-\f1\b0 \cf3  
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 of
-\f1\b0 \cf3  \cf3 imageList\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf3 thisItem\cf3 \
-	
-\f2\b \cf4 end
-\f1\b0 \cf3  
-\f2\b \cf4 repeat
-\f1\b0 \cf3 \
-	\
-	\cf3 imageList\cf3 \
+\f0\b \cf8 close access
+\f1\b0 \cf3  \cf3 photosFile\cf3 \
 
-\f2\b \cf4 end
-\f1\b0 \cf3  \cf5 getImageList\cf3 \
-\
+\f0\b \cf2 end
+\f1\b0 \cf3  \cf5 updatePhotosFile\cf3 \
+
+\f2\i \cf4 --
+\f1\i0 \cf3 \
 \
 
-\f0\i \cf2 -- Run the import script
+\f2\i \cf4 -- Run the import script
 \f1\i0 \cf3 \
 
-\f2\b \cf4 on
+\f0\b \cf2 on
 \f1\b0 \cf3  
-\f2\b \cf11 run
+\f0\b \cf11 run
 \f1\b0 \cf3  \cf3 argv\cf3 \
 	
-\f2\b \cf4 if
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importAlbumName\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf6 "Import (LRPhotos)"\cf3 \
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 trashAlbumName\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf6 "Trash (LRPhotos)"\cf3 \
+	\
+	
+\f0\b \cf2 if
 \f1\b0 \cf3  (\cf3 argv\cf3  = 
-\f2\b \cf4 me
+\f0\b \cf2 me
 \f1\b0 \cf3 ) 
-\f2\b \cf4 then
+\f0\b \cf2 then
 \f1\b0 \cf3 \
 		
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 argv\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Temp/aaa"\cf3 \}\
 	
-\f2\b \cf4 end
+\f0\b \cf2 end
 \f1\b0 \cf3  
-\f2\b \cf4 if
+\f0\b \cf2 if
 \f1\b0 \cf3 \
 	
-\f0\i \cf2 -- Read the directory from the input and define the session file
+\f2\i \cf4 -- Read the directory from the input and define the session file
 \f1\i0 \cf3 \
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 tempFolder\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  
-\f0\i \cf7 item
+\f2\i \cf7 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f2\b \cf4 of
+\f0\b \cf2 of
 \f1\b0 \cf3  \cf3 argv\cf3 \
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf6 "/session.txt"\cf3 \
 	
-\f0\i \cf2 -- Scan the session file for an album name
+\f2\i \cf4 -- Scan the session file for an album name
 \f1\i0 \cf3 \
 	
-\f2\b \cf8 open for access
+\f0\b \cf8 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 sessionContents\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  (
-\f2\b \cf8 read
+\f0\b \cf8 read
 \f1\b0 \cf3  \cf3 sessionFile\cf3 )\
 	
-\f2\b \cf8 close access
+\f0\b \cf8 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
-	
-\f2\b \cf4 set
-\f1\b0 \cf3  \cf3 checkDuplicates\cf3  
-\f2\b \cf4 to
-\f1\b0 \cf3  \cf5 extractCheckDuplicates\cf3 (\cf3 sessionContents\cf3 )\
 	\
 	
-\f2\b \cf4 set
+\f0\b \cf2 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f2\b \cf4 to
+\f0\b \cf2 to
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 (\cf3 sessionContents\cf3 )\
-	\cf5 import\cf3 (\cf3 tempFolder\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
-	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 checkDuplicates\cf3 )\
-
-\f2\b \cf4 end
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 albumName\cf3  
+\f0\b \cf2 is
 \f1\b0 \cf3  
-\f2\b \cf11 run
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3  
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importAlbumName\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 albumName\cf3 \
+	\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photosFile\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf6 "/photos.txt"\cf3 \
+	
+\f0\b \cf8 open for access
+\f1\b0 \cf3  \cf3 photosFile\cf3 \
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photosContents\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (
+\f0\b \cf8 read
+\f1\b0 \cf3  \cf3 photosFile\cf3 )\
+	
+\f0\b \cf8 close access
+\f1\b0 \cf3  \cf3 photosFile\cf3 \
+	\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 photos\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf5 extractPhotos\cf3 (\cf3 photosContents\cf3 )\
+	\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importedPhotos\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf5 import\cf3 (\cf3 photos\cf3 , \cf3 albumName\cf3 )\
+	\cf5 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
+	\
+	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 )\
+
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf11 run
 \f1\b0 \cf3 \
 }
