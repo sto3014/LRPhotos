@@ -12,8 +12,7 @@
 
 \f0\b\fs24 \cf2 global
 \f1\b0 \cf3  \cf3 importAlbumName\cf3 , \cf3 trashAlbumName\cf3 \
-\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
-\cf3 \
+\
 \
 
 \f2\i \cf4 -- Extract the album name from the session file
@@ -107,6 +106,233 @@
 \f0\b \cf2 end
 \f1\b0 \cf3  \cf5 extractAlbumName\cf3 \
 \
+
+\f2\i \cf4 --
+\f1\i0 \cf3 \
+
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf5 trimThis\cf3 (\cf3 pstrSourceText\cf3 , \cf3 pstrCharToTrim\cf3 , \cf3 pstrTrimDirection\cf3 )\
+	
+\f2\i \cf4 -- http://macscripter.net/viewtopic.php?id=18519
+\f1\i0 \cf3 \
+	
+\f2\i \cf4 -- pstrSourceText : The text to be trimmed
+\f1\i0 \cf3 \
+	
+\f2\i \cf4 -- pstrCharToTrim     : A list of characters to trim, or true to use default
+\f1\i0 \cf3 \
+	
+\f2\i \cf4 -- pstrTrimDirection : Direction of Trim left, right or any value for full
+\f1\i0 \cf3 \
+	\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 strTrimedText\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 pstrSourceText\cf3 \
+	\
+	
+\f2\i \cf4 -- If undefinied use default whitespaces
+\f1\i0 \cf3 \
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf7 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 or
+\f1\b0 \cf3  
+\f2\i \cf7 class
+\f1\i0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 not
+\f1\b0 \cf3  
+\f2\i \cf7 list
+\f1\i0 \cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+		
+\f2\i \cf4 -- trim tab, newline, return and all the unicode characters from the 'separator space' category
+\f1\i0 \cf3 \
+		
+\f2\i \cf4 -- [url]http://www.fileformat.info/info/unicode/category/Zs/list.htm[/url]
+\f1\i0 \cf3 \
+		
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\cf10 tab\cf3 , \cf10 linefeed\cf3 , \cf10 return\cf3 , \cf10 space\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 160\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 5760\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8192\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8193\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8194\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8195\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8196\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8197\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8198\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8199\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8200\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8201\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8202\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8239\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 8287\cf3 , 
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf10 id\cf3  \cf9 12288\cf3 \}\
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+	\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 lLoc\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf9 1\cf3 \
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 rLoc\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf11 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 strTrimedText\cf3 \
+	\
+	
+\f2\i \cf4 --- From left to right, get location of first non-whitespace character
+\f1\i0 \cf3 \
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 pstrTrimDirection\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 not
+\f1\b0 \cf3  \cf10 right\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 until
+\f1\b0 \cf3  \cf3 lLoc\cf3  = (\cf3 rLoc\cf3  + \cf9 1\cf3 ) 
+\f0\b \cf2 or
+\f1\b0 \cf3  
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf3 lLoc\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 strTrimedText\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 pstrCharToTrim\cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 lLoc\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 lLoc\cf3  + \cf9 1\cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+	\
+	
+\f2\i \cf4 -- From right to left, get location of first non-whitespace character
+\f1\i0 \cf3 \
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 pstrTrimDirection\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 not
+\f1\b0 \cf3  \cf10 left\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 until
+\f1\b0 \cf3  \cf3 rLoc\cf3  = \cf9 0\cf3  
+\f0\b \cf2 or
+\f1\b0 \cf3  
+\f2\i \cf7 character
+\f1\i0 \cf3  \cf3 rLoc\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 strTrimedText\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 pstrCharToTrim\cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 rLoc\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 rLoc\cf3  - \cf9 1\cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+	\
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 lLoc\cf3  \uc0\u8805  \cf3 rLoc\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 return
+\f1\b0 \cf3  \cf6 ""\cf3 \
+	
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 return
+\f1\b0 \cf3  
+\f2\i \cf7 text
+\f1\i0 \cf3  \cf3 lLoc\cf3  
+\f0\b \cf2 thru
+\f1\b0 \cf3  \cf3 rLoc\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 strTrimedText\cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+
+\f0\b \cf2 end
+\f1\b0 \cf3  \cf5 trimThis\cf3 \
 \
 
 \f2\i \cf4 -- Extract photos from the photos file
@@ -138,6 +364,23 @@
 \f0\b \cf2 in
 \f1\b0 \cf3  \cf3 allLines\cf3 \
 		
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf5 trimThis\cf3 (\cf3 aLine\cf3 , \cf10 true\cf3 , \cf10 true\cf3 )\
+		
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf3 aLine\cf3 \
+		
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 aLine\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+			
 \f0\b \cf2 copy
 \f1\b0 \cf3  \cf3 aLine\cf3  
 \f0\b \cf2 to
@@ -148,6 +391,11 @@
 \f1\b0 \cf3  
 \f0\b \cf2 of
 \f1\b0 \cf3  \cf3 photos\cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 	
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -190,13 +438,21 @@
 		
 \f0\b \cf2 if
 \f1\b0 \cf3  
-\f0\b \cf2 not
-\f1\b0 \cf3  (
 \f0\b \cf11 exists
 \f1\b0 \cf3  
 \f2\i \cf7 album
-\f1\i0 \cf3  \cf3 trashAlbumName\cf3 ) 
+\f1\i0 \cf3  \cf3 trashAlbumName\cf3  
 \f0\b \cf2 then
+\f1\b0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 trashAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 trashAlbumName\cf3 \
+		
+\f0\b \cf2 else
 \f1\b0 \cf3 \
 			
 \f0\b \cf2 set
@@ -219,13 +475,21 @@
 		
 \f0\b \cf2 if
 \f1\b0 \cf3  
-\f0\b \cf2 not
-\f1\b0 \cf3  (
 \f0\b \cf11 exists
 \f1\b0 \cf3  
 \f2\i \cf7 album
-\f1\i0 \cf3  \cf3 importAlbumName\cf3 ) 
+\f1\i0 \cf3  \cf3 importAlbumName\cf3  
 \f0\b \cf2 then
+\f1\b0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 importAlbumName\cf3 \
+		
+\f0\b \cf2 else
 \f1\b0 \cf3 \
 			
 \f0\b \cf2 set
@@ -241,23 +505,31 @@
 \f1\b0 \cf3  
 \f0\b \cf2 if
 \f1\b0 \cf3 \
-		\
+		
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf3 importAlbum\cf3 \
 		
 \f0\b \cf2 repeat
 \f1\b0 \cf3  
 \f0\b \cf2 with
-\f1\b0 \cf3  \cf3 photo\cf3  
+\f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3  
 \f0\b \cf2 in
 \f1\b0 \cf3  \cf3 photos\cf3 \
 			
+\f2\i \cf4 -- the file path
+\f1\i0 \cf3 \
+			
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 thePhoto\cf3  
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f2\i \cf7 text item
 \f1\i0 \cf3  \cf9 1\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 photo\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
+			
+\f2\i \cf4 -- the LR id. Not used here, but necessary for the way back to LR
+\f1\i0 \cf3 \
 			
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 lrId\cf3  
@@ -266,7 +538,22 @@
 \f2\i \cf7 text item
 \f1\i0 \cf3  \cf9 2\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 photo\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
+			
+\f2\i \cf4 -- used as keyword
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 lrCat\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 text item
+\f1\i0 \cf3  \cf9 3\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
+			
+\f2\i \cf4 -- existing Photos id, if it is an update.
+\f1\i0 \cf3 \
 			
 \f0\b \cf2 local
 \f1\b0 \cf3  \cf3 photosId\cf3 \
@@ -279,9 +566,9 @@
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f2\i \cf7 text item
-\f1\i0 \cf3  \cf9 3\cf3  
+\f1\i0 \cf3  \cf9 4\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 photo\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
 			
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -289,7 +576,7 @@
 \f1\b0 \cf3 \
 			\
 			
-\f2\i \cf4 -- if photosId is set, they LR photo was imported before and this should be moved to trashAlbum
+\f2\i \cf4 -- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
 \f1\i0 \cf3 \
 			
 \f0\b \cf2 if
@@ -300,6 +587,23 @@
 \f1\b0 \cf3  \cf6 ""\cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theseNames\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 name\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  (
+\f2\i \cf7 albums
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf10 id\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  
+\f2\i \cf7 media items
+\f1\i0 \cf3  
+\f0\b \cf2 contains
+\f1\b0 \cf3  \cf3 photosId\cf3 )\
 				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 mediaItems\cf3  
@@ -342,7 +646,7 @@
 \f0\b \cf11 add
 \f1\b0 \cf3  \cf3 shortList\cf3  \cf11 to\cf3  
 \f2\i \cf7 album
-\f1\i0 \cf3  \cf3 trashAlbum\cf3 \
+\f1\i0 \cf3  \cf3 trashAlbumName\cf3 \
 				
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -357,11 +661,26 @@
 \f2\i \cf4 -- now we import the LR photo
 \f1\i0 \cf3 \
 			
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3 \
+			
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 shortList\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \{\cf3 thePhoto\cf3 \}\
+\f1\b0 \cf3  \{\cf3 thePhotoFile\cf3 \}\
 			
+\f0\b \cf11 log
+\f1\b0 \cf3  \cf6 "The file: "\cf3  & \cf3 thePhotoFile\cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 photosId\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 mediaList\cf3  
 \f0\b \cf2 to
@@ -369,9 +688,28 @@
 \f0\b \cf11 import
 \f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
 \f2\i \cf7 container
-\f1\i0 \cf3  \cf3 importAlbum\cf3  
+\f1\i0 \cf3  \cf3 importAlbumName\cf3  
 \f0\b \cf2 with
 \f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+			
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf11 import
+\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
+\f2\i \cf7 container
+\f1\i0 \cf3  \cf3 importAlbumName\cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 			
 \f0\b \cf2 if
 \f1\b0 \cf3  \cf3 mediaList\cf3  
@@ -381,6 +719,80 @@
 \f1\b0 \cf3  \{\} 
 \f0\b \cf2 then
 \f1\b0 \cf3 \
+				\
+				
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 with
+\f1\b0 \cf3  \cf3 albumName\cf3  
+\f0\b \cf2 in
+\f1\b0 \cf3  \cf3 theseNames\cf3 \
+				
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+				\
+				
+\f2\i \cf4 -- set the keywords
+\f1\i0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 newKeywords\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\cf6 "lrCat-"\cf3  & \cf3 lrCat\cf3 \}\
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf7 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 mediaList\cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theseKeywords\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 the
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 theMedia\cf3 \
+				
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 theseKeywords\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf7 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 newKeywords\cf3 \
+				
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (\cf3 theseKeywords\cf3  & \cf3 newKeywords\cf3 )\
+				
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+				
+\f2\i \cf4 -- get the id for LR
+\f1\i0 \cf3 \
 				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 photosId\cf3  
@@ -400,7 +812,7 @@
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 newEntry\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \cf3 thePhoto\cf3  & \cf6 ":"\cf3  & \cf3 lrId\cf3  & \cf6 ":"\cf3  & \cf3 photosId\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf6 ":"\cf3  & \cf3 lrId\cf3  & \cf6 ":"\cf3  & \cf3 lrCat\cf3  & \cf6 ":"\cf3  & \cf3 photosId\cf3 \
 				
 \f0\b \cf11 log
 \f1\b0 \cf3  \cf3 newEntry\cf3 \
@@ -492,15 +904,16 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f0\b \cf2 repeat
 \f1\b0 \cf3  
 \f0\b \cf2 with
-\f1\b0 \cf3  \cf3 thePhoto\cf3  
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  
 \f0\b \cf2 in
 \f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 		
 \f0\b \cf11 log
-\f1\b0 \cf3  \cf3 thePhoto\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3 \
 		
 \f0\b \cf8 write
-\f1\b0 \cf3  \cf3 thePhoto\cf3  \cf8 to\cf3  \cf3 photosFile\cf3 \
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf6 "\
+"\cf3  \cf8 to\cf3  \cf3 photosFile\cf3 \
 	
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -546,7 +959,7 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 argv\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Temp/aaa"\cf3 \}\
+\f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Pictures/LRPhotos"\cf3 \}\
 	
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -594,7 +1007,7 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 	
 \f0\b \cf2 if
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f0\b \cf2 is
+\f0\b \cf2 is not
 \f1\b0 \cf3  
 \f0\b \cf2 equal to
 \f1\b0 \cf3  \cf6 ""\cf3  
@@ -604,6 +1017,7 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f1\b0 \cf3  \cf3 importAlbumName\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf3 albumName\cf3 \
+	\
 	\
 	
 \f0\b \cf2 set

@@ -1,5 +1,0 @@
-"$$$/iPhotoExportService/Title=iPhoto"
-"$$$/iPhotoExportService/CreateAlbum=Nouveau Album:"
-"$$$/iPhotoExportService/UnknownAlbum=De Lightroom"
-"$$$/iPhotoExportService/ProgressMany=Importation de ^1 photos dans Photos"
-"$$$/iPhotoExportService/ProgressOne=Importation de une photo dans Photos"

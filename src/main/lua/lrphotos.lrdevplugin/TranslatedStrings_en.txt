@@ -3,3 +3,4 @@
 "$$$/iPhotoExportService/UnknownAlbum=From Lightroom"
 "$$$/iPhotoExportService/ProgressMany=Importing ^1 photos in Photos"
 "$$$/iPhotoExportService/ProgressOne=Importing one photo in Photos"
+"$$$/Photos/Metadata/Fields/PhotosId=Photos ID"

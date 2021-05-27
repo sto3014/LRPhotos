@@ -10,7 +10,8 @@ require 'PhotosUploadExportDialogSections'
 require 'PhotosImportTask'
 
 return {
-  hideSections = { 'exportLocation', 'postProcessing' },
+  -- hideSections = { 'exportLocation', 'postProcessing' },
+  hideSections = {  'postProcessing' },
   canExportVideo = true,
 
   exportPresetFields = {

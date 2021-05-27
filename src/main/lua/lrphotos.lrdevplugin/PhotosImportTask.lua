@@ -4,10 +4,23 @@
 -----------------------------------------------------------------------------]]--
 
 local LrPathUtils = import 'LrPathUtils'
+local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local logger = require("Logger")
+require ("PluginInit")
 
 iPhotoImportTask = {}
+
+local function split (inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={}
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
 
 function iPhotoImportTask.processRenderedPhotos(_, exportContext)
 
@@ -37,7 +50,13 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
         end -- Check for cancellation again after photo has been rendered
         if success then
             table.insert(files, pathOrMessage)
-            table.insert(photoIDs,pathOrMessage .. ":" .. photo.localIdentifier .. ":")
+            local lrcatName = LrPathUtils.leafName( LrPathUtils.removeExtension(photo.catalog:getPath()))
+
+            local pID = photo:getPropertyForPlugin(PluginInit.pluginID, 'photosId')
+            if ( pID == nil) then
+                pID = ""
+            end
+            table.insert(photoIDs,pathOrMessage .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID)
         end
 
     end
@@ -47,7 +66,6 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
     -- Write Lightroom input to a session.txt file for AppleScript later on
     local f = assert(io.open(path .. "/session.txt", "w+"))
     f:write("export_done=false\n")
-    f:write("check_duplicates=false\n")
     if exportParams.createAlbum == true then
         f:write("album_name=" .. exportParams.album .. "\n")
     end
@@ -56,7 +74,7 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
     local g = assert(io.open(path .. "/photos.txt", "w+"))
     for _, photoID in ipairs(photoIDs) do
         logger.trace(photoID)
-        g:write(photoID)
+        g:write(photoID .. "\n")
     end
     g:close()
 
@@ -77,5 +95,25 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
         end
         f:close()
     end
+
+    local activeCatalog = LrApplication.activeCatalog()
+
+    local f = assert(io.open(path .. "/photos.txt", "r"))
+
+    activeCatalog:withWriteAccessDo("Set photos ID", function()
+        for line in f:lines() do
+            logger.trace("Line: " .. line)
+            local tokens = split( line, ":")
+            logger.trace("LrID: " .. tokens[2])
+            local photo = activeCatalog:findPhotoByUuid(tokens[2])
+            logger.trace("Photo: " .. tostring(photo))
+            if ( photo ~= nil) then
+                logger.trace("PhotosID: " .. tokens[4])
+                photo:setPropertyForPlugin(_PLUGIN, 'photosId', tokens[4])
+            end
+        end
+    end)
+    f:close()
+
 
 end
