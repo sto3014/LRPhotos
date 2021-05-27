@@ -552,11 +552,13 @@
 \f0\b \cf2 of
 \f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
 			
-\f2\i \cf4 -- existing Photos id, if it is an update.
+\f2\i \cf4 -- if exists a Photos id, it is an update.
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 local
-\f1\b0 \cf3  \cf3 photosId\cf3 \
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 false\cf3 \
 			
 \f0\b \cf2 try
 \f1\b0 \cf3 \
@@ -569,6 +571,11 @@
 \f1\i0 \cf3  \cf9 4\cf3  
 \f0\b \cf2 of
 \f1\b0 \cf3  \cf3 thePhotoDescriptor\cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 true\cf3 \
 			
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -576,37 +583,29 @@
 \f1\b0 \cf3 \
 			\
 			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 previousAlbumNames\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\}\
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 mediaItems\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \{\}\
+			\
+			
 \f2\i \cf4 -- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
 \f1\i0 \cf3 \
 			
 \f0\b \cf2 if
-\f1\b0 \cf3  \cf3 photosId\cf3  
-\f0\b \cf2 is not
-\f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf10 true\cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
 				
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 theseNames\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf10 name\cf3  
-\f0\b \cf2 of
-\f1\b0 \cf3  (
-\f2\i \cf7 albums
-\f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf10 id\cf3  
-\f0\b \cf2 of
-\f1\b0 \cf3  
-\f2\i \cf7 media items
-\f1\i0 \cf3  
-\f0\b \cf2 contains
-\f1\b0 \cf3  \cf3 photosId\cf3 )\
-				
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf3 mediaItems\cf3  
+\f1\b0 \cf3  \cf3 previousPhotos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  (
 \f0\b \cf2 every
@@ -621,32 +620,107 @@
 \f1\b0 \cf3  \cf3 photosId\cf3 )\
 				
 \f0\b \cf2 if
-\f1\b0 \cf3  \cf3 mediaItems\cf3  
-\f0\b \cf2 is not
+\f1\b0 \cf3  (
+\f0\b \cf11 count
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \{\} 
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 previousPhotos\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
 					
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 mediaItem\cf3  
+\f1\b0 \cf3  \cf3 previousAlbumNames\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 name\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  (
+\f2\i \cf7 albums
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf10 id\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  
+\f2\i \cf7 media items
+\f1\i0 \cf3  
+\f0\b \cf2 contains
+\f1\b0 \cf3  \cf3 photosId\cf3 )\
+					
+\f0\b \cf11 add
+\f1\b0 \cf3  \cf3 previousPhotos\cf3  \cf11 to\cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 trashAlbumName\cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f2\i \cf7 item
 \f1\i0 \cf3  \cf9 1\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 mediaItems\cf3 \
+\f1\b0 \cf3  \cf3 previousPhotos\cf3 \
+					
+\f2\i \cf4 -- set the photo out-of-date
+\f1\i0 \cf3 \
 					
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 shortList\cf3  
+\f1\b0 \cf3  \cf3 newKeywords\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \{\cf3 mediaItem\cf3 \}\
+\f1\b0 \cf3  \{\cf6 "lr:out-of-date"\cf3 \}\
 					
-\f0\b \cf11 add
-\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 to\cf3  
-\f2\i \cf7 album
-\f1\i0 \cf3  \cf3 trashAlbumName\cf3 \
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theseKeywords\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 the
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 thePreviousPhoto\cf3 \
+					
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 theseKeywords\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf7 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+						
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf3 newKeywords\cf3 \
+					
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+						
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf10 keywords\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (\cf3 theseKeywords\cf3  & \cf3 newKeywords\cf3 )\
+					
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+					
+\f2\i \cf4 -- happens if photos were deleted
+\f1\i0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 false\cf3 \
 				
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -657,50 +731,50 @@
 \f1\b0 \cf3  
 \f0\b \cf2 if
 \f1\b0 \cf3 \
+			
+\f2\i \cf4 --
+\f1\i0 \cf3 \
 			
 \f2\i \cf4 -- now we import the LR photo
 \f1\i0 \cf3 \
 			
 \f0\b \cf11 log
-\f1\b0 \cf3  \cf3 thePhotoFile\cf3 \
-			
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf3 shortList\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \{\cf3 thePhotoFile\cf3 \}\
-			
-\f0\b \cf11 log
 \f1\b0 \cf3  \cf6 "The file: "\cf3  & \cf3 thePhotoFile\cf3 \
 			
 \f0\b \cf2 if
-\f1\b0 \cf3  \cf3 photosId\cf3  
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
 \f0\b \cf2 is
-\f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
+\f1\b0 \cf3  \cf10 true\cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
 				
+\f2\i \cf4 -- on update, the standard album must me ignored. 
+\f1\i0 \cf3 \
+				
+\f2\i \cf4 -- later it will  added to the albums of the previous photo version
+\f1\i0 \cf3 \
+				
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f1\b0 \cf3  \cf3 newPhotos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f0\b \cf11 import
-\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
-\f2\i \cf7 container
-\f1\i0 \cf3  \cf3 importAlbumName\cf3  
+\f1\b0 \cf3  \{\cf3 thePhotoFile\cf3 \} 
 \f0\b \cf2 with
 \f1\b0 \cf3  \cf11 skip check duplicates\cf3 \
 			
 \f0\b \cf2 else
 \f1\b0 \cf3 \
 				
+\f2\i \cf4 -- if new, it goes into the standard album
+\f1\i0 \cf3 \
+				
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 mediaList\cf3  
+\f1\b0 \cf3  \cf3 newPhotos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f0\b \cf11 import
-\f1\b0 \cf3  \cf3 shortList\cf3  \cf11 into\cf3  
+\f1\b0 \cf3  \{\cf3 thePhotoFile\cf3 \} \cf11 into\cf3  
 \f2\i \cf7 container
 \f1\i0 \cf3  \cf3 importAlbumName\cf3  
 \f0\b \cf2 with
@@ -711,45 +785,76 @@
 \f0\b \cf2 if
 \f1\b0 \cf3 \
 			
+\f2\i \cf4 --
+\f1\i0 \cf3 \
+			
+\f2\i \cf4 -- put it into the previous albums
+\f1\i0 \cf3 \
+			
 \f0\b \cf2 if
-\f1\b0 \cf3  \cf3 mediaList\cf3  
-\f0\b \cf2 is not
-\f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \{\} 
+\f1\b0 \cf3  \cf3 isUpdate\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf10 true\cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
-				\
 				
 \f0\b \cf2 repeat
 \f1\b0 \cf3  
 \f0\b \cf2 with
 \f1\b0 \cf3  \cf3 albumName\cf3  
 \f0\b \cf2 in
-\f1\b0 \cf3  \cf3 theseNames\cf3 \
+\f1\b0 \cf3  \cf3 previousAlbumNames\cf3 \
+					
+\f0\b \cf11 add
+\f1\b0 \cf3  \cf3 newPhotos\cf3  \cf11 to\cf3  
+\f2\i \cf7 album
+\f1\i0 \cf3  \cf3 albumName\cf3 \
 				
 \f0\b \cf2 end
 \f1\b0 \cf3  
 \f0\b \cf2 repeat
 \f1\b0 \cf3 \
-				\
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+			
+\f2\i \cf4 --  
+\f1\i0 \cf3 \
+			
+\f2\i \cf4 -- Update metadata
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf11 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 newPhotos\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
 				
-\f2\i \cf4 -- set the keywords
+\f2\i \cf4 -- set the name of the LR catalog file
 \f1\i0 \cf3 \
 				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 newKeywords\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "lrCat-"\cf3  & \cf3 lrCat\cf3 \}\
+\f1\b0 \cf3  \{\cf6 "lr:"\cf3  & \cf3 lrCat\cf3  & \cf6 ".lrcat"\cf3 \}\
 				
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f1\b0 \cf3  \cf3 theNewPhoto\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f2\i \cf7 item
 \f1\i0 \cf3  \cf9 1\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 mediaList\cf3 \
+\f1\b0 \cf3  \cf3 newPhotos\cf3 \
 				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
@@ -758,7 +863,7 @@
 \f0\b \cf2 the
 \f1\b0 \cf3  \cf10 keywords\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 theMedia\cf3 \
+\f1\b0 \cf3  \cf3 theNewPhoto\cf3 \
 				
 \f0\b \cf2 if
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
@@ -772,7 +877,7 @@
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf10 keywords\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f1\b0 \cf3  \cf3 theNewPhoto\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf3 newKeywords\cf3 \
 				
@@ -782,7 +887,7 @@
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf10 keywords\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  \cf3 theMedia\cf3  
+\f1\b0 \cf3  \cf3 theNewPhoto\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  (\cf3 theseKeywords\cf3  & \cf3 newKeywords\cf3 )\
 				
@@ -791,7 +896,7 @@
 \f0\b \cf2 if
 \f1\b0 \cf3 \
 				
-\f2\i \cf4 -- get the id for LR
+\f2\i \cf4 -- store the id for LR
 \f1\i0 \cf3 \
 				
 \f0\b \cf2 set
@@ -803,11 +908,7 @@
 \f0\b \cf2 the
 \f1\b0 \cf3  \cf10 id\cf3  
 \f0\b \cf2 of
-\f1\b0 \cf3  
-\f2\i \cf7 item
-\f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
-\f1\b0 \cf3  \cf3 mediaList\cf3 \
+\f1\b0 \cf3  \cf3 theNewPhoto\cf3 \
 				
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 newEntry\cf3  
