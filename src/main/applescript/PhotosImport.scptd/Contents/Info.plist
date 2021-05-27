@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>at.homebrew.PhotosImport</string>
+	<string>com.mycompany.PhotosImport</string>
 	<key>CFBundleName</key>
 	<string>PhotosImport</string>
 	<key>CFBundleShortVersionString</key>
