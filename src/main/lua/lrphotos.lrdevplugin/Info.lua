@@ -13,10 +13,5 @@ return {
     title = "Photos",  -- this string appears as the export destination
     file = "PhotosServiceProvider.lua",
   },
-  --[[
-    LrExportServiceProvider = {
-      title = "Photos", -- this string appears in the Publish Services panel
-      file = "PhotosServiceProvider.lua", -- the service definition script
-    },
-    ]]--
+
 }

@@ -6,6 +6,8 @@
 local LrPathUtils = import 'LrPathUtils'
 local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
+local LrDialogs = import 'LrDialogs'
+
 local logger = require("Logger")
 require ("PluginInit")
 
@@ -83,7 +85,9 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
     LrTasks.execute(importer_command)
 
     local done = false
-    while done ~= true do
+    local hasErrors = false
+    local errorMsg = ""
+    while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
         local f = assert(io.open(path .. "/session.txt", "r"))
         for line in f:lines() do
@@ -91,9 +95,21 @@ function iPhotoImportTask.processRenderedPhotos(_, exportContext)
             if string.find(line, 'export_done=true') then
                 done = true
                 break
+            else
+                if string.find(line, 'hasErrors=true') then
+                    hasErrors = true
+                else
+                    if string.find(line, 'errorMsg=') then
+                        errorMsg = string.sub(line, 10)
+                    end
+                end
             end
         end
         f:close()
+    end
+    if ( hasErrors) then
+        LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+        return
     end
 
     local activeCatalog = LrApplication.activeCatalog()

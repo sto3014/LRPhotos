@@ -12,7 +12,8 @@
 
 \f0\b\fs24 \cf2 global
 \f1\b0 \cf3  \cf3 importAlbumName\cf3 , \cf3 trashAlbumName\cf3 \
-\
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
+\cf3 \
 \
 
 \f2\i \cf4 -- Extract the album name from the session file
@@ -805,10 +806,24 @@
 \f0\b \cf2 in
 \f1\b0 \cf3  \cf3 previousAlbumNames\cf3 \
 					
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 albumName\cf3  
+\f0\b \cf2 does not
+\f1\b0 \cf3  
+\f0\b \cf2 start with
+\f1\b0 \cf3  \cf6 "LR:"\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+						
 \f0\b \cf11 add
 \f1\b0 \cf3  \cf3 newPhotos\cf3  \cf11 to\cf3  
 \f2\i \cf7 album
 \f1\i0 \cf3  \cf3 albumName\cf3 \
+					
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 				
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -964,12 +979,37 @@
 \f1\i0 \cf3 \
 
 \f0\b \cf2 on
-\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 )\
+\f1\b0 \cf3  \cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 hasErrors\cf3 , \cf3 errorMsg\cf3 )\
 	
 \f0\b \cf8 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
 \f0\b \cf2 with
 \f1\b0 \cf3  \cf8 write permission\cf3 \
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 hasErrors\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf10 true\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 done\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 false\cf3 \
+	
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 done\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 true\cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 	
 \f0\b \cf8 set eof
 \f1\b0 \cf3  
@@ -978,7 +1018,9 @@
 	
 \f0\b \cf8 write
 \f1\b0 \cf3  \cf6 "album_name="\cf3  & \cf3 albumName\cf3  & \cf6 "\
-export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
+export_done="\cf3  & \cf3 done\cf3  & \cf6 "\
+hasErrors="\cf3  & \cf3 hasErrors\cf3  & \cf6 "\
+errorMsg="\cf3  & \cf3 errorMsg\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 	
 \f0\b \cf8 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
@@ -1057,10 +1099,19 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f0\b \cf2 then
 \f1\b0 \cf3 \
 		
+\f2\i \cf4 -- set argv to \{"/Users/dieterstockhausen/Pictures/LRPhotos"\}
+\f1\i0 \cf3 \
+		
+\f2\i \cf4 -- set argv to \{"/Users/dieterstockhausen/Temp/Unbenannter_Export"\}
+\f1\i0 \cf3 \
+		
+\f2\i \cf4 -- set argv to \{"/Users/dieterstockhausen/Temp/LRPhotos"\}
+\f1\i0 \cf3 \
+		
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 argv\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Pictures/LRPhotos"\cf3 \}\
+\f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Temp/abc"\cf3 \}\
 	
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -1144,15 +1195,54 @@ export_done=true"\cf3  \cf8 to\cf3  \cf3 sessionFile\cf3 \
 \f1\b0 \cf3  \cf3 photos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf5 extractPhotos\cf3 (\cf3 photosContents\cf3 )\
-	\
 	
+\f0\b \cf2 try
+\f1\b0 \cf3 \
+		
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 importedPhotos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf5 import\cf3 (\cf3 photos\cf3 , \cf3 albumName\cf3 )\
-	\cf5 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
+		
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf11 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 importedPhotos\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+			\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf10 true\cf3 , \cf6 "Unknown error. Photos were not imported."\cf3 )\
+			
+\f0\b \cf2 return
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 on
+\f1\b0 \cf3  
+\f0\b \cf2 error
+\f1\b0 \cf3  \cf3 e\cf3 \
+		\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf10 true\cf3 , \cf3 e\cf3 )\
+		
+\f0\b \cf2 return
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 try
+\f1\b0 \cf3 \
 	\
-	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 )\
+	\cf5 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
+	\cf5 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf10 false\cf3 , \cf6 ""\cf3 )\
+	\
 
 \f0\b \cf2 end
 \f1\b0 \cf3  

@@ -1,6 +1,6 @@
 --[[---------------------------------------------------------------------------
--- Created by Simon Schoeters
--- Created in 2011
+-- Created by Dieter Stockhausen
+-- Created on 2021-05-27
 -----------------------------------------------------------------------------]]--
 
 
@@ -9,16 +9,7 @@ local LrView = import 'LrView'
 require 'PhotosUploadExportDialogSections'
 require 'PhotosImportTask'
 
-local PhotosServiceProvider = {
-  hideSections = {  'postProcessing' },
-  canExportVideo = true,
-  exportPresetFields = {
-    { key = 'createAlbum', default = true },
-    { key = 'album', default = LOC '$$$/iPhotoExportService/UnknownAlbum=From Lightroom' },
-  },
+return {
   sectionsForBottomOfDialog = iPhotoUploadExportDialogSections.sectionsForBottomOfDialog,
   processRenderedPhotos = iPhotoImportTask.processRenderedPhotos,
-  supportsIncrementalPublish = true
 }
-
-return PhotosServiceProvider

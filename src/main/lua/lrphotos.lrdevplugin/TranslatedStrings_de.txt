@@ -4,3 +4,5 @@
 "$$$/iPhotoExportService/ProgressMany=Importiere ^1 Fotos in Photos"
 "$$$/iPhotoExportService/ProgressOne=Importiere ein Foto in Photos"
 "$$$/Photos/Metadata/Fields/PhotosId=Photos ID"
+"$$$/Photos/Error/Import=Fehler beim Importieren"
+"$$$/Photos/PlaceHolder=^1"
