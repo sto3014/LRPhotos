@@ -6,19 +6,31 @@
 
 local LrView = import 'LrView'
 
-require 'PhotosUploadExportDialogSections'
-require 'PhotosImportTask'
+require 'PhotosPublishDialogSections'
+require 'PhotosPublishTask'
 
 local PhotosServiceProvider = {
-  hideSections = {  'postProcessing' },
-  canExportVideo = true,
+  hideSections = {  'postProcessing', 'exportLocation'},
+  -- hideSections = {  'postProcessing'},
   exportPresetFields = {
-    { key = 'createAlbum', default = true },
-    { key = 'album', default = LOC '$$$/iPhotoExportService/UnknownAlbum=From Lightroom' },
+    { key = 'useAlbum', default = true },
+    { key = 'albumName', default = LOC '$$$/iPhotoExportService/UnknownAlbum=Lightroom' },
+    { key = 'ignoreAlbums', default = true },
+    { key = 'ignoreRegex', default = "^!|!$" },
   },
-  sectionsForBottomOfDialog = iPhotoUploadExportDialogSections.sectionsForBottomOfDialog,
-  processRenderedPhotos = iPhotoImportTask.processRenderedPhotos,
-  supportsIncrementalPublish = true
+  canExportVideo = true,
+  sectionsForBottomOfDialog = PhotosPublishDialogSections.sectionsForBottomOfDialog,
+  processRenderedPhotos = PhotosPublishTask.processRenderedPhotos,
+  getCollectionBehaviorInfo = PhotosPublishTask.getCollectionBehaviorInfo,
+  metadataThatTriggersRepublish = PhotosPublishTask.metadataThatTriggersRepublish,
+  updateExportSettings = PhotosPublishTask.updateExportSettings,
+  didCreateNewPublishService= PhotosPublishTask.didCreateNewPublishService,
+  viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
+  viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
+  supportsIncrementalPublish = 'only',
+  small_icon = 'photos_small.png',
+  publish_fallbackNameBinding = 'fullname',
+  titleForGoToPublishedCollection  = 'disable'
 }
 
 return PhotosServiceProvider
