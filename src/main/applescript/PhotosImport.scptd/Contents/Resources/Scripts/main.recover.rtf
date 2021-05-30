@@ -14,6 +14,7 @@
 \f1\b0 \cf3  \cf4 AppleScript\cf3  \cf5 version\cf3  \cf6 "2.4"\cf3  
 \f2\i \cf7 -- Yosemite (10.10) or later
 \f1\i0 \cf3 \
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
 
 \f0\b \cf2 use
 \f1\b0 \cf3  
@@ -605,6 +606,388 @@
 \f2\i \cf7 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
+\f2\i \cf7 -- createOrGetAlbum(albumPath)
+\f1\i0 \cf3 \
+
+\f2\i \cf7 --
+\f1\i0 \cf3 \
+
+\f2\i \cf7 -- format of albumPath: 
+\f1\i0 \cf3 \
+
+\f2\i \cf7 --   "folder1/folder2/..../album"
+\f1\i0 \cf3 \
+
+\f2\i \cf7 -------------------------------------------------------------------------------
+\f1\i0 \cf3 \
+
+\f0\b \cf2 on
+\f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumPath\cf3 )\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 slashOffset\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (
+\f0\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3 \
+	
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 or
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3  
+\f0\b \cf2 return
+\f1\b0 \cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3 \
+	
+\f0\b \cf2 tell
+\f1\b0 \cf3  
+\f2\i \cf8 application
+\f1\i0 \cf3  \cf4 id\cf3  \cf6 "com.apple.photos"\cf3 \
+		
+\f2\i \cf7 -- go thru all path components of type folder
+\f1\i0 \cf3 \
+		
+\f0\b \cf2 repeat
+\f1\b0 \cf3  
+\f0\b \cf2 until
+\f1\b0 \cf3  \cf3 slashOffset\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 less than
+\f1\b0 \cf3  \cf9 1\cf3 \
+			
+\f2\i \cf7 -- there is at least one folder
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 folderName\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 text
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 thru
+\f1\b0 \cf3  (\cf3 slashOffset\cf3  - \cf9 1\cf3 ) 
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+				
+\f2\i \cf7 --  we are in the root
+\f1\i0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 allFolders\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 every
+\f1\b0 \cf3  
+\f2\i \cf8 folder
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf4 name\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf3 folderName\cf3 \
+				
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf5 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allFolders\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allFolders\cf3 \
+				
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf5 make
+\f1\b0 \cf3  \cf5 new\cf3  
+\f2\i \cf8 folder
+\f1\i0 \cf3  \cf5 named\cf3  \cf3 folderName\cf3 \
+				
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+			
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+				
+\f2\i \cf7 -- we are in between folders
+\f1\i0 \cf3 \
+				
+\f0\b \cf2 tell
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 allFolders\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 every
+\f1\b0 \cf3  
+\f2\i \cf8 folder
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf4 name\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf3 folderName\cf3 \
+				
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf5 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allFolders\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allFolders\cf3 \
+				
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf5 make
+\f1\b0 \cf3  \cf5 new\cf3  
+\f2\i \cf8 folder
+\f1\i0 \cf3  \cf5 named\cf3  \cf3 folderName\cf3  \cf5 at\cf3  \cf3 theFolder\cf3 \
+				
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 text
+\f1\i0 \cf3  ((
+\f0\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 ) + \cf9 1\cf3 ) 
+\f0\b \cf2 thru
+\f1\b0 \cf3  \cf9 -1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 slashOffset\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  (
+\f0\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 repeat
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+			
+\f2\i \cf7 --  we are in the root
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 allAlbums\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 albums
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf4 name\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf5 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allAlbums\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allAlbums\cf3 \
+			
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf5 make
+\f1\b0 \cf3  \cf5 new\cf3  
+\f2\i \cf8 album
+\f1\i0 \cf3  \cf5 named\cf3  \cf3 albumPath\cf3 \
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+			
+\f2\i \cf7 -- we are in a folder
+\f1\i0 \cf3 \
+			
+\f0\b \cf2 tell
+\f1\b0 \cf3  \cf3 theFolder\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 allAlbums\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf2 every
+\f1\b0 \cf3  
+\f2\i \cf8 album
+\f1\i0 \cf3  
+\f0\b \cf2 whose
+\f1\b0 \cf3  \cf4 name\cf3  
+\f0\b \cf2 is
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+			
+\f0\b \cf2 if
+\f1\b0 \cf3  (
+\f0\b \cf5 count
+\f1\b0 \cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allAlbums\cf3 ) 
+\f0\b \cf2 is
+\f1\b0 \cf3  
+\f0\b \cf2 greater than
+\f1\b0 \cf3  \cf9 0\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f2\i \cf8 item
+\f1\i0 \cf3  \cf9 1\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 allAlbums\cf3 \
+			
+\f0\b \cf2 else
+\f1\b0 \cf3 \
+				
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 theAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  
+\f0\b \cf5 make
+\f1\b0 \cf3  \cf5 new\cf3  
+\f2\i \cf8 album
+\f1\i0 \cf3  \cf5 named\cf3  \cf3 albumPath\cf3  \cf5 at\cf3  \cf3 theFolder\cf3 \
+			
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+		
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 tell
+\f1\b0 \cf3 \
+	
+\f0\b \cf2 return
+\f1\b0 \cf3  \cf3 theAlbum\cf3 \
+	\
+
+\f0\b \cf2 end
+\f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 \
+
+\f2\i \cf7 -------------------------------------------------------------------------------
+\f1\i0 \cf3 \
+
 \f2\i \cf7 -- Import exported photos in a new iPhoto album if needed
 \f1\i0 \cf3 \
 
@@ -618,6 +1001,11 @@
 \f1\b0 \cf3  \cf4 AppleScript's\cf3  \cf4 text item delimiters\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf6 ":"\cf3 \
+	
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 importAlbum\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumName\cf3 )\
 	\
 	
 \f0\b \cf2 tell
@@ -629,59 +1017,6 @@
 \f1\b0 \cf3  \cf3 importedPhotos\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \{\}\
-		\
-		
-\f2\i \cf7 -- create trashAlbumif necessary
-\f1\i0 \cf3 \
-		
-\f2\i \cf7 --		if not (exists album trashAlbumName) then
-\f1\i0 \cf3 \
-		
-\f2\i \cf7 --			make new album named trashAlbumName
-\f1\i0 \cf3 \
-		
-\f2\i \cf7 --		end if
-\f1\i0 \cf3 \
-		\
-		
-\f2\i \cf7 -- create album if necessary
-\f1\i0 \cf3 \
-		\
-		
-\f0\b \cf2 if
-\f1\b0 \cf3  \cf3 albumName\cf3  
-\f0\b \cf2 is not
-\f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f0\b \cf2 then
-\f1\b0 \cf3 \
-			
-\f0\b \cf2 if
-\f1\b0 \cf3  
-\f0\b \cf2 not
-\f1\b0 \cf3  (
-\f0\b \cf5 exists
-\f1\b0 \cf3  
-\f2\i \cf8 album
-\f1\i0 \cf3  \cf3 albumName\cf3 ) 
-\f0\b \cf2 then
-\f1\b0 \cf3 \
-				
-\f0\b \cf5 make
-\f1\b0 \cf3  \cf5 new\cf3  
-\f2\i \cf8 album
-\f1\i0 \cf3  \cf5 named\cf3  \cf3 albumName\cf3 \
-			
-\f0\b \cf2 end
-\f1\b0 \cf3  
-\f0\b \cf2 if
-\f1\b0 \cf3 \
-		
-\f0\b \cf2 end
-\f1\b0 \cf3  
-\f0\b \cf2 if
-\f1\b0 \cf3 \
 		\
 		
 \f0\b \cf2 repeat
@@ -747,10 +1082,24 @@
 \f0\b \cf2 of
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3 \
 				
+\f0\b \cf2 if
+\f1\b0 \cf3  \cf3 photosId\cf3  
+\f0\b \cf2 is not
+\f1\b0 \cf3  
+\f0\b \cf2 equal to
+\f1\b0 \cf3  \cf6 ""\cf3  
+\f0\b \cf2 then
+\f1\b0 \cf3 \
+					
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
 \f0\b \cf2 to
 \f1\b0 \cf3  \cf4 true\cf3 \
+				
+\f0\b \cf2 end
+\f1\b0 \cf3  
+\f0\b \cf2 if
+\f1\b0 \cf3 \
 			
 \f0\b \cf2 end
 \f1\b0 \cf3  
@@ -808,10 +1157,8 @@
 \f1\b0 \cf3 \
 					
 \f0\b \cf2 set
-\f1\b0 \cf3  \cf3 previousAlbumNames\cf3  
+\f1\b0 \cf3  \cf3 previousAlbums\cf3  
 \f0\b \cf2 to
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 of
 \f1\b0 \cf3  (
 \f2\i \cf8 albums
 \f1\i0 \cf3  
@@ -823,9 +1170,6 @@
 \f1\i0 \cf3  
 \f0\b \cf2 contains
 \f1\b0 \cf3  \cf3 photosId\cf3 )\
-					
-\f2\i \cf7 -- add previousPhotos to album trashAlbumName
-\f1\i0 \cf3 \
 					
 \f0\b \cf2 set
 \f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
@@ -932,15 +1276,11 @@
 \f1\i0 \cf3 \}\
 			
 \f0\b \cf2 if
-\f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 is
-\f1\b0 \cf3  \cf4 true\cf3  
-\f0\b \cf2 or
-\f1\b0 \cf3  \cf3 albumName\cf3  
+\f1\b0 \cf3  \cf3 importAlbum\cf3  
 \f0\b \cf2 is
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
+\f2\i \cf8 missing value
+\f1\i0 \cf3  
 \f0\b \cf2 then
 \f1\b0 \cf3 \
 				
@@ -970,9 +1310,7 @@
 \f0\b \cf2 to
 \f1\b0 \cf3  
 \f0\b \cf5 import
-\f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  \cf5 into\cf3  
-\f2\i \cf8 container
-\f1\i0 \cf3  \cf3 albumName\cf3  
+\f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  \cf5 into\cf3  \cf3 importAlbum\cf3  
 \f0\b \cf2 with
 \f1\b0 \cf3  \cf5 skip check duplicates\cf3 \
 			
@@ -997,9 +1335,16 @@
 \f0\b \cf2 repeat
 \f1\b0 \cf3  
 \f0\b \cf2 with
-\f1\b0 \cf3  \cf3 aAlbumName\cf3  
+\f1\b0 \cf3  \cf3 aAlbum\cf3  
 \f0\b \cf2 in
-\f1\b0 \cf3  \cf3 previousAlbumNames\cf3 \
+\f1\b0 \cf3  \cf3 previousAlbums\cf3 \
+					
+\f0\b \cf2 set
+\f1\b0 \cf3  \cf3 aAlbumName\cf3  
+\f0\b \cf2 to
+\f1\b0 \cf3  \cf4 name\cf3  
+\f0\b \cf2 of
+\f1\b0 \cf3  \cf3 aAlbum\cf3 \
 					
 \f0\b \cf2 tell
 \f1\b0 \cf3  
@@ -1022,9 +1367,7 @@
 \f1\b0 \cf3 \
 						
 \f0\b \cf5 add
-\f1\b0 \cf3  \cf3 newPhotos\cf3  \cf5 to\cf3  
-\f2\i \cf8 album
-\f1\i0 \cf3  \cf3 aAlbumName\cf3 \
+\f1\b0 \cf3  \cf3 newPhotos\cf3  \cf5 to\cf3  \cf3 aAlbum\cf3 \
 					
 \f0\b \cf2 end
 \f1\b0 \cf3  

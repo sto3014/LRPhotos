@@ -112,26 +112,70 @@ on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
 	end if
 end trimThis
 -------------------------------------------------------------------------------
+-- createOrGetAlbum(albumPath)
+--
+-- format of albumPath:
+--   "folder1/folder2/..../album"
+-------------------------------------------------------------------------------
+on createOrGetAlbum(albumPath)
+	set slashOffset to (offset of "/" in albumPath)
+	set theFolder to missing value
+	if albumPath is missing value or albumPath is equal to "" then return missing value
+	tell application id "com.apple.photos"
+		-- go thru all path components of type folder
+		repeat until slashOffset is less than 1
+			-- there is at least one folder
+			set folderName to text 1 thru (slashOffset - 1) of albumPath
+			if theFolder is missing value then
+				--  we are in the root
+				set allFolders to every folder whose name is folderName
+				if (count of allFolders) is greater than 0 then
+					set theFolder to item 1 of allFolders
+				else
+					set theFolder to make new folder named folderName
+				end if
+			else
+				-- we are in between folders
+				tell theFolder to set allFolders to every folder whose name is folderName
+				if (count of allFolders) is greater than 0 then
+					set theFolder to item 1 of allFolders
+				else
+					set theFolder to make new folder named folderName at theFolder
+				end if
+			end if
+			set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
+			set slashOffset to (offset of "/" in albumPath)
+		end repeat
+		if theFolder is missing value then
+			--  we are in the root
+			set allAlbums to albums whose name is albumPath
+			if (count of allAlbums) is greater than 0 then
+				set theAlbum to item 1 of allAlbums
+			else
+				set theAlbum to make new album named albumPath
+			end if
+		else
+			-- we are in a folder
+			tell theFolder to set allAlbums to every album whose name is albumPath
+			if (count of allAlbums) is greater than 0 then
+				set theAlbum to item 1 of allAlbums
+			else
+				set theAlbum to make new album named albumPath at theFolder
+			end if
+		end if
+	end tell
+	return theAlbum
+
+end createOrGetAlbum
+-------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, albumName, ignoreByRegex)
 	set AppleScript's text item delimiters to ":"
+	set importAlbum to createOrGetAlbum(albumName)
 
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
-
-		-- create trashAlbumif necessary
-		--		if not (exists album trashAlbumName) then
-		--			make new album named trashAlbumName
-		--		end if
-
-		-- create album if necessary
-
-		if albumName is not equal to "" then
-			if not (exists album albumName) then
-				make new album named albumName
-			end if
-		end if
 
 		repeat with aPhotoDescriptor in photoDescriptors
 			-- the posix file path
@@ -144,7 +188,9 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			set isUpdate to false
 			try
 				set photosId to text item 4 of aPhotoDescriptor
-				set isUpdate to true
+				if photosId is not equal to "" then
+					set isUpdate to true
+				end if
 			end try
 
 			set previousAlbumNames to {}
@@ -154,8 +200,7 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			if isUpdate is true then
 				set previousPhotos to (every media item whose id is equal to photosId)
 				if (count of previousPhotos) is greater than 0 then
-					set previousAlbumNames to name of (albums whose id of media items contains photosId)
-					-- add previousPhotos to album trashAlbumName
+					set previousAlbums to (albums whose id of media items contains photosId)
 					set thePreviousPhoto to item 1 of previousPhotos
 					-- set the photo out-of-date
 					set newKeywords to {"lr:out-of-date"}
@@ -174,21 +219,22 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			-- now we import the LR photo
 			log "The file: " & thePhotoFile
 			tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
-			if isUpdate is true or albumName is equal to "" then
+			if importAlbum is missing value then
 				-- on update, the standard album must me ignored.
 				-- later it will  added to the albums of the previous photo version
 				set newPhotos to import aliasPhotoFile with skip check duplicates
 			else
 				-- if new, it goes into the standard album
-				set newPhotos to import aliasPhotoFile into container albumName with skip check duplicates
+				set newPhotos to import aliasPhotoFile into importAlbum with skip check duplicates
 			end if
 			--
 			-- put it into the previous albums
 			if isUpdate is true then
-				repeat with aAlbumName in previousAlbumNames
+				repeat with aAlbum in previousAlbums
+					set aAlbumName to name of aAlbum
 					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex)
 					if isValid is true then
-						add newPhotos to album aAlbumName
+						add newPhotos to aAlbum
 					end if
 				end repeat
 			end if

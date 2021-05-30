@@ -1,6 +1,6 @@
 "$$$/PhotosExportService/Title=Photos"
 "$$$/PhotosExportService/CreateAlbum=Use Album:"
-"$$$/PhotosExportService/UnknownAlbum=Lightroom"
+"$$$/PhotosExportService/NewAlbum=Lightroom/Import"
 "$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photos"
 "$$$/PhotosExportService/ProgressOne=Importing one photo in Photos"
 "$$$/Photos/Metadata/Fields/PhotosId=Photos ID"

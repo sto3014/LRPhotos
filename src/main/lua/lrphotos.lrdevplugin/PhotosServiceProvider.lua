@@ -14,7 +14,7 @@ local PhotosServiceProvider = {
   -- hideSections = {  'postProcessing'},
   exportPresetFields = {
     { key = 'useAlbum', default = true },
-    { key = 'albumName', default = LOC '$$$/iPhotoExportService/UnknownAlbum=Lightroom' },
+    { key = 'albumName', default = LOC '$$$/PhotosExportService/NewAlbum=Lightroom/Import' },
     { key = 'ignoreAlbums', default = true },
     { key = 'ignoreRegex', default = "^!|!$" },
   },
