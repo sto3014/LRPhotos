@@ -9,3 +9,6 @@
 "$$$/Photos/DefaultCollectionName/Photostream=Veröffentlichte Sammlung"
 "$$$/Photos/IgnoreAlbums=Ignoriere Albums mittels Regex:"
 "$$$/Photos/IgnorePattern=Regex Muster:"
+"$$$/Photos/DeletingCollectionAndContents=Löschen Fotosatz ^[^1^]"
+"$$$/Photos/NotSupported=LRPhotos wird nicht unter Windows unterstützt."
+"$$$/Photos/NotSupported/Subtext=Die Applikation Fotos existiert nur auf dem Mac."

@@ -1,11 +1,16 @@
 #@osa-lang:AppleScript
+-------------------------------------------------------------------------------
+-- Initial created by Simon Schoeters in 2011
+--
+-- 29.05.2021. Dieter Stockhausen. Add publishing functionality
+--
+-------------------------------------------------------------------------------
 use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
 
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
-global trashAlbumName
 
 -------------------------------------------------------------------------------
 -- Extract the album name from the session file
@@ -297,7 +302,6 @@ end updatePhotosFile
 -- Run the import script
 -------------------------------------------------------------------------------
 on run argv
-	set trashAlbumName to "Trash (Lightroom)"
 
 	if (argv = me) then
 		set argv to {"/Users/dieterstockhausen/Temp/Unbenannter Export"}

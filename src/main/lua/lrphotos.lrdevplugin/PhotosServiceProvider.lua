@@ -1,11 +1,9 @@
 --[[---------------------------------------------------------------------------
--- Created by Simon Schoeters
--- Created in 2011
+-- Initial created by Simon Schoeters in 2011
+--
+-- 2021-05-29 Dieter Stockhausen. Add publishing functionality
 -----------------------------------------------------------------------------]]--
-
-
-local LrView = import 'LrView'
-
+local LrPrefs = import("LrPrefs")
 require 'PhotosPublishDialogSections'
 require 'PhotosPublishTask'
 
@@ -27,10 +25,15 @@ local PhotosServiceProvider = {
   didCreateNewPublishService= PhotosPublishTask.didCreateNewPublishService,
   viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
+  deletePhotosFromPublishedCollection= PhotosPublishTask.deletePhotosFromPublishedCollection,
   supportsIncrementalPublish = 'only',
   small_icon = 'photos_small.png',
   publish_fallbackNameBinding = 'fullname',
   titleForGoToPublishedCollection  = 'disable'
 }
-
-return PhotosServiceProvider
+local prefs = LrPrefs.prefsForPlugin()
+if (prefs.osSupported) then
+  return PhotosServiceProvider
+else
+  return {}
+end

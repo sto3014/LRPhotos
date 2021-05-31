@@ -9,3 +9,7 @@
 "$$$/Photos/DefaultCollectionName/Photostream=Published Collection"
 "$$$/Photos/IgnoreAlbums=Ignore Albums by Regex:"
 "$$$/Photos/IgnorePattern=Regex Pattern:"
+"$$$/Photos/DeletingCollectionAndContents=Deleting photoset ^[^1^]"
+"$$$/Photos/NotSupported=LRPhotos is not supported on Windows."
+"$$$/Photos/NotSupported/Subtext=Photos.app only exists on Mac."
+

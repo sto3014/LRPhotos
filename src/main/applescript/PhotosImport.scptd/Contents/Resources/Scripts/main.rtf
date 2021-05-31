@@ -1,1789 +1,1798 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2580
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Bold;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Italic;
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Italic;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Bold;
 }
-{\colortbl;\red255\green255\blue255;\red193\green100\blue30;\red152\green168\blue186;\red158\green128\blue255;
-\red193\green62\blue29;\red91\green144\blue62;\red128\green128\blue128;\red193\green43\blue12;\red241\green241\blue241;
+{\colortbl;\red255\green255\blue255;\red128\green128\blue128;\red152\green168\blue186;\red193\green100\blue30;
+\red158\green128\blue255;\red193\green62\blue29;\red91\green144\blue62;\red193\green43\blue12;\red241\green241\blue241;
 \red193\green43\blue12;\red10\green112\blue204;}
-{\*\expandedcolortbl;;\csgenericrgb\c75632\c39316\c11947;\csgenericrgb\c59779\c65774\c73089;\csgenericrgb\c62067\c50000\c100000;
-\csgenericrgb\c75599\c24494\c11327;\csgenericrgb\c35846\c56374\c24421;\csgray\c57231;\csgenericrgb\c75530\c16821\c4679;\csgray\c95739;
+{\*\expandedcolortbl;;\csgray\c57231;\csgenericrgb\c59779\c65774\c73089;\csgenericrgb\c75632\c39316\c11947;
+\csgenericrgb\c62067\c50000\c100000;\csgenericrgb\c75599\c24494\c11327;\csgenericrgb\c35846\c56374\c24421;\csgenericrgb\c75530\c16821\c4679;\csgray\c95739;
 \csgenericrgb\c75504\c16712\c4745;\csgenericrgb\c3954\c44020\c79895;}
 \deftab480
 \pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
 
-\f0\b\fs24 \cf2 use
-\f1\b0 \cf3  \cf4 AppleScript\cf3  \cf5 version\cf3  \cf6 "2.4"\cf3  
-\f2\i \cf7 -- Yosemite (10.10) or later
-\f1\i0 \cf3 \
-\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
-
-\f0\b \cf2 use
-\f1\b0 \cf3  
-\f2\i \cf8 scripting additions
+\f0\i\fs24 \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 use
+\f0\i \cf2 -- Initial created by Simon Schoeters in 2011
+\f1\i0 \cf3 \
+
+\f0\i \cf2 --
+\f1\i0 \cf3 \
+
+\f0\i \cf2 -- 29.05.2021. Dieter Stockhausen. Add publishing functionality 
+\f1\i0 \cf3 \
+
+\f0\i \cf2 --
+\f1\i0 \cf3 \
+
+\f0\i \cf2 -------------------------------------------------------------------------------
+\f1\i0 \cf3 \
+
+\f2\b \cf4 use
+\f1\b0 \cf3  \cf5 AppleScript\cf3  \cf6 version\cf3  \cf7 "2.4"\cf3  
+\f0\i \cf2 -- Yosemite (10.10) or later
+\f1\i0 \cf3 \
+
+\f2\b \cf4 use
 \f1\b0 \cf3  
-\f2\i \cf8 framework
-\f1\i0 \cf3  \cf6 "Foundation"\cf3 \
+\f0\i \cf8 scripting additions
+\f1\i0 \cf3 \
+
+\f2\b \cf4 use
+\f1\b0 \cf3  
+\f0\i \cf8 framework
+\f1\i0 \cf3  \cf7 "Foundation"\cf3 \
 \
 
-\f2\i \cf7 -- classes, constants, and enums used
+\f0\i \cf2 -- classes, constants, and enums used
 \f1\i0 \cf3 \
 
-\f0\b \cf2 property
+\f2\b \cf4 property
 \f1\b0 \cf3  \cf3 NSRegularExpressionSearch\cf3  : 
-\f0\b \cf2 a reference
+\f2\b \cf4 a reference
 \f1\b0 \cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf9 1024\cf3 \
-
-\f0\b \cf2 global
-\f1\b0 \cf3  \cf3 trashAlbumName\cf3 \
 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Extract the album name from the session file
+\f0\i \cf2 -- Extract the album name from the session file
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 getAlbumName\cf3 (\cf3 sessionContents\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf6 ""\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf7 ""\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allLines\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 paragraph
+\f0\i \cf8 paragraph
 \f1\i0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 sessionContents\cf3 \
 	
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 allLines\cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 )\
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 )\
 		
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  > \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 var\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 thru
+\f2\b \cf4 thru
 \f1\b0 \cf3  (\cf3 equalSignOffset\cf3  - \cf9 1\cf3 ) 
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f0\b \cf2 if
-\f1\b0 \cf3  \cf3 var\cf3  = \cf6 "album_name"\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 var\cf3  = \cf7 "album_name"\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  ((
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 ) + \cf9 1\cf3 ) 
-\f0\b \cf2 thru
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 ) + \cf9 1\cf3 ) 
+\f2\b \cf4 thru
 \f1\b0 \cf3  \cf9 -1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  \cf3 albumName\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 getAlbumName\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 getIgnoreRegex\cf3 (\cf3 sessionContents\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 ignoreByRegex\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf6 ""\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf7 ""\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allLines\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 paragraph
+\f0\i \cf8 paragraph
 \f1\i0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 sessionContents\cf3 \
 	
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 allLines\cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 )\
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 )\
 		
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 equalSignOffset\cf3  > \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 var\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 thru
+\f2\b \cf4 thru
 \f1\b0 \cf3  (\cf3 equalSignOffset\cf3  - \cf9 1\cf3 ) 
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f0\b \cf2 if
-\f1\b0 \cf3  \cf3 var\cf3  = \cf6 "ignoreByRegex"\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 var\cf3  = \cf7 "ignoreByRegex"\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 ignoreByRegex\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  ((
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 ) + \cf9 1\cf3 ) 
-\f0\b \cf2 thru
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "="\cf3  \cf11 in\cf3  \cf3 aLine\cf3 ) + \cf9 1\cf3 ) 
+\f2\b \cf4 thru
 \f1\b0 \cf3  \cf9 -1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  \cf3 ignoreByRegex\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 getIgnoreRegex\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Extract the photo descriptors from the photos file
+\f0\i \cf2 -- Extract the photo descriptors from the photos file
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Format is: 
+\f0\i \cf2 -- Format is: 
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --   image posix file path : LR photo uuid : name of LR catalog file : Photos photo ID
+\f0\i \cf2 --   image posix file path : LR photo uuid : name of LR catalog file : Photos photo ID
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 getPhotoDescriptors\cf3 (\cf3 photosContents\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \{\}\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allLines\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 paragraph
+\f0\i \cf8 paragraph
 \f1\i0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 photosContents\cf3 \
 	
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 allLines\cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf10 trimThis\cf3 (\cf3 aLine\cf3 , \cf4 true\cf3 , \cf4 true\cf3 )\
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf10 trimThis\cf3 (\cf3 aLine\cf3 , \cf5 true\cf3 , \cf5 true\cf3 )\
 		
-\f0\b \cf5 log
+\f2\b \cf6 log
 \f1\b0 \cf3  \cf3 aLine\cf3 \
 		
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 is not
+\f2\b \cf4 is not
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf7 ""\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 copy
+\f2\b \cf4 copy
 \f1\b0 \cf3  \cf3 aLine\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 the
+\f2\b \cf4 the
 \f1\b0 \cf3  
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 photos\cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  \cf3 photos\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 getPhotoDescriptors\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- matchesRegex
+\f0\i \cf2 -- matchesRegex
 \f1\i0 \cf3 \
 
-\f2\i \cf7 ------------------------------------------------------------------------------- 
+\f0\i \cf2 ------------------------------------------------------------------------------- 
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 matchesRegex\cf3 (\cf3 theText\cf3 , \cf3 theRegex\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theText\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 current application's\cf3  \cf3 NSString's\cf3  \cf10 stringWithString\cf3 :\cf3 theText\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 current application's\cf3  \cf3 NSString's\cf3  \cf10 stringWithString\cf3 :\cf3 theText\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theRange\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 theText's\cf3  \cf10 rangeOfString\cf3 :(\cf3 theRegex\cf3 ) \cf10 options\cf3 :\cf3 NSRegularExpressionSearch\cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 |length|\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 theRange\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 return
-\f1\b0 \cf3  \cf4 true\cf3 \
+\f2\b \cf4 return
+\f1\b0 \cf3  \cf5 true\cf3 \
 	
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 return
-\f1\b0 \cf3  \cf4 false\cf3 \
+\f2\b \cf4 return
+\f1\b0 \cf3  \cf5 false\cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 matchesRegex\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 trimThis\cf3 (\cf3 pstrSourceText\cf3 , \cf3 pstrCharToTrim\cf3 , \cf3 pstrTrimDirection\cf3 )\
 	
-\f2\i \cf7 -- http://macscripter.net/viewtopic.php?id=18519
+\f0\i \cf2 -- http://macscripter.net/viewtopic.php?id=18519
 \f1\i0 \cf3 \
 	
-\f2\i \cf7 -- pstrSourceText : The text to be trimmed
+\f0\i \cf2 -- pstrSourceText : The text to be trimmed
 \f1\i0 \cf3 \
 	
-\f2\i \cf7 -- pstrCharToTrim     : A list of characters to trim, or true to use default
+\f0\i \cf2 -- pstrCharToTrim     : A list of characters to trim, or true to use default
 \f1\i0 \cf3 \
 	
-\f2\i \cf7 -- pstrTrimDirection : Direction of Trim left, right or any value for full
+\f0\i \cf2 -- pstrTrimDirection : Direction of Trim left, right or any value for full
 \f1\i0 \cf3 \
 	\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 strTrimedText\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 pstrSourceText\cf3 \
 	\
 	
-\f2\i \cf7 -- If undefinied use default whitespaces
+\f0\i \cf2 -- If undefinied use default whitespaces
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 or
+\f2\b \cf4 or
 \f1\b0 \cf3  
-\f2\i \cf8 class
+\f0\i \cf8 class
 \f1\i0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 not
+\f2\b \cf4 not
 \f1\b0 \cf3  
-\f2\i \cf8 list
+\f0\i \cf8 list
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f2\i \cf7 -- trim tab, newline, return and all the unicode characters from the 'separator space' category
+\f0\i \cf2 -- trim tab, newline, return and all the unicode characters from the 'separator space' category
 \f1\i0 \cf3 \
 		
-\f2\i \cf7 -- [url]http://www.fileformat.info/info/unicode/category/Zs/list.htm[/url]
+\f0\i \cf2 -- [url]http://www.fileformat.info/info/unicode/category/Zs/list.htm[/url]
 \f1\i0 \cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 pstrCharToTrim\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \{\cf4 tab\cf3 , \cf4 linefeed\cf3 , \cf4 return\cf3 , \cf4 space\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 160\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 5760\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8192\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8193\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8194\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8195\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8196\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8197\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8198\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8199\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8200\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8201\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8202\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8239\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 8287\cf3 , 
-\f2\i \cf8 character
-\f1\i0 \cf3  \cf4 id\cf3  \cf9 12288\cf3 \}\
+\f2\b \cf4 to
+\f1\b0 \cf3  \{\cf5 tab\cf3 , \cf5 linefeed\cf3 , \cf5 return\cf3 , \cf5 space\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 160\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 5760\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8192\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8193\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8194\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8195\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8196\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8197\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8198\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8199\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8200\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8201\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8202\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8239\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 8287\cf3 , 
+\f0\i \cf8 character
+\f1\i0 \cf3  \cf5 id\cf3  \cf9 12288\cf3 \}\
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 lLoc\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf9 1\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 rLoc\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 strTrimedText\cf3 \
 	\
 	
-\f2\i \cf7 --- From left to right, get location of first non-whitespace character
+\f0\i \cf2 --- From left to right, get location of first non-whitespace character
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 pstrTrimDirection\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 not
-\f1\b0 \cf3  \cf4 right\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 not
+\f1\b0 \cf3  \cf5 right\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 until
+\f2\b \cf4 until
 \f1\b0 \cf3  \cf3 lLoc\cf3  = (\cf3 rLoc\cf3  + \cf9 1\cf3 ) 
-\f0\b \cf2 or
+\f2\b \cf4 or
 \f1\b0 \cf3  
-\f2\i \cf8 character
+\f0\i \cf8 character
 \f1\i0 \cf3  \cf3 lLoc\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 strTrimedText\cf3  
-\f0\b \cf2 is not
+\f2\b \cf4 is not
 \f1\b0 \cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 pstrCharToTrim\cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 lLoc\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 lLoc\cf3  + \cf9 1\cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	\
 	
-\f2\i \cf7 -- From right to left, get location of first non-whitespace character
+\f0\i \cf2 -- From right to left, get location of first non-whitespace character
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 pstrTrimDirection\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 not
-\f1\b0 \cf3  \cf4 left\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 not
+\f1\b0 \cf3  \cf5 left\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 until
+\f2\b \cf4 until
 \f1\b0 \cf3  \cf3 rLoc\cf3  = \cf9 0\cf3  
-\f0\b \cf2 or
+\f2\b \cf4 or
 \f1\b0 \cf3  
-\f2\i \cf8 character
+\f0\i \cf8 character
 \f1\i0 \cf3  \cf3 rLoc\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 strTrimedText\cf3  
-\f0\b \cf2 is not
+\f2\b \cf4 is not
 \f1\b0 \cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 pstrCharToTrim\cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 rLoc\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 rLoc\cf3  - \cf9 1\cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	\
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 lLoc\cf3  \uc0\u8805  \cf3 rLoc\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 return
-\f1\b0 \cf3  \cf6 ""\cf3 \
+\f2\b \cf4 return
+\f1\b0 \cf3  \cf7 ""\cf3 \
 	
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  \cf3 lLoc\cf3  
-\f0\b \cf2 thru
+\f2\b \cf4 thru
 \f1\b0 \cf3  \cf3 rLoc\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 strTrimedText\cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 trimThis\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- createOrGetAlbum(albumPath)
+\f0\i \cf2 -- createOrGetAlbum(albumPath)
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- format of albumPath: 
+\f0\i \cf2 -- format of albumPath: 
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --   "folder1/folder2/..../album"
+\f0\i \cf2 --   "folder1/folder2/..../album"
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumPath\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 slashOffset\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 albumPath\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 or
+\f2\b \cf4 or
 \f1\b0 \cf3  \cf3 albumPath\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf7 ""\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3  
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  
-\f2\i \cf8 application
-\f1\i0 \cf3  \cf4 id\cf3  \cf6 "com.apple.photos"\cf3 \
+\f0\i \cf8 application
+\f1\i0 \cf3  \cf5 id\cf3  \cf7 "com.apple.photos"\cf3 \
 		
-\f2\i \cf7 -- go thru all path components of type folder
+\f0\i \cf2 -- go thru all path components of type folder
 \f1\i0 \cf3 \
 		
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 until
+\f2\b \cf4 until
 \f1\b0 \cf3  \cf3 slashOffset\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 less than
+\f2\b \cf4 less than
 \f1\b0 \cf3  \cf9 1\cf3 \
 			
-\f2\i \cf7 -- there is at least one folder
+\f0\i \cf2 -- there is at least one folder
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 folderName\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 thru
+\f2\b \cf4 thru
 \f1\b0 \cf3  (\cf3 slashOffset\cf3  - \cf9 1\cf3 ) 
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 albumPath\cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 --  we are in the root
+\f0\i \cf2 --  we are in the root
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allFolders\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 folder
+\f0\i \cf8 folder
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 name\cf3  
+\f2\b \cf4 is
 \f1\b0 \cf3  \cf3 folderName\cf3 \
 				
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allFolders\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allFolders\cf3 \
 				
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 make
-\f1\b0 \cf3  \cf5 new\cf3  
-\f2\i \cf8 folder
-\f1\i0 \cf3  \cf5 named\cf3  \cf3 folderName\cf3 \
+\f2\b \cf6 make
+\f1\b0 \cf3  \cf6 new\cf3  
+\f0\i \cf8 folder
+\f1\i0 \cf3  \cf6 named\cf3  \cf3 folderName\cf3 \
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 -- we are in between folders
+\f0\i \cf2 -- we are in between folders
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allFolders\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 folder
+\f0\i \cf8 folder
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 name\cf3  
+\f2\b \cf4 is
 \f1\b0 \cf3  \cf3 folderName\cf3 \
 				
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allFolders\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allFolders\cf3 \
 				
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 make
-\f1\b0 \cf3  \cf5 new\cf3  
-\f2\i \cf8 folder
-\f1\i0 \cf3  \cf5 named\cf3  \cf3 folderName\cf3  \cf5 at\cf3  \cf3 theFolder\cf3 \
+\f2\b \cf6 make
+\f1\b0 \cf3  \cf6 new\cf3  
+\f0\i \cf8 folder
+\f1\i0 \cf3  \cf6 named\cf3  \cf3 folderName\cf3  \cf6 at\cf3  \cf3 theFolder\cf3 \
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumPath\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text
+\f0\i \cf8 text
 \f1\i0 \cf3  ((
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 ) + \cf9 1\cf3 ) 
-\f0\b \cf2 thru
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 ) + \cf9 1\cf3 ) 
+\f2\b \cf4 thru
 \f1\b0 \cf3  \cf9 -1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 albumPath\cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 slashOffset\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 offset
-\f1\b0 \cf3  \cf11 of\cf3  \cf6 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
+\f2\b \cf11 offset
+\f1\b0 \cf3  \cf11 of\cf3  \cf7 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 			
-\f2\i \cf7 --  we are in the root
+\f0\i \cf2 --  we are in the root
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allAlbums\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 albums
+\f0\i \cf8 albums
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 name\cf3  
+\f2\b \cf4 is
 \f1\b0 \cf3  \cf3 albumPath\cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allAlbums\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theAlbum\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allAlbums\cf3 \
 			
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theAlbum\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 make
-\f1\b0 \cf3  \cf5 new\cf3  
-\f2\i \cf8 album
-\f1\i0 \cf3  \cf5 named\cf3  \cf3 albumPath\cf3 \
+\f2\b \cf6 make
+\f1\b0 \cf3  \cf6 new\cf3  
+\f0\i \cf8 album
+\f1\i0 \cf3  \cf6 named\cf3  \cf3 albumPath\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 			
-\f2\i \cf7 -- we are in a folder
+\f0\i \cf2 -- we are in a folder
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  \cf3 theFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 allAlbums\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 album
+\f0\i \cf8 album
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 name\cf3  
+\f2\b \cf4 is
 \f1\b0 \cf3  \cf3 albumPath\cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allAlbums\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theAlbum\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 allAlbums\cf3 \
 			
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theAlbum\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 make
-\f1\b0 \cf3  \cf5 new\cf3  
-\f2\i \cf8 album
-\f1\i0 \cf3  \cf5 named\cf3  \cf3 albumPath\cf3  \cf5 at\cf3  \cf3 theFolder\cf3 \
+\f2\b \cf6 make
+\f1\b0 \cf3  \cf6 new\cf3  
+\f0\i \cf8 album
+\f1\i0 \cf3  \cf6 named\cf3  \cf3 albumPath\cf3  \cf6 at\cf3  \cf3 theFolder\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  \cf3 theAlbum\cf3 \
 	\
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Import exported photos in a new iPhoto album if needed
+\f0\i \cf2 -- Import exported photos in a new iPhoto album if needed
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 import\cf3 (\cf3 photoDescriptors\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 )\
 	
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 AppleScript's\cf3  \cf4 text item delimiters\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf6 ":"\cf3 \
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 AppleScript's\cf3  \cf5 text item delimiters\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf7 ":"\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 importAlbum\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumName\cf3 )\
 	\
 	
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  
-\f2\i \cf8 application
-\f1\i0 \cf3  \cf4 id\cf3  \cf6 "com.apple.photos"\cf3 \
+\f0\i \cf8 application
+\f1\i0 \cf3  \cf5 id\cf3  \cf7 "com.apple.photos"\cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 importedPhotos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \{\}\
 		\
 		
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 photoDescriptors\cf3 \
 			
-\f2\i \cf7 -- the posix file path
+\f0\i \cf2 -- the posix file path
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 thePhotoFile\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text item
+\f0\i \cf8 text item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3 \
 			
-\f2\i \cf7 -- the LR id. Not used here, but necessary for the way back to LR
+\f0\i \cf2 -- the LR id. Not used here, but necessary for the way back to LR
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 lrId\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text item
+\f0\i \cf8 text item
 \f1\i0 \cf3  \cf9 2\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3 \
 			
-\f2\i \cf7 -- used as keyword
+\f0\i \cf2 -- used as keyword
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 lrCat\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text item
+\f0\i \cf8 text item
 \f1\i0 \cf3  \cf9 3\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3 \
 			
-\f2\i \cf7 -- if exists a Photos id, it is an update.
+\f0\i \cf2 -- if exists a Photos id, it is an update.
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 false\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 false\cf3 \
 			
-\f0\b \cf2 try
+\f2\b \cf4 try
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photosId\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 text item
+\f0\i \cf8 text item
 \f1\i0 \cf3  \cf9 4\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aPhotoDescriptor\cf3 \
 				
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 photosId\cf3  
-\f0\b \cf2 is not
+\f2\b \cf4 is not
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
-\f1\b0 \cf3  \cf6 ""\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf7 ""\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 true\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 true\cf3 \
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 try
+\f2\b \cf4 try
 \f1\b0 \cf3 \
 			\
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 previousAlbumNames\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \{\}\
 			
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 mediaItems\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \{\}\
 			\
 			
-\f2\i \cf7 -- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
+\f0\i \cf2 -- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 is
-\f1\b0 \cf3  \cf4 true\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 is
+\f1\b0 \cf3  \cf5 true\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 previousPhotos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf2 every
+\f2\b \cf4 every
 \f1\b0 \cf3  
-\f2\i \cf8 media item
+\f0\i \cf8 media item
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 id\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 id\cf3  
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
+\f2\b \cf4 equal to
 \f1\b0 \cf3  \cf3 photosId\cf3 )\
 				
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 previousPhotos\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 previousAlbums\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f2\i \cf8 albums
+\f0\i \cf8 albums
 \f1\i0 \cf3  
-\f0\b \cf2 whose
-\f1\b0 \cf3  \cf4 id\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 whose
+\f1\b0 \cf3  \cf5 id\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  
-\f2\i \cf8 media items
+\f0\i \cf8 media items
 \f1\i0 \cf3  
-\f0\b \cf2 contains
+\f2\b \cf4 contains
 \f1\b0 \cf3  \cf3 photosId\cf3 )\
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 previousPhotos\cf3 \
 					
-\f2\i \cf7 -- set the photo out-of-date
+\f0\i \cf2 -- set the photo out-of-date
 \f1\i0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 newKeywords\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "lr:out-of-date"\cf3 \}\
+\f2\b \cf4 to
+\f1\b0 \cf3  \{\cf7 "lr:out-of-date"\cf3 \}\
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 the
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 thePreviousPhoto\cf3 \
 					
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 						
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 newKeywords\cf3 \
 					
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 						
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 thePreviousPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (\cf3 theseKeywords\cf3  & \cf3 newKeywords\cf3 )\
 					
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 					
-\f2\i \cf7 -- happens if photos were deleted
+\f0\i \cf2 -- happens if photos were deleted
 \f1\i0 \cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 false\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 false\cf3 \
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 			
-\f2\i \cf7 -- now we import the LR photo
+\f0\i \cf2 -- now we import the LR photo
 \f1\i0 \cf3 \
 			
-\f0\b \cf5 log
-\f1\b0 \cf3  \cf6 "The file: "\cf3  & \cf3 thePhotoFile\cf3 \
+\f2\b \cf6 log
+\f1\b0 \cf3  \cf7 "The file: "\cf3  & \cf3 thePhotoFile\cf3 \
 			
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  
-\f0\b \cf2 me
+\f2\b \cf4 me
 \f1\b0 \cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \{
-\f2\i \cf8 POSIX file
+\f0\i \cf8 POSIX file
 \f1\i0 \cf3  \cf3 thePhotoFile\cf3  
-\f0\b \cf2 as
+\f2\b \cf4 as
 \f1\b0 \cf3  
-\f2\i \cf8 alias
+\f0\i \cf8 alias
 \f1\i0 \cf3 \}\
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 importAlbum\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 -- on update, the standard album must me ignored.
+\f0\i \cf2 -- on update, the standard album must me ignored.
 \f1\i0 \cf3 \
 				
-\f2\i \cf7 -- later it will  added to the albums of the previous photo version
+\f0\i \cf2 -- later it will  added to the albums of the previous photo version
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 newPhotos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 import
+\f2\b \cf6 import
 \f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  
-\f0\b \cf2 with
-\f1\b0 \cf3  \cf5 skip check duplicates\cf3 \
+\f2\b \cf4 with
+\f1\b0 \cf3  \cf6 skip check duplicates\cf3 \
 			
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 -- if new, it goes into the standard album
+\f0\i \cf2 -- if new, it goes into the standard album
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 newPhotos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf5 import
-\f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  \cf5 into\cf3  \cf3 importAlbum\cf3  
-\f0\b \cf2 with
-\f1\b0 \cf3  \cf5 skip check duplicates\cf3 \
+\f2\b \cf6 import
+\f1\b0 \cf3  \cf3 aliasPhotoFile\cf3  \cf6 into\cf3  \cf3 importAlbum\cf3  
+\f2\b \cf4 with
+\f1\b0 \cf3  \cf6 skip check duplicates\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 			
-\f2\i \cf7 -- put it into the previous albums
+\f0\i \cf2 -- put it into the previous albums
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 isUpdate\cf3  
-\f0\b \cf2 is
-\f1\b0 \cf3  \cf4 true\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 is
+\f1\b0 \cf3  \cf5 true\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 aAlbum\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 previousAlbums\cf3 \
 					
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 aAlbumName\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 name\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 name\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aAlbum\cf3 \
 					
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3  
-\f0\b \cf2 me
+\f2\b \cf4 me
 \f1\b0 \cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isValid\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 not
+\f2\b \cf4 not
 \f1\b0 \cf3  \cf10 matchesRegex\cf3 (\cf3 aAlbumName\cf3 , \cf3 ignoreByRegex\cf3 )\
 					
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 isValid\cf3  
-\f0\b \cf2 is
-\f1\b0 \cf3  \cf4 true\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 is
+\f1\b0 \cf3  \cf5 true\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 						
-\f0\b \cf5 add
-\f1\b0 \cf3  \cf3 newPhotos\cf3  \cf5 to\cf3  \cf3 aAlbum\cf3 \
+\f2\b \cf6 add
+\f1\b0 \cf3  \cf3 newPhotos\cf3  \cf6 to\cf3  \cf3 aAlbum\cf3 \
 					
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 			
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 			
-\f2\i \cf7 -- Update metadata
+\f0\i \cf2 -- Update metadata
 \f1\i0 \cf3 \
 			
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 newPhotos\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 greater than
+\f2\b \cf4 greater than
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 -- set the name of the LR catalog file
+\f0\i \cf2 -- set the name of the LR catalog file
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 newKeywords\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "lr:"\cf3  & \cf3 lrCat\cf3  & \cf6 ".lrcat"\cf3 \}\
+\f2\b \cf4 to
+\f1\b0 \cf3  \{\cf7 "lr:"\cf3  & \cf3 lrCat\cf3  & \cf7 ".lrcat"\cf3 \}\
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theNewPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 newPhotos\cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 the
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 theNewPhoto\cf3 \
 				
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 theseKeywords\cf3  
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f2\i \cf8 missing value
+\f0\i \cf8 missing value
 \f1\i0 \cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 theNewPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf3 newKeywords\cf3 \
 				
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 					
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 keywords\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 keywords\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 theNewPhoto\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (\cf3 theseKeywords\cf3  & \cf3 newKeywords\cf3 )\
 				
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 				
-\f2\i \cf7 -- store the id for LR
+\f0\i \cf2 -- store the id for LR
 \f1\i0 \cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photosId\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 get
+\f2\b \cf4 get
 \f1\b0 \cf3  
-\f0\b \cf2 the
-\f1\b0 \cf3  \cf4 id\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 id\cf3  
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 theNewPhoto\cf3 \
 				
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 newEntry\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf6 ":"\cf3  & \cf3 lrId\cf3  & \cf6 ":"\cf3  & \cf3 lrCat\cf3  & \cf6 ":"\cf3  & \cf3 photosId\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf7 ":"\cf3  & \cf3 lrId\cf3  & \cf7 ":"\cf3  & \cf3 lrCat\cf3  & \cf7 ":"\cf3  & \cf3 photosId\cf3 \
 				
-\f0\b \cf5 log
+\f2\b \cf6 log
 \f1\b0 \cf3  \cf3 newEntry\cf3 \
 				
-\f0\b \cf2 copy
+\f2\b \cf4 copy
 \f1\b0 \cf3  \cf3 newEntry\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f0\b \cf2 the
+\f2\b \cf4 the
 \f1\b0 \cf3  
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 			
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 		
-\f0\b \cf5 delay
+\f2\b \cf6 delay
 \f1\b0 \cf3  \cf9 2\cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 tell
+\f2\b \cf4 tell
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf4 AppleScript's\cf3  \cf4 text item delimiters\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf6 " "\cf3 \
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf5 AppleScript's\cf3  \cf5 text item delimiters\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf7 " "\cf3 \
 	
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 import\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Update status flag in session file to tell Lightroom we are finished here
+\f0\i \cf2 -- Update status flag in session file to tell Lightroom we are finished here
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf3 hasErrors\cf3 , \cf3 errorMsg\cf3 )\
 	
-\f0\b \cf11 open for access
+\f2\b \cf11 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf11 write permission\cf3 \
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  \cf3 hasErrors\cf3  
-\f0\b \cf2 is
-\f1\b0 \cf3  \cf4 true\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 is
+\f1\b0 \cf3  \cf5 true\cf3  
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 done\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 false\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 false\cf3 \
 	
-\f0\b \cf2 else
+\f2\b \cf4 else
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 done\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf4 true\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf5 true\cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f0\b \cf11 set eof
+\f2\b \cf11 set eof
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 sessionFile\cf3  \cf11 to\cf3  \cf9 0\cf3 \
 	
-\f0\b \cf11 write
-\f1\b0 \cf3  \cf6 "album_name="\cf3  & \cf3 albumName\cf3  & \cf6 "\
-export_done="\cf3  & \cf3 done\cf3  & \cf6 "\
-ignoreByRegex="\cf3  & \cf3 ignoreByRegex\cf3  & \cf6 "\
-hasErrors="\cf3  & \cf3 hasErrors\cf3  & \cf6 "\
+\f2\b \cf11 write
+\f1\b0 \cf3  \cf7 "album_name="\cf3  & \cf3 albumName\cf3  & \cf7 "\
+export_done="\cf3  & \cf3 done\cf3  & \cf7 "\
+ignoreByRegex="\cf3  & \cf3 ignoreByRegex\cf3  & \cf7 "\
+hasErrors="\cf3  & \cf3 hasErrors\cf3  & \cf7 "\
 errorMsg="\cf3  & \cf3 errorMsg\cf3  \cf11 to\cf3  \cf3 sessionFile\cf3 \
 	
-\f0\b \cf11 close access
+\f2\b \cf11 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 updateSessionFile\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 --
+\f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  \cf10 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
 	
-\f0\b \cf11 open for access
+\f2\b \cf11 open for access
 \f1\b0 \cf3  \cf3 photosFile\cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf11 write permission\cf3 \
 	
-\f0\b \cf11 set eof
+\f2\b \cf11 set eof
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 photosFile\cf3  \cf11 to\cf3  \cf9 0\cf3 \
 	
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3  
-\f0\b \cf2 with
+\f2\b \cf4 with
 \f1\b0 \cf3  \cf3 thePhotoFile\cf3  
-\f0\b \cf2 in
+\f2\b \cf4 in
 \f1\b0 \cf3  \cf3 importedPhotos\cf3 \
 		
-\f0\b \cf5 log
+\f2\b \cf6 log
 \f1\b0 \cf3  \cf3 thePhotoFile\cf3 \
 		
-\f0\b \cf11 write
-\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf6 "\
+\f2\b \cf11 write
+\f1\b0 \cf3  \cf3 thePhotoFile\cf3  & \cf7 "\
 "\cf3  \cf11 to\cf3  \cf3 photosFile\cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 repeat
+\f2\b \cf4 repeat
 \f1\b0 \cf3 \
 	
-\f0\b \cf11 close access
+\f2\b \cf11 close access
 \f1\b0 \cf3  \cf3 photosFile\cf3 \
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  \cf10 updatePhotosFile\cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -- Run the import script
+\f0\i \cf2 -- Run the import script
 \f1\i0 \cf3 \
 
-\f2\i \cf7 -------------------------------------------------------------------------------
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  
-\f0\b \cf5 run
+\f2\b \cf6 run
 \f1\b0 \cf3  \cf3 argv\cf3 \
-	
-\f0\b \cf2 set
-\f1\b0 \cf3  \cf3 trashAlbumName\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf6 "Trash (Lightroom)"\cf3 \
 	\
 	
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (\cf3 argv\cf3  = 
-\f0\b \cf2 me
+\f2\b \cf4 me
 \f1\b0 \cf3 ) 
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 argv\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \{\cf6 "/Users/dieterstockhausen/Temp/Unbenannter Export"\cf3 \}\
+\f2\b \cf4 to
+\f1\b0 \cf3  \{\cf7 "/Users/dieterstockhausen/Temp/Unbenannter Export"\cf3 \}\
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 	
-\f2\i \cf7 -- Read the directory from the input and define the session file
+\f0\i \cf2 -- Read the directory from the input and define the session file
 \f1\i0 \cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 tempFolder\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  
-\f2\i \cf8 item
+\f0\i \cf8 item
 \f1\i0 \cf3  \cf9 1\cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 argv\cf3 \
 	\
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 sessionFile\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf6 "/session.txt"\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf7 "/session.txt"\cf3 \
 	
-\f0\b \cf11 open for access
+\f2\b \cf11 open for access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 	
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 sessionContents\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 read
+\f2\b \cf11 read
 \f1\b0 \cf3  \cf3 sessionFile\cf3 )\
 	
-\f0\b \cf11 close access
+\f2\b \cf11 close access
 \f1\b0 \cf3  \cf3 sessionFile\cf3 \
 	\
 	
-\f0\b \cf2 try
+\f2\b \cf4 try
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf10 getAlbumName\cf3 (\cf3 sessionContents\cf3 )\
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 ignoreByRegex\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf10 getIgnoreRegex\cf3 (\cf3 sessionContents\cf3 )\
 		\
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photosFile\cf3  
-\f0\b \cf2 to
-\f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf6 "/photos.txt"\cf3 \
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf3 tempFolder\cf3  & \cf7 "/photos.txt"\cf3 \
 		
-\f0\b \cf11 open for access
+\f2\b \cf11 open for access
 \f1\b0 \cf3  \cf3 photosFile\cf3 \
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photosContents\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  (
-\f0\b \cf11 read
+\f2\b \cf11 read
 \f1\b0 \cf3  \cf3 photosFile\cf3 )\
 		
-\f0\b \cf11 close access
+\f2\b \cf11 close access
 \f1\b0 \cf3  \cf3 photosFile\cf3 \
 		\
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 photoDescriptors\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf10 getPhotoDescriptors\cf3 (\cf3 photosContents\cf3 )\
 		
-\f0\b \cf2 set
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 importedPhotos\cf3  
-\f0\b \cf2 to
+\f2\b \cf4 to
 \f1\b0 \cf3  \cf10 import\cf3 (\cf3 photoDescriptors\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 )\
 		
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3  (
-\f0\b \cf5 count
+\f2\b \cf6 count
 \f1\b0 \cf3  
-\f0\b \cf2 of
+\f2\b \cf4 of
 \f1\b0 \cf3  \cf3 importedPhotos\cf3 ) 
-\f0\b \cf2 is
+\f2\b \cf4 is
 \f1\b0 \cf3  
-\f0\b \cf2 equal to
+\f2\b \cf4 equal to
 \f1\b0 \cf3  \cf9 0\cf3  
-\f0\b \cf2 then
+\f2\b \cf4 then
 \f1\b0 \cf3 \
-			\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf4 true\cf3 , \cf6 "Unknown error. Photos were not imported."\cf3 )\
+			\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf5 true\cf3 , \cf7 "Unknown error. Photos were not imported."\cf3 )\
 			
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3 \
 		
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 if
+\f2\b \cf4 if
 \f1\b0 \cf3 \
 		\cf10 updatePhotosFile\cf3 (\cf3 photosFile\cf3 , \cf3 importedPhotos\cf3 )\
 	
-\f0\b \cf2 on
+\f2\b \cf4 on
 \f1\b0 \cf3  
-\f0\b \cf2 error
+\f2\b \cf4 error
 \f1\b0 \cf3  \cf3 e\cf3 \
-		\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf4 true\cf3 , \cf3 e\cf3 )\
+		\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf5 true\cf3 , \cf3 e\cf3 )\
 		
-\f0\b \cf2 return
+\f2\b \cf4 return
 \f1\b0 \cf3 \
 	
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf2 try
+\f2\b \cf4 try
 \f1\b0 \cf3 \
 	\
-	\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf4 false\cf3 , \cf6 ""\cf3 )\
+	\cf10 updateSessionFile\cf3 (\cf3 sessionFile\cf3 , \cf3 albumName\cf3 , \cf3 ignoreByRegex\cf3 , \cf5 false\cf3 , \cf7 ""\cf3 )\
 	\
 	\
 
-\f0\b \cf2 end
+\f2\b \cf4 end
 \f1\b0 \cf3  
-\f0\b \cf5 run
+\f2\b \cf6 run
 \f1\b0 \cf3 \
 }

@@ -1,6 +1,9 @@
-
+--[[---------------------------------------------------------------------------
+-- Initial created by Simon Schoeters in 2011
+--
+-- 2021-05-29 Dieter Stockhausen. Add regex field
+-----------------------------------------------------------------------------]]--
 local LrView = import 'LrView'
-local LrPrefs = import "LrPrefs"
 
 PhotosPublishDialogSections = {}
 

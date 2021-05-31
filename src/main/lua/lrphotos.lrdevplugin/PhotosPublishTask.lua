@@ -1,21 +1,20 @@
 --[[---------------------------------------------------------------------------
--- Created by Simon Schoeters
--- Created in 2011
+-- Initial created by Simon Schoeters in 2011
+--
+-- 2021-05-29 Dieter Stockhausen. Add publishing functionality
 -----------------------------------------------------------------------------]]--
 
 local LrPathUtils = import 'LrPathUtils'
 local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local LrDialogs = import 'LrDialogs'
-local LrFileUtils = import 'LrFileUtils'
-local LrPrefs = import "LrPrefs"
+
 
 local logger = require("Logger")
-require("PluginInit")
 require("PhotosAPI")
 
--- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
--- LrMobdebug.start()
+--local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+--LrMobdebug.start()
 
 PhotosPublishTask = {}
 
@@ -63,7 +62,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             files[#files + 1] = pathOrMessage
             local lrcatName = LrPathUtils.leafName(LrPathUtils.removeExtension(photo.catalog:getPath()))
 
-            local pID = photo:getPropertyForPlugin(PluginInit.pluginID, 'photosId')
+            local pID = photo:getPropertyForPlugin(_PLUGIN, 'photosId')
             if (pID == nil) then
                 pID = ""
             end
@@ -107,6 +106,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         return
     end
 
+    -- Wait for the import to be done
     local done = false
     local hasErrors = false
     local errorMsg = ""
@@ -135,12 +135,9 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         return
     end
 
---    for _, file in ipairs(files) do
---        LrFileUtils.delete(file)
---    end
 
+    -- retrieve the remote photo ids from photos.txt and store these in the metadata of the LR photos
     local activeCatalog = LrApplication.activeCatalog()
-
     local f = assert(io.open(path .. "/photos.txt", "r"))
 
     activeCatalog:withWriteAccessDo("Set photos ID", function()
@@ -158,20 +155,16 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     end)
     f:close()
 
+    -- store the remote photoIds in the service
     for _, rendition in ipairs(renditions) do
-
         local photo = rendition.photo
-
         if not rendition.wasSkipped then
-            local photoId = PhotosAPI.getPhotosID(photo)
+            local photoId = PhotosAPI.getPhotosId(photo)
             if (photoId ~= nil) then
                 rendition:recordPublishedPhotoId(photoId)
-
             end
         end
-
     end
-
 
 end
 
@@ -206,4 +199,12 @@ function PhotosPublishTask.metadataThatTriggersRepublish(publishSettings)
     }
 
 end
+
+function PhotosPublishTask.deletePhotosFromPublishedCollection( publishSettings, arrayOfPhotoIds, deletedCallback )
+    for _, photoId in ipairs( arrayOfPhotoIds ) do
+        PhotosAPI.resetPhotoId(photoId)
+        deletedCallback( photoId )
+    end
+end
+
 
