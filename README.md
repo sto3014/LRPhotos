@@ -1,10 +1,9 @@
 # LRPhotos
-
-# Features
-Lightroom Classic publish service for Apple's Photos app.
+LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
+## Features
 * Publishing photos to Photos.app
-* Tag photos in Photos.app
-* Store photo IDs in Lightroom
+* Tagging photos in Photos.app
+* Store Photos.app IDs in Lightroom
 
 ## Requirements
 * MacOS 10.10 (Yosemite) or later.
@@ -17,15 +16,15 @@ Lightroom Classic publish service for Apple's Photos app.
 
 ## Usage
 ### Publishing
-The publish process
-* Imports photos to Photos.app
-* Set the tag "LR:<name of lr catalog>"
-* Writes ths Photos.app Ids back to Lightroom into metadata Photos ID
+The publish process…
+* imports photos into Photos.app
+* sets tag __LR:&lt;name of LR catalog file&gt;__
+* writes Photos.app IDs to Lightroom  metadata field __Photos ID__
 
 ### Re-Publishing
-The re-publishing process
-* A re-published photo is put to the same albums as its predecessor.
-* The predecessor get the tag "LR:out-of-date"
+The re-publishing process…
+* puts re-published photos into the same albums as their predecessors.
+* puts tag __LR:out-of-date__ onto the predecessors
 
 ### Remove photos from publishing service
 The Photos ID is set back, if you remove a photo from the service
@@ -35,23 +34,26 @@ The __Use Album__ configuration in the publishing service setup defines the targ
 It allows you to use not only the album name but also its path. Example:
 * Lightroom/Import
 
-The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing.  
-During re-publishing, the updated photos go into all albums where their predecessors are in. For technical reason,
-smart albums must be explicitly excluded. This can be done by a naming convention. The default regex expression
-__^!|!$__ exludes all albums which have an exclamation mark at the beginning or at the end of their names.
+The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing. During re-publishing, 
+the updated photos go into all albums where their predecessors are in. For technical reason,
+smart albums must be explicitly excluded. This can be done by a naming convention.  
+For instance, the default regex expression
+__^!|!$__ excludes all albums which have an exclamation mark at the beginning or at the end of their names.
 
 ## Use Cases
 The applescript interface for Photos.app is restricted:
 * It does not support deleting of photos
 * It does not allow put photos into shared albums.
 
-I.e., you must delete "old" photos manually after a re-publish.
+### Update albums
+You must delete "old" photos manually after a re-publish.
 Therefore, a smart album helps which filters by LR:out-of-date tag and may be by LR:<catalog name> as well.
 
-If you are using shared albums, you must additionally add the updated photos into these albums. Therefore, a second 
-smart album is helpful which filters by the date, when photos were added to Photos.app
+### Update smart albums
+If you are using shared albums, you must manually add the updated photos into these albums. Therefore, a second 
+smart album is helpful which filters by the date, when photos were added to Photos.app.
 
 
-# Acknowledgements
+## Acknowledgements
 Special thanks to [Simon Schoeters](https://www.suffix.be/blog/lightroom-iphoto-export/). His export provider plug-in was
 the base for LRPhotos.
