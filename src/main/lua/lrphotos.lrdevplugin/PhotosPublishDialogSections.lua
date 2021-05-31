@@ -17,27 +17,48 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
     {
       title = LOC '$$$/PhotosExportService/Title=Photos',
       f:row {
-        f:spacer {
-          width = share 'labelWidth'
-        },
+ --       f:spacer {
+ --         width = share 'labelWidth'
+ --       },
 
         f:checkbox {
-          title = LOC '$$$/PhotoExportService/CreateAlbum=Use Album:',
+          title = LOC '$$$/PhotoExportService/UseAlbum=Use Album:',
           value = bind 'useAlbum',
         },
 
-        f:edit_field {
-          value = bind 'albumName',
-          enabled = bind 'useAlbum',
-          truncation = 'middle',
-          immediate = true,
+        f:group_box { -- the buttons in this container make a set
           fill_horizontal = 1,
+          spacing = f:control_spacing(),
+          f:row {
+
+          f:radio_button {
+            title = LOC "$$$Photos/UseOneAlbumForService=Use one album for all collections",
+            value = bind 'albumBy', -- all of the buttons bound to the same key
+            checked_value = 'service',
+            enabled = bind 'useAlbum',
+          },
+          f:edit_field {
+            value = bind 'albumNameForService',
+            enabled = bind 'useAlbum',
+            truncation = 'middle',
+            immediate = true,
+            fill_horizontal = 1,
+          },
+          },
+          f:row{
+            f:radio_button {
+              title = LOC "$$$Photos/UseCollectionNameAsAlbum=Use collection name as album",
+              value = bind 'albumBy',
+              checked_value = 'collection',
+              enabled = bind 'useAlbum',
+            },
+          },
         },
       },
       f:row {
-        f:spacer {
-          width = share 'labelWidth'
-        },
+ --       f:spacer
+  --        width = share 'labelWidth'
+ --       },
 
         f:checkbox {
           title = LOC "$$$/Photos/IgnoreAlbums=Ignore Albums:",

@@ -30,9 +30,14 @@ The re-publishing process…
 The Photos ID is set back, if you remove a photo from the service
 
 ### Configuration
-The __Use Album__ configuration in the publishing service setup defines the target album where photos are imported in.
-It allows you to use not only the album name but also its path. Example:
-* Lightroom/Import
+The __Use Album__ configuration in the publishing service setup defines the name of the album where photos are imported in.
+The first option allows you to use a single album for all collections in a service. The second option uses the name
+of the collection as the album name. The album name includes the name of the Photos.app album as well as the folders.
+Examples:
+* /Holidays in Spain  
+  The album __Holidays in Spain__ will be created directly under __My Albums__
+* /2021/Holidays in Spain  
+The album  __Holidays in Spain__ will be created in the folder __2021__
 
 The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing. During re-publishing, 
 the updated photos go into all albums where their predecessors are in. For technical reason,

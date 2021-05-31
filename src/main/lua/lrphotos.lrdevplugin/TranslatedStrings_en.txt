@@ -1,6 +1,7 @@
 "$$$/PhotosExportService/Title=Photos"
-"$$$/PhotosExportService/CreateAlbum=Use Album:"
-"$$$/PhotosExportService/NewAlbum=Lightroom/Import"
+"$$$/PhotosExportService/UseAlbum=Use Album:"
+"$$$/PhotosExportService/NewAlbumForService=/Lightroom/Import"
+"$$$/PhotosExportService/NewAlbumForCollection=/Lightroom/Import"
 "$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photos"
 "$$$/PhotosExportService/ProgressOne=Importing one photo in Photos"
 "$$$/Photos/Metadata/Fields/PhotosId=Photos ID"
@@ -12,4 +13,7 @@
 "$$$/Photos/DeletingCollectionAndContents=Deleting photoset ^[^1^]"
 "$$$/Photos/NotSupported=LRPhotos is not supported on Windows."
 "$$$/Photos/NotSupported/Subtext=Photos.app only exists on Mac."
-
+"$$$Photos/UseOneAlbumForService=Use one album for all collections"
+"$$$Photos/UseCollectionNameAsAlbum=Use collection name as album"
+"$$$/Photos/Error/AlbumPath=Album path is not valid."
+"$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a \"/\" but may NOT end with a \"/\"."

@@ -12,7 +12,8 @@ local PhotosServiceProvider = {
   -- hideSections = {  'postProcessing'},
   exportPresetFields = {
     { key = 'useAlbum', default = true },
-    { key = 'albumName', default = LOC '$$$/PhotosExportService/NewAlbum=Lightroom/Import' },
+    { key = 'albumBy', default = "service" },
+    { key = 'albumNameForService', default = LOC '$$$/PhotosExportService/NewAlbumForService=/Lightroom/Import' },
     { key = 'ignoreAlbums', default = true },
     { key = 'ignoreRegex', default = "^!|!$" },
   },

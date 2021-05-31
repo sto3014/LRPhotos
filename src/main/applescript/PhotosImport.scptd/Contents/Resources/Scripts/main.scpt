@@ -123,7 +123,14 @@ end trimThis
 --   "folder1/folder2/..../album"
 -------------------------------------------------------------------------------
 on createOrGetAlbum(albumPath)
+	set isValid to matchesRegex(albumPath, "^(\\/[\\w\\s-]+)+$")
+	if not isValid then
+		error "Albumpath " & albumPath & " is not a valid path."
+	end if
+	set len to the length of albumPath
+	set albumPath to text 2 thru len of albumPath
 	set slashOffset to (offset of "/" in albumPath)
+
 	set theFolder to missing value
 	if albumPath is missing value or albumPath is equal to "" then return missing value
 	tell application id "com.apple.photos"

@@ -9,12 +9,11 @@ local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local LrDialogs = import 'LrDialogs'
 
-
 local logger = require("Logger")
 require("PhotosAPI")
 
---local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
---LrMobdebug.start()
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+-- LrMobdebug.start()
 
 PhotosPublishTask = {}
 
@@ -29,11 +28,27 @@ local function split (inputstr, sep)
     return t
 end
 
+local function isValidAlbumPath(albumPath)
+    if ( albumPath == "") then
+        return true
+    end
+    local idx = string.find(albumPath, "/")
+    if ( idx ~= 1 ) then
+        return false
+    end
+    idx = string.find(albumPath, "/", - 1)
+    if ( idx == #albumPath) then
+        return nil
+    end
+    return true
+end
+
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
+    -- LrMobdebug.on()
 
     local exportSession = exportContext.exportSession
     local exportParams = exportContext.propertyTable
-
+    local collectionName = exportContext.publishedCollectionInfo.name
     -- Export message settings
     local nPhotos = exportSession:countRenditions()
     local progressScope = exportContext:configureProgress {
@@ -79,10 +94,23 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     -- Write Lightroom input to a session.txt file for AppleScript later on
     local f = assert(io.open(path .. "/session.txt", "w+"))
     f:write("export_done=false\n")
+    local albumName=""
     if exportParams.useAlbum == true then
-        logger.trace("Album: " .. exportParams.albumName)
-        f:write("album_name=" .. exportParams.albumName .. "\n")
+        if (exportParams.albumBy == "service") then
+            albumName = exportParams.albumName
+        else
+            albumName = exportContext.publishedCollectionInfo.name
+        end
     end
+
+    if ( not isValidAlbumPath(albumName) ) then
+        LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
+                LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
+        return
+    end
+    logger.trace("Album: " .. albumName)
+    f:write("album_name=" .. albumName .. "\n")
+
     if exportParams.ignoreAlbums == true then
         f:write("ignoreByRegex=" .. exportParams.ignoreRegex .. "\n")
     end
@@ -200,10 +228,10 @@ function PhotosPublishTask.metadataThatTriggersRepublish(publishSettings)
 
 end
 
-function PhotosPublishTask.deletePhotosFromPublishedCollection( publishSettings, arrayOfPhotoIds, deletedCallback )
-    for _, photoId in ipairs( arrayOfPhotoIds ) do
+function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, arrayOfPhotoIds, deletedCallback)
+    for _, photoId in ipairs(arrayOfPhotoIds) do
         PhotosAPI.resetPhotoId(photoId)
-        deletedCallback( photoId )
+        deletedCallback(photoId)
     end
 end
 

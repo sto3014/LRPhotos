@@ -12,6 +12,7 @@
 
 \f0\i\fs24 \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
+\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
 
 \f0\i \cf2 -- Initial created by Simon Schoeters in 2011
 \f1\i0 \cf3 \
@@ -639,11 +640,52 @@
 \f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumPath\cf3 )\
 	
 \f2\b \cf4 set
+\f1\b0 \cf3  \cf3 isValid\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  \cf10 matchesRegex\cf3 (\cf3 albumPath\cf3 , \cf7 "^(\\\\/[\\\\w\\\\s-]+)+$"\cf3 )\
+	
+\f2\b \cf4 if
+\f1\b0 \cf3  
+\f2\b \cf4 not
+\f1\b0 \cf3  \cf3 isValid\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+		
+\f2\b \cf4 error
+\f1\b0 \cf3  \cf7 "Albumpath "\cf3  & \cf3 albumPath\cf3  & \cf7 " is not a valid path."\cf3 \
+	
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
+	
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 length\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+	
+\f2\b \cf4 set
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f0\i \cf8 text
+\f1\i0 \cf3  \cf9 2\cf3  
+\f2\b \cf4 thru
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 albumPath\cf3 \
+	
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 slashOffset\cf3  
 \f2\b \cf4 to
 \f1\b0 \cf3  (
 \f2\b \cf11 offset
 \f1\b0 \cf3  \cf11 of\cf3  \cf7 "/"\cf3  \cf11 in\cf3  \cf3 albumPath\cf3 )\
+	\
 	
 \f2\b \cf4 set
 \f1\b0 \cf3  \cf3 theFolder\cf3  
