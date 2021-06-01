@@ -199,8 +199,8 @@ end
 function PhotosPublishTask.getCollectionBehaviorInfo(publishSettings)
 
     return {
-        defaultCollectionName = LOC "$$$/Photos/DefaultCollectionName/Photostream=Photostream",
-        defaultCollectionCanBeDeleted = false,
+        -- defaultCollectionName = LOC "$$$/Photos/DefaultCollectionName/Photostream=Photostream",
+        defaultCollectionCanBeDeleted = true,
         canAddCollection = true,
         maxCollectionSetDepth = 0,
         -- Collection sets are not supported through the Flickr sample plug-in.
@@ -234,5 +234,4 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         deletedCallback(photoId)
     end
 end
-
 
