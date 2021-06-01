@@ -120,6 +120,24 @@
 \f1\b0 \cf3 \
 				
 \f2\b \cf4 set
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 length\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 aLine\cf3 \
+				
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 greater than
+\f1\b0 \cf3  \cf3 equalSignOffset\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+					
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 albumName\cf3  
 \f2\b \cf4 to
 \f1\b0 \cf3  
@@ -131,6 +149,11 @@
 \f1\b0 \cf3  \cf9 -1\cf3  
 \f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
+				
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
 			
 \f2\b \cf4 end
 \f1\b0 \cf3  
@@ -217,6 +240,24 @@
 \f1\b0 \cf3 \
 				
 \f2\b \cf4 set
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 to
+\f1\b0 \cf3  
+\f2\b \cf4 the
+\f1\b0 \cf3  \cf5 length\cf3  
+\f2\b \cf4 of
+\f1\b0 \cf3  \cf3 aLine\cf3 \
+				
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 len\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 greater than
+\f1\b0 \cf3  \cf3 equalSignOffset\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+					
+\f2\b \cf4 set
 \f1\b0 \cf3  \cf3 ignoreByRegex\cf3  
 \f2\b \cf4 to
 \f1\b0 \cf3  
@@ -228,6 +269,11 @@
 \f1\b0 \cf3  \cf9 -1\cf3  
 \f2\b \cf4 of
 \f1\b0 \cf3  \cf3 aLine\cf3 \
+				
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
 			
 \f2\b \cf4 end
 \f1\b0 \cf3  
@@ -638,6 +684,31 @@
 
 \f2\b \cf4 on
 \f1\b0 \cf3  \cf10 createOrGetAlbum\cf3 (\cf3 albumPath\cf3 )\
+	
+\f2\b \cf4 if
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f0\i \cf8 missing value
+\f1\i0 \cf3  
+\f2\b \cf4 or
+\f1\b0 \cf3  \cf3 albumPath\cf3  
+\f2\b \cf4 is
+\f1\b0 \cf3  
+\f2\b \cf4 equal to
+\f1\b0 \cf3  \cf7 ""\cf3  
+\f2\b \cf4 then
+\f1\b0 \cf3 \
+		
+\f2\b \cf4 return
+\f1\b0 \cf3  
+\f0\i \cf8 missing value
+\f1\i0 \cf3 \
+	
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 if
+\f1\b0 \cf3 \
 	
 \f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isValid\cf3  
@@ -1422,8 +1493,24 @@
 \f2\b \cf4 then
 \f1\b0 \cf3 \
 						
+\f2\b \cf4 try
+\f1\b0 \cf3 \
+							
 \f2\b \cf6 add
 \f1\b0 \cf3  \cf3 newPhotos\cf3  \cf6 to\cf3  \cf3 aAlbum\cf3 \
+						
+\f2\b \cf4 on
+\f1\b0 \cf3  
+\f2\b \cf4 error
+\f1\b0 \cf3  \cf3 e\cf3 \
+							
+\f2\b \cf4 error
+\f1\b0 \cf3  \cf3 e\cf3  & \cf7 " (Album is \\""\cf3  & \cf3 aAlbumName\cf3  & \cf7 "\\""\cf3 \
+						
+\f2\b \cf4 end
+\f1\b0 \cf3  
+\f2\b \cf4 try
+\f1\b0 \cf3 \
 					
 \f2\b \cf4 end
 \f1\b0 \cf3  

@@ -23,7 +23,10 @@ on getAlbumName(sessionContents)
 		if equalSignOffset > 0 then
 			set var to text 1 thru (equalSignOffset - 1) of aLine
 			if var = "album_name" then
-				set albumName to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+				set len to the length of aLine
+				if len is greater than equalSignOffset then
+					set albumName to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+				end if
 			end if
 		end if
 	end repeat
@@ -40,7 +43,10 @@ on getIgnoreRegex(sessionContents)
 		if equalSignOffset > 0 then
 			set var to text 1 thru (equalSignOffset - 1) of aLine
 			if var = "ignoreByRegex" then
-				set ignoreByRegex to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+				set len to the length of aLine
+				if len is greater than equalSignOffset then
+					set ignoreByRegex to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+				end if
 			end if
 		end if
 	end repeat
@@ -123,6 +129,9 @@ end trimThis
 --   "folder1/folder2/..../album"
 -------------------------------------------------------------------------------
 on createOrGetAlbum(albumPath)
+	if albumPath is missing value or albumPath is equal to "" then
+		return missing value
+	end if
 	set isValid to matchesRegex(albumPath, "^(\\/[\\w\\s-]+)+$")
 	if not isValid then
 		error "Albumpath " & albumPath & " is not a valid path."
@@ -246,7 +255,11 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 					set aAlbumName to name of aAlbum
 					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex)
 					if isValid is true then
-						add newPhotos to aAlbum
+						try
+							add newPhotos to aAlbum
+						on error e
+							error e & " (Album is \"" & aAlbumName & "\""
+						end try
 					end if
 				end repeat
 			end if
