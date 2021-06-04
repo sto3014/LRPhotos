@@ -9,7 +9,7 @@ require 'PhotosPublishTask'
 
 local PhotosServiceProvider = {
   hideSections = {  'postProcessing', 'exportLocation'},
-  -- hideSections = {  'postProcessing'},
+  --hideSections = {  'postProcessing'},
   exportPresetFields = {
     { key = 'useAlbum', default = true },
     { key = 'albumBy', default = "service" },

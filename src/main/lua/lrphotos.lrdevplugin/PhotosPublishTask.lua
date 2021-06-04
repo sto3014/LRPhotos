@@ -48,7 +48,6 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
 
     local exportSession = exportContext.exportSession
     local exportParams = exportContext.propertyTable
-    local collectionName = exportContext.publishedCollectionInfo.name
     -- Export message settings
     local nPhotos = exportSession:countRenditions()
     local progressScope = exportContext:configureProgress {

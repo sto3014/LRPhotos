@@ -12,7 +12,6 @@
 
 \f0\i\fs24 \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
-\pard\pardeftab480\slleading40\pardirnatural\partightenfactor0
 
 \f0\i \cf2 -- Initial created by Simon Schoeters in 2011
 \f1\i0 \cf3 \
@@ -20,7 +19,7 @@
 \f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f0\i \cf2 -- 29.05.2021. Dieter Stockhausen. Add publishing functionality 
+\f0\i \cf2 -- 29.05.2021. Dieter Stockhausen. Add publishing functionality
 \f1\i0 \cf3 \
 
 \f0\i \cf2 --
@@ -302,7 +301,7 @@
 \f0\i \cf2 -- Extract the photo descriptors from the photos file
 \f1\i0 \cf3 \
 
-\f0\i \cf2 -- Format is: 
+\f0\i \cf2 -- Format is:
 \f1\i0 \cf3 \
 
 \f0\i \cf2 --   image posix file path : LR photo uuid : name of LR catalog file : Photos photo ID
@@ -387,7 +386,7 @@
 \f0\i \cf2 -- matchesRegex
 \f1\i0 \cf3 \
 
-\f0\i \cf2 ------------------------------------------------------------------------------- 
+\f0\i \cf2 -------------------------------------------------------------------------------
 \f1\i0 \cf3 \
 
 \f2\b \cf4 on
@@ -673,7 +672,7 @@
 \f0\i \cf2 --
 \f1\i0 \cf3 \
 
-\f0\i \cf2 -- format of albumPath: 
+\f0\i \cf2 -- format of albumPath:
 \f1\i0 \cf3 \
 
 \f0\i \cf2 --   "folder1/folder2/..../album"
@@ -713,7 +712,7 @@
 \f2\b \cf4 set
 \f1\b0 \cf3  \cf3 isValid\cf3  
 \f2\b \cf4 to
-\f1\b0 \cf3  \cf10 matchesRegex\cf3 (\cf3 albumPath\cf3 , \cf7 "^(\\\\/[\\\\w\\\\s-]+)+$"\cf3 )\
+\f1\b0 \cf3  \cf10 matchesRegex\cf3 (\cf3 albumPath\cf3 , \cf7 "^(\\\\/[^\\\\/]+)+$"\cf3 )\
 	
 \f2\b \cf4 if
 \f1\b0 \cf3  
@@ -1797,7 +1796,7 @@ errorMsg="\cf3  & \cf3 errorMsg\cf3  \cf11 to\cf3  \cf3 sessionFile\cf3 \
 \f2\b \cf4 set
 \f1\b0 \cf3  \cf3 argv\cf3  
 \f2\b \cf4 to
-\f1\b0 \cf3  \{\cf7 "/Users/dieterstockhausen/Temp/Unbenannter Export"\cf3 \}\
+\f1\b0 \cf3  \{\cf7 "/Users/dieterstockhausen/Desktop/Unbenannter Export"\cf3 \}\
 	
 \f2\b \cf4 end
 \f1\b0 \cf3  

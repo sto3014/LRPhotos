@@ -132,7 +132,7 @@ on createOrGetAlbum(albumPath)
 	if albumPath is missing value or albumPath is equal to "" then
 		return missing value
 	end if
-	set isValid to matchesRegex(albumPath, "^(\\/[\\w\\s-]+)+$")
+	set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
 	if not isValid then
 		error "Albumpath " & albumPath & " is not a valid path."
 	end if
@@ -324,7 +324,7 @@ end updatePhotosFile
 on run argv
 
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Temp/Unbenannter Export"}
+		set argv to {"/Users/dieterstockhausen/Desktop/Unbenannter Export"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
