@@ -27,6 +27,7 @@ local PhotosServiceProvider = {
   viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
   deletePhotosFromPublishedCollection= PhotosPublishTask.deletePhotosFromPublishedCollection,
+  startDialog=PhotosPublishTask.startDialog,
   supportsIncrementalPublish = 'only',
   small_icon = 'photos_small.png',
   publish_fallbackNameBinding = 'fullname',

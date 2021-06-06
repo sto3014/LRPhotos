@@ -22,7 +22,7 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
  --       },
 
         f:checkbox {
-          title = LOC '$$$/PhotoExportService/UseAlbum=Use Album:',
+          title = LOC '$$$/PhotosExportService/UseAlbum=Use Album:',
           value = bind 'useAlbum',
         },
 
@@ -32,7 +32,7 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
           f:row {
 
           f:radio_button {
-            title = LOC "$$$Photos/UseOneAlbumForService=Use one album for all collections",
+            title = LOC "$$$/Photos/UseOneAlbumForService=Use one album for all collections",
             value = bind 'albumBy', -- all of the buttons bound to the same key
             checked_value = 'service',
             enabled = bind 'useAlbum',
@@ -47,7 +47,7 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
           },
           f:row{
             f:radio_button {
-              title = LOC "$$$Photos/UseCollectionNameAsAlbum=Use collection name as album",
+              title = LOC "$$$/Photos/UseCollectionNameAsAlbum=Use collection name as album",
               value = bind 'albumBy',
               checked_value = 'collection',
               enabled = bind 'useAlbum',

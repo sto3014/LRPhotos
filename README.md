@@ -21,6 +21,13 @@ The publish process…
 * sets tag __LR:&lt;name of LR catalog file&gt;__
 * writes Photos.app IDs to Lightroom  metadata field __Photos ID__
 
+When creating a new publishing service, there are three predefined options which are not default by Adobe:
+* Quality for JPEGs is 85% not 60%
+* Person info will NOT be removed from metadata
+* Location info will NOT be removed from metadata
+
+Of course, you may change these settings for your service definition.
+
 ### Re-Publishing
 The re-publishing process…
 * puts re-published photos into the same albums as their predecessors.
@@ -37,7 +44,9 @@ Examples:
 * /Holidays in Spain  
   The album __Holidays in Spain__ will be created directly under __My Albums__
 * /2021/Holidays in Spain  
-The album  __Holidays in Spain__ will be created in the folder __2021__
+The album  __Holidays in Spain__ will be created in the folder __2021__  
+  
+Remarks: As the slash is used as directory separator you can not use it for a name of an album.
 
 The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing. During re-publishing, 
 the updated photos go into all albums where their predecessors are in. For technical reason,

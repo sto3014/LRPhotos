@@ -234,3 +234,13 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
     end
 end
 
+function PhotosPublishTask.startDialog( propertyTable )
+
+    -- Clear login if it's a new connection.
+    -- LrMobdebug.on()
+    if not propertyTable.LR_editingExistingPublishConnection then
+        propertyTable.LR_jpeg_quality=0.85
+        propertyTable.LR_removeLocationMetadata=false
+        propertyTable.LR_removeFaceMetadata=false
+    end
+end
