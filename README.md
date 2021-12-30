@@ -1,20 +1,40 @@
 # LRPhotos
+
+---
 LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 ## Features
+
+---
 * Publishing photos to Photos.app
 * Tagging photos in Photos.app
 * Store Photos.app IDs in Lightroom
 
 ## Requirements
+
+---
 * MacOS 10.10 (Yosemite) or later.
 * Windows is not supported.
 
 ## Installation
-* Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/tree/main/target).
-* Extract the archive into your home directory.
-* Restart Lightroom
+
+---
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/archive/refs/tags/1.0.0.1.zip).
+2. Extract the archive in the download folder
+3. Copy plug-in into the configuration folder of Lightroom  
+   Open a terminal window, change to Downloads/LRPhotos-1.0.0.1 and execute install.sh:
+   ```
+   -> ~ cd Downloads/LRPhotos-1.0.0.1
+   -> ./install.sh 
+    ```
+   Install.sh copies the plug-in into:
+    ```
+    ~/Library/Application Support/Adobe/Lightroom/Modules/LRPhotos.lrplugin
+    ```
+4. Restart Lightroom
 
 ## Usage
+
+---
 ### Publishing
 The publish process…
 * imports photos into Photos.app
@@ -55,6 +75,8 @@ For instance, the default regex expression
 __^!|!$__ excludes all albums which have an exclamation mark at the beginning or at the end of their names.
 
 ## Use Cases
+
+---
 The applescript interface for Photos.app is restricted:
 * It does not support deleting of photos
 * It does not allow put photos into shared albums.
@@ -69,5 +91,7 @@ smart album is helpful which filters by the date, when photos were added to Phot
 
 
 ## Acknowledgements
+
+--
 Special thanks to [Simon Schoeters](https://www.suffix.be/blog/lightroom-iphoto-export/). His export provider plug-in was
 the base for LRPhotos.
