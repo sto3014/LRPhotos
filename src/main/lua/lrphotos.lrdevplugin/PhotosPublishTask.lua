@@ -12,8 +12,8 @@ local LrDialogs = import 'LrDialogs'
 local logger = require("Logger")
 require("PhotosAPI")
 
-local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
-LrMobdebug.start()
+--local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+--LrMobdebug.start()
 
 PhotosPublishTask = {}
 
@@ -47,7 +47,7 @@ local function isValidAlbumPath(albumPath)
 end
 
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
-    LrMobdebug.on()
+    --LrMobdebug.on()
 
     local exportSession = exportContext.exportSession
     local exportParams = exportContext.propertyTable
@@ -103,6 +103,9 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         else
             albumName = exportContext.publishedCollectionInfo.name
         end
+    end
+    if ( albumName == nil) then
+        albumName = ""
     end
 
     if ( not isValidAlbumPath(albumName) ) then
