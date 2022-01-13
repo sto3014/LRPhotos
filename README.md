@@ -18,12 +18,12 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 ## Installation
 
 ---
-1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/archive/refs/tags/1.0.0.1.zip).
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/archive/refs/tags/1.0.0.2.zip).
 2. Extract the archive in the download folder
 3. Copy plug-in into the configuration folder of Lightroom  
-   Open a terminal window, change to Downloads/LRPhotos-1.0.0.1 and execute install.sh:
+   Open a terminal window, change to Downloads/LRPhotos-1.0.0.2 and execute install.sh:
    ```
-   -> ~ cd Downloads/LRPhotos-1.0.0.1
+   -> ~ cd Downloads/LRPhotos-1.0.0.2
    -> ./install.sh 
     ```
    Install.sh copies the plug-in into:

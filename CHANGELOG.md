@@ -14,3 +14,11 @@ Only the documentation has changed. No need to update.
 ### Changed
 ### Fixed
 Fix installation chapter in README.md 
+
+## [1.0.0.2] - 2022-01-14
+
+### Added
+### Changed
+### Fixed
+If the ``Use one album for all collections`` is checked but no value is provided you get 
+an unreasonable error message.

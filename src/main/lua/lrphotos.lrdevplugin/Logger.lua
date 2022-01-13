@@ -5,7 +5,7 @@
 local LrLogger = import("LrLogger")
 local _logger = LrLogger("PhotosServiceProvider")
 _logger:enable("logfile")
-local enabled = false
+local enabled = true
 -------------------------------------------------------------------------------
 local logger = {}
 -------------------------------------------------------------------------------
