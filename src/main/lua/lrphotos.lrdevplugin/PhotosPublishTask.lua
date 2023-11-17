@@ -29,18 +29,18 @@ local function split (inputstr, sep)
 end
 
 local function isValidAlbumPath(albumPath)
-    if ( albumPath == nil) then
+    if (albumPath == nil) then
         return false
     end
-    if ( albumPath == "") then
+    if (albumPath == "") then
         return true
     end
     local idx = string.find(albumPath, "/")
-    if ( idx ~= 1 ) then
+    if (idx ~= 1) then
         return false
     end
-    idx = string.find(albumPath, "/", - 1)
-    if ( idx == #albumPath) then
+    idx = string.find(albumPath, "/", -1)
+    if (idx == #albumPath) then
         return nil
     end
     return true
@@ -92,11 +92,12 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     end
 
     local path = LrPathUtils.parent(files[1])
+    logger.trace("path=" .. tostring(path))
 
     -- Write Lightroom input to a session.txt file for AppleScript later on
     local f = assert(io.open(path .. "/session.txt", "w+"))
     f:write("export_done=false\n")
-    local albumName=""
+    local albumName = ""
     if exportParams.useAlbum == true then
         if (exportParams.albumBy == "service") then
             albumName = exportParams.albumNameForService
@@ -104,11 +105,11 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             albumName = exportContext.publishedCollectionInfo.name
         end
     end
-    if ( albumName == nil) then
+    if (albumName == nil) then
         albumName = ""
     end
 
-    if ( not isValidAlbumPath(albumName) ) then
+    if (not isValidAlbumPath(albumName)) then
         LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
                 LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
         return
@@ -191,14 +192,18 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     -- store the remote photoIds in the service
     for _, rendition in ipairs(renditions) do
         local photo = rendition.photo
-        if not rendition.wasSkipped then
-            local photoId = PhotosAPI.getPhotosId(photo)
+        local isVideo = photo:getRawMetadata("isVideo")
+        logger.trace("isVideo=" .. tostring(isVideo))
+        local photoId = PhotosAPI.getPhotosId(photo)
+        logger.trace("Record photo?:" .. tostring(photoId))
+        -- Videos are always marked as skipped. Hmmm?
+        if not rendition.wasSkipped or isVideo then
+            logger.trace("Record=" .. tostring(photoId))
             if (photoId ~= nil) then
                 rendition:recordPublishedPhotoId(photoId)
             end
         end
     end
-
 end
 
 function PhotosPublishTask.getCollectionBehaviorInfo(publishSettings)
@@ -240,13 +245,13 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
     end
 end
 
-function PhotosPublishTask.startDialog( propertyTable )
+function PhotosPublishTask.startDialog(propertyTable)
 
     -- Clear login if it's a new connection.
     -- LrMobdebug.on()
     if not propertyTable.LR_editingExistingPublishConnection then
-        propertyTable.LR_jpeg_quality=0.85
-        propertyTable.LR_removeLocationMetadata=false
-        propertyTable.LR_removeFaceMetadata=false
+        propertyTable.LR_jpeg_quality = 0.85
+        propertyTable.LR_removeLocationMetadata = false
+        propertyTable.LR_removeFaceMetadata = false
     end
 end

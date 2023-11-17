@@ -8,7 +8,7 @@ require 'PhotosPublishDialogSections'
 require 'PhotosPublishTask'
 
 local PhotosServiceProvider = {
-  hideSections = {  'postProcessing', 'exportLocation'},
+  hideSections = { 'postProcessing', 'exportLocation' },
   --hideSections = {  'postProcessing'},
   exportPresetFields = {
     { key = 'useAlbum', default = true },
@@ -23,15 +23,15 @@ local PhotosServiceProvider = {
   getCollectionBehaviorInfo = PhotosPublishTask.getCollectionBehaviorInfo,
   metadataThatTriggersRepublish = PhotosPublishTask.metadataThatTriggersRepublish,
   updateExportSettings = PhotosPublishTask.updateExportSettings,
-  didCreateNewPublishService= PhotosPublishTask.didCreateNewPublishService,
+  didCreateNewPublishService = PhotosPublishTask.didCreateNewPublishService,
   viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
-  deletePhotosFromPublishedCollection= PhotosPublishTask.deletePhotosFromPublishedCollection,
-  startDialog=PhotosPublishTask.startDialog,
+  deletePhotosFromPublishedCollection = PhotosPublishTask.deletePhotosFromPublishedCollection,
+  startDialog = PhotosPublishTask.startDialog,
   supportsIncrementalPublish = 'only',
   small_icon = 'photos_small.png',
   publish_fallbackNameBinding = 'fullname',
-  titleForGoToPublishedCollection  = 'disable'
+  titleForGoToPublishedCollection = 'disable'
 }
 local prefs = LrPrefs.prefsForPlugin()
 if (prefs.osSupported) then
