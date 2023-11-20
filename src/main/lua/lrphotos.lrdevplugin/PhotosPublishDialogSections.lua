@@ -56,9 +56,9 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
         },
       },
       f:row {
- --       f:spacer
-  --        width = share 'labelWidth'
- --       },
+        --       f:spacer
+        --        width = share 'labelWidth'
+        --       },
 
         f:checkbox {
           title = LOC "$$$/Photos/IgnoreAlbums=Ignore Albums:",
@@ -70,6 +70,24 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
           title = LOC "$$$/Photos/IgnorePattern=Regex Pattern:",
           value = bind 'ignoreRegex',
           enabled = bind 'ignoreAlbums',
+          truncation = 'middle',
+          immediate = true,
+          fill_horizontal = 1,
+        },
+      },
+      f:row {
+        --       f:spacer
+        --        width = share 'labelWidth'
+        --       },
+
+        f:static_text({
+          title = LOC("$$$/Photos/RootFolder=Root Folder for Albums:"),
+          width_in_chars = 19,
+        }),
+
+        f:edit_field {
+          -- title = LOC "$$$/Photos/RootFolder=Root Folder for Albums:",
+          value = bind 'rootFolder',
           truncation = 'middle',
           immediate = true,
           fill_horizontal = 1,

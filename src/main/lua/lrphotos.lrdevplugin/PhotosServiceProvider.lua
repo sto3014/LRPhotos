@@ -16,6 +16,7 @@ local PhotosServiceProvider = {
     { key = 'albumNameForService', default = LOC '$$$/PhotosExportService/NewAlbumForService=/Lightroom/Import' },
     { key = 'ignoreAlbums', default = true },
     { key = 'ignoreRegex', default = "^!|!$" },
+    { key = 'rootFolder', default = "/" },
   },
   canExportVideo = true,
   sectionsForBottomOfDialog = PhotosPublishDialogSections.sectionsForBottomOfDialog,

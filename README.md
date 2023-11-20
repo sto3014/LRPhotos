@@ -46,6 +46,8 @@ When creating a new publishing service, there are three predefined options which
 * Person info will NOT be removed from metadata
 * Location info will NOT be removed from metadata
 
+Remarks: If you don't export videos as original the create date of the video will be set to the current date.
+
 Of course, you may change these settings for your service definition.
 
 ### Re-Publishing
@@ -73,6 +75,8 @@ the updated photos go into all albums where their predecessors are in. For techn
 smart albums must be explicitly excluded. This can be done by a naming convention.  
 For instance, the default regex expression
 __^!|!$__ excludes all albums which have an exclamation mark at the beginning or at the end of their names.
+
+The __Root Folder for Albums__ is used to define a global folder for all albums in this service. 
 
 ## Use Cases
 

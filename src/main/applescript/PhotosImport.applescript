@@ -213,14 +213,12 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 				end if
 			end try
 			
-			set previousAlbumNames to {}
-			set mediaItems to {}
-			
 			-- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
 			if isUpdate is true then
+				-- display dialog photosId
 				set previousPhotos to (every media item whose id is equal to photosId)
 				if (count of previousPhotos) is greater than 0 then
-					set previousAlbums to (albums whose id of media items contains photosId)
+					tell me to set previousAlbums to getPreviousAlbums(photosId)
 					set thePreviousPhoto to item 1 of previousPhotos
 					-- set the photo out-of-date
 					set newKeywords to {"lr:out-of-date"}
@@ -254,11 +252,21 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 					set aAlbumName to name of aAlbum
 					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex)
 					if isValid is true then
-						try
-							add newPhotos to aAlbum
-						on error e
-							error e & " (Album is \"" & aAlbumName & "\""
-						end try
+						repeat with newPhoto2 in newPhotos
+							set newKeywords2 to {"album:" & aAlbumName}
+							set theseKeywords2 to the keywords of newPhoto2
+							if theseKeywords2 is missing value then
+								set keywords of newPhoto2 to newKeywords2
+							else
+								set keywords of newPhoto2 to (theseKeywords2 & newKeywords2)
+							end if
+							try
+								add newPhotos to aAlbum
+							on error e
+								error e & " (Album is \"" & aAlbumName & "\""
+							end try
+							
+						end repeat
 					end if
 				end repeat
 			end if
@@ -318,20 +326,90 @@ on updatePhotosFile(photosFile, importedPhotos)
 	end repeat
 	close access photosFile
 end updatePhotosFile
+
+-------------------------------------------------------------------------------
+-- getPreviousAlbums
+-------------------------------------------------------------------------------
+on getPreviousAlbums(photosId)
+	tell application id "com.apple.photos"
+		local previousAlbums
+		set previousAlbums to {}
+		
+		local previousFolderAlbumsL0
+		set previousFolderAlbumsL0 to get (albums whose id of media items contains photosId)
+		
+		local previousFolderAlbumsL1
+		set previousFolderAlbumsL1 to get (albums in every folder whose id of media items contains photosId)
+		
+		local previousFolderAlbumsL2
+		set previousFolderAlbumsL2 to get (albums in every folder in every folder whose id of media items contains photosId)
+		
+		if (count of previousFolderAlbumsL0) is greater than 0 then
+			repeat with rootAlbums in previousFolderAlbumsL0
+				set aAlbum to item 1 of rootAlbums
+				copy aAlbum to the end of the previousAlbums
+			end repeat
+		end if
+		
+		
+		if (count of previousFolderAlbumsL1) is greater than 0 then
+			repeat with folderL1Albums in previousFolderAlbumsL1
+				repeat with rootAlbums in folderL1Albums
+					set aAlbum to item 1 of rootAlbums
+					copy aAlbum to the end of the previousAlbums
+				end repeat
+			end repeat
+		end if
+		
+		if (count of previousFolderAlbumsL2) is greater than 0 then
+			repeat with folderL2Albums in previousFolderAlbumsL2
+				repeat with folderL1Albums in folderL2Albums
+					repeat with rootAlbums in folderL1Albums
+						set aAlbum to item 1 of rootAlbums
+						copy aAlbum to the end of the previousAlbums
+					end repeat
+				end repeat
+			end repeat
+		end if
+		
+	end tell
+	return previousAlbums
+end getPreviousAlbums
+-------------------------------------------------------------------------------
+-- testImport
+-------------------------------------------------------------------------------
+on testImport()
+	local importAlbum
+	set importAlbum to createOrGetAlbum("/Test/Yield2")
+	set photosId to "981851C6-7D75-4D09-BF73-45D36113865B/L0/001"
+	local previousAlbums
+	set previousAlbums to getPreviousAlbums(photosId)
+	tell application id "com.apple.photos"
+		set importAlbumName to name of importAlbum
+		set previousPhotos to every media item whose id is equal to photosId
+		if (count of previousPhotos) is greater than 0 then
+			repeat with aAlbum in previousAlbums
+				add previousPhotos to aAlbum
+			end repeat
+		end if
+	end tell
+end testImport
 -------------------------------------------------------------------------------
 -- Run the import script
 -------------------------------------------------------------------------------
 on run argv
+	-- testImport()
+	-- return
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Desktop/Unbenannter Export"}
+		set argv to {"/Users/dieterstockhausen/Temp"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
 	
-	set sessionFile to tempFolder & "/session.txt"
+	set sessionFile to POSIX file (tempFolder & "/session.txt")
 	open for access sessionFile
-	set sessionContents to (read sessionFile)
+	set sessionContents to (read sessionFile as «class utf8»)
 	close access sessionFile
 	
 	try

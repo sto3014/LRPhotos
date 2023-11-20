@@ -31,4 +31,18 @@ an unreasonable error message.
 ### Changed
 ### Fixed
 * Videos are always set as being published. This is a workaround, because even if the video is successfully rendered the
-rendition is marked as skipped. 
+rendition is marked as skipped.
+
+## [1.0.2.0] - 2023-11-19
+
+### Added
+
+* Add root folder property
+* Add queue for import jobs.
+
+### Changed
+
+### Fixed
+
+* Fixed unicode issue with album names
+* Fixed update of albums which are in folders.

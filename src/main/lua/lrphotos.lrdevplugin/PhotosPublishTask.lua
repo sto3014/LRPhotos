@@ -8,9 +8,11 @@ local LrPathUtils = import 'LrPathUtils'
 local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local LrDialogs = import 'LrDialogs'
+local LrFileUtils = import 'LrFileUtils'
 
 local logger = require("Logger")
 require("PhotosAPI")
+local Utils = require("Utils")
 
 --local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 --LrMobdebug.start()
@@ -46,13 +48,100 @@ local function isValidAlbumPath(albumPath)
     return true
 end
 
+local function getFullAlbumPath(exportContext)
+    local exportParams = exportContext.propertyTable
+    local albumName = ""
+    if exportParams.useAlbum == true then
+        if (exportParams.albumBy == "service") then
+            albumName = exportParams.albumNameForService
+        else
+            albumName = exportContext.publishedCollectionInfo.name
+        end
+    end
+    if (albumName == nil) then
+        albumName = ""
+    else
+        if ( albumName ~= "" and not Utils.startsWith(albumName, "/")) then
+            if ( not Utils.endsWith(exportParams.rootFolder, "/")) then
+                albumName = exportParams.rootFolder .. "/" .. albumName
+            else
+                albumName = exportParams.rootFolder .. albumName
+            end
+        end
+    end
+    return albumName
+end
+
+local function createQueueEntry(exportContext )
+    local queueEntryPath = LrFileUtils.chooseUniqueFileName(LrPathUtils.child(_PLUGIN.path, "Queue/queue-entry"))
+    local f = assert(io.open(queueEntryPath , "w", "encoding=utf-8"))
+    f:write(exportContext.publishedCollectionInfo.name)
+    f:close()
+    return LrPathUtils.leafName(queueEntryPath)
+end
+
+local function deleteQueueEntry(queueEntry)
+   LrFileUtils.delete(LrPathUtils.child(_PLUGIN.path, "Queue/" .. queueEntry))
+end
+
+local function pairsByKeys (t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0      -- iterator variable
+    local iter = function ()   -- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+    end
+    return iter
+end
+
+local function waitForPredecessors(queueEntry)
+    logger.trace("waitForPredecessors() start")
+    logger.trace("queueEntry=" .. queueEntry)
+    local done = false
+    while done ~= true do
+        local modDatesToQueueEntry = {}
+        for currentQueueEntry in LrFileUtils.directoryEntries( LrPathUtils.child(_PLUGIN.path, "Queue") ) do
+            local leafName = LrPathUtils.leafName(currentQueueEntry)
+            if ( Utils.startsWith(leafName, "queue-entry")) then
+                -- logger.trace("leafName=" .. leafName)
+                modDatesToQueueEntry[LrFileUtils.fileAttributes(currentQueueEntry).fileModificationDate] = leafName
+            end
+        end
+        local modDates = {}
+        for n in pairs(modDatesToQueueEntry) do table.insert(modDates, n) end
+        table.sort(modDates)
+        local entryToBeProcessed = modDatesToQueueEntry[modDates[1]]
+
+        if ( entryToBeProcessed == nil) then
+            logger.trace("No entry found. Should only happen if user delete all files. Proceed processing.")
+            done = true
+        else
+            logger.trace("entryToBeProcessed=" .. entryToBeProcessed )
+            if ( entryToBeProcessed == queueEntry) then
+                logger.trace("Processing...")
+                done=true
+            else
+                logger.trace("Waiting...")
+                LrTasks.sleep(2)
+            end
+        end
+    end
+    logger.trace("waitForPredecessors() end")
+end
+
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     --LrMobdebug.on()
+    logger.trace("name=" .. exportContext.publishedCollectionInfo.name)
 
     local exportSession = exportContext.exportSession
     local exportParams = exportContext.propertyTable
     -- Export message settings
     local nPhotos = exportSession:countRenditions()
+
     local progressScope = exportContext:configureProgress {
         title = nPhotos > 1
                 and LOC('$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photo', nPhotos)
@@ -94,27 +183,22 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     local path = LrPathUtils.parent(files[1])
     logger.trace("path=" .. tostring(path))
 
-    -- Write Lightroom input to a session.txt file for AppleScript later on
-    local f = assert(io.open(path .. "/session.txt", "w+"))
-    f:write("export_done=false\n")
-    local albumName = ""
-    if exportParams.useAlbum == true then
-        if (exportParams.albumBy == "service") then
-            albumName = exportParams.albumNameForService
-        else
-            albumName = exportContext.publishedCollectionInfo.name
-        end
-    end
-    if (albumName == nil) then
-        albumName = ""
-    end
-
+    local albumName = getFullAlbumPath(exportContext)
+    logger.trace("Album: " .. albumName)
     if (not isValidAlbumPath(albumName)) then
         LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
                 LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
         return
     end
-    logger.trace("Album: " .. albumName)
+
+    local queueEntryName = createQueueEntry(exportContext)
+    logger.trace("queueEntry=" .. queueEntryName)
+
+    waitForPredecessors(queueEntryName)
+
+    -- Write Lightroom input to a session.txt file for AppleScript later on
+    local f = assert(io.open(path .. "/session.txt", "w+", "encoding=utf-8"))
+    f:write("export_done=false\n")
     f:write("album_name=" .. albumName .. "\n")
 
     if exportParams.ignoreAlbums == true then
@@ -122,12 +206,19 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     end
     f:close()
 
+
     local g = assert(io.open(path .. "/photos.txt", "w+"))
     for _, photoID in ipairs(photoIDs) do
         logger.trace(photoID)
         g:write(photoID .. "\n")
     end
     g:close()
+
+    LrFileUtils.delete("/Users/dieterstockhausen/Temp/session.txt")
+    LrFileUtils.delete("/Users/dieterstockhausen/Temp/photos.txt")
+
+    LrFileUtils.copy(path .. "/session.txt", "/Users/dieterstockhausen/Temp/session.txt")
+    LrFileUtils.copy(path .. "/photos.txt", "/Users/dieterstockhausen/Temp/photos.txt")
 
     -- Import photos in iPhoto and wait till photos are imported by reading the session file
     local importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. LrPathUtils.parent(files[1]) .. "\""
@@ -137,6 +228,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                 LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+        deleteQueueEntry(queueEntryName)
         return
     end
 
@@ -165,7 +257,10 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         f:close()
     end
     if (hasErrors) then
+        LrFileUtils.delete("/Users/dieterstockhausen/Temp/session.txt")
+        LrFileUtils.copy(path .. "/session.txt", "/Users/dieterstockhausen/Temp/session.txt")
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+        deleteQueueEntry(queueEntryName)
         return
     end
 
@@ -204,6 +299,9 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             end
         end
     end
+
+    deleteQueueEntry(queueEntryName)
+
 end
 
 function PhotosPublishTask.getCollectionBehaviorInfo(publishSettings)
@@ -255,3 +353,4 @@ function PhotosPublishTask.startDialog(propertyTable)
         propertyTable.LR_removeFaceMetadata = false
     end
 end
+

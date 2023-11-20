@@ -32,6 +32,7 @@ function PhotosMetadataDefinition.updateFromEarlierSchemaVersion(catalog, previo
 
     catalog:assertHasPrivateWriteAccess("CustomMetadataDefinition.updateFromEarlierSchemaVersion")
 
+--[[
     if previousSchemaVersion == 1 then
 
         -- Retrieve photos that have been used already with the custom metadata.
@@ -49,6 +50,7 @@ function PhotosMetadataDefinition.updateFromEarlierSchemaVersion(catalog, previo
 
         -- Optional area to do further processing etc.
     end
+]]
 end
 
 -------------------------------------------------------------------------------
