@@ -10,7 +10,7 @@ use framework "Foundation"
 
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
-
+property inputEncoding : "UTF-8"
 -------------------------------------------------------------------------------
 -- Extract the album name from the session file
 -------------------------------------------------------------------------------
@@ -128,62 +128,66 @@ end trimThis
 --   "folder1/folder2/..../album"
 -------------------------------------------------------------------------------
 on createOrGetAlbum(albumPath)
-	if albumPath is missing value or albumPath is equal to "" then
-		return missing value
-	end if
-	set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
-	if not isValid then
-		error "Albumpath " & albumPath & " is not a valid path."
-	end if
-	set len to the length of albumPath
-	set albumPath to text 2 thru len of albumPath
-	set slashOffset to (offset of "/" in albumPath)
-	
-	set theFolder to missing value
-	if albumPath is missing value or albumPath is equal to "" then return missing value
-	tell application id "com.apple.photos"
-		-- go thru all path components of type folder
-		repeat until slashOffset is less than 1
-			-- there is at least one folder
-			set folderName to text 1 thru (slashOffset - 1) of albumPath
+	try
+		if albumPath is missing value or albumPath is equal to "" then
+			return missing value
+		end if
+		set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
+		if not isValid then
+			error "Albumpath " & albumPath & " is not a valid path."
+		end if
+		set len to the length of albumPath
+		set albumPath to text 2 thru len of albumPath
+		set slashOffset to (offset of "/" in albumPath)
+		
+		set theFolder to missing value
+		if albumPath is missing value or albumPath is equal to "" then return missing value
+		tell application id "com.apple.photos"
+			-- go thru all path components of type folder
+			repeat until slashOffset is less than 1
+				-- there is at least one folder
+				set folderName to text 1 thru (slashOffset - 1) of albumPath
+				if theFolder is missing value then
+					--  we are in the root
+					set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						set theFolder to make new folder named folderName
+					end if
+				else
+					-- we are in between folders
+					tell theFolder to set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						set theFolder to make new folder named folderName at theFolder
+					end if
+				end if
+				set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
+				set slashOffset to (offset of "/" in albumPath)
+			end repeat
 			if theFolder is missing value then
 				--  we are in the root
-				set allFolders to every folder whose name is folderName
-				if (count of allFolders) is greater than 0 then
-					set theFolder to item 1 of allFolders
+				set allAlbums to albums whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
 				else
-					set theFolder to make new folder named folderName
+					set theAlbum to make new album named albumPath
 				end if
 			else
-				-- we are in between folders
-				tell theFolder to set allFolders to every folder whose name is folderName
-				if (count of allFolders) is greater than 0 then
-					set theFolder to item 1 of allFolders
+				-- we are in a folder
+				tell theFolder to set allAlbums to every album whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
 				else
-					set theFolder to make new folder named folderName at theFolder
+					set theAlbum to make new album named albumPath at theFolder
 				end if
 			end if
-			set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
-			set slashOffset to (offset of "/" in albumPath)
-		end repeat
-		if theFolder is missing value then
-			--  we are in the root
-			set allAlbums to albums whose name is albumPath
-			if (count of allAlbums) is greater than 0 then
-				set theAlbum to item 1 of allAlbums
-			else
-				set theAlbum to make new album named albumPath
-			end if
-		else
-			-- we are in a folder
-			tell theFolder to set allAlbums to every album whose name is albumPath
-			if (count of allAlbums) is greater than 0 then
-				set theAlbum to item 1 of allAlbums
-			else
-				set theAlbum to make new album named albumPath at theFolder
-			end if
-		end if
-	end tell
+		end tell
+	on error e
+		error "Can't get album for path " & albumPath & ". Error was: " & e
+	end try
 	return theAlbum
 	
 end createOrGetAlbum
@@ -213,57 +217,68 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 				end if
 			end try
 			
-			-- if photosId is set, the LR photo was imported before and this should be moved to trashAlbum
-			if isUpdate is true then
-				-- display dialog photosId
-				set previousPhotos to (every media item whose id is equal to photosId)
-				if (count of previousPhotos) is greater than 0 then
-					tell me to set previousAlbums to getPreviousAlbums(photosId)
-					set thePreviousPhoto to item 1 of previousPhotos
-					-- set the photo out-of-date
-					set newKeywords to {"lr:out-of-date"}
-					set theseKeywords to the keywords of thePreviousPhoto
-					if theseKeywords is missing value then
-						set keywords of thePreviousPhoto to newKeywords
+			try
+				if isUpdate is true then
+					set previousPhotos to (every media item whose id is equal to photosId)
+					if (count of previousPhotos) is greater than 0 then
+						tell me to set previousAlbums to getPreviousAlbums(photosId)
+						set thePreviousPhoto to item 1 of previousPhotos
+						-- set the photo out-of-date
+						set newKeywords to {"lr:out-of-date"}
+						set theseKeywords to the keywords of thePreviousPhoto
+						if theseKeywords is missing value then
+							set keywords of thePreviousPhoto to newKeywords
+						else
+							set keywords of thePreviousPhoto to (theseKeywords & newKeywords)
+						end if
 					else
-						set keywords of thePreviousPhoto to (theseKeywords & newKeywords)
+						-- happens if photos were deleted
+						set isUpdate to false
 					end if
-				else
-					-- happens if photos were deleted
-					set isUpdate to false
 				end if
-			end if
+			on error e
+				error "Can't get all albums for photoID " & photosId & ". Error was " & e
+			end try
 			--
 			-- now we import the LR photo
-			log "The file: " & thePhotoFile
-			tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
-			if importAlbum is missing value then
-				-- on update, the standard album must me ignored.
-				-- later it will  added to the albums of the previous photo version
-				set newPhotos to import aliasPhotoFile with skip check duplicates
-			else
-				-- if new, it goes into the standard album
-				set newPhotos to import aliasPhotoFile into importAlbum with skip check duplicates
-			end if
+			try
+				log "The file: " & thePhotoFile
+				tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
+				if importAlbum is missing value then
+					-- on update, the standard album must me ignored.
+					-- later it will  added to the albums of the previous photo version
+					set newPhotos to import aliasPhotoFile with skip check duplicates
+				else
+					-- if new, it goes into the standard album
+					set newPhotos to import aliasPhotoFile into importAlbum with skip check duplicates
+				end if
+			on error e
+				error "Import of photos failed. Error was: " & e
+			end try
 			--
 			-- put it into the previous albums
+			
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
 					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex)
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
-							set newKeywords2 to {"album:" & aAlbumName}
-							set theseKeywords2 to the keywords of newPhoto2
-							if theseKeywords2 is missing value then
-								set keywords of newPhoto2 to newKeywords2
-							else
-								set keywords of newPhoto2 to (theseKeywords2 & newKeywords2)
-							end if
+							try
+								set newKeywords2 to {"album:" & aAlbumName}
+								set theseKeywords2 to the keywords of newPhoto2
+								if theseKeywords2 is missing value then
+									set keywords of newPhoto2 to newKeywords2
+								else
+									set keywords of newPhoto2 to (theseKeywords2 & newKeywords2)
+								end if
+							on error e
+								error "Can't add new album tag album:" & aAlbumName & " on existing photos. Error was: " & e
+							end try
 							try
 								add newPhotos to aAlbum
 							on error e
-								error e & " (Album is \"" & aAlbumName & "\""
+								error "Can't add imported photos to album " & albumName & ". Error was: " & e
 							end try
 							
 						end repeat
@@ -272,23 +287,27 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			end if
 			--
 			-- Update metadata
-			if (count of newPhotos) is greater than 0 then
-				-- set the name of the LR catalog file
-				set importAlbumName to name of importAlbum
-				set newKeywords to {"lr:" & lrCat & ".lrcat", "album:" & importAlbumName}
-				set theNewPhoto to item 1 of newPhotos
-				set theseKeywords to the keywords of theNewPhoto
-				if theseKeywords is missing value then
-					set keywords of theNewPhoto to newKeywords
-				else
-					set keywords of theNewPhoto to (theseKeywords & newKeywords)
+			try
+				if (count of newPhotos) is greater than 0 then
+					-- set the name of the LR catalog file
+					set importAlbumName to name of importAlbum
+					set newKeywords to {"lr:" & lrCat & ".lrcat", "album:" & importAlbumName}
+					set theNewPhoto to item 1 of newPhotos
+					set theseKeywords to the keywords of theNewPhoto
+					if theseKeywords is missing value then
+						set keywords of theNewPhoto to newKeywords
+					else
+						set keywords of theNewPhoto to (theseKeywords & newKeywords)
+					end if
+					-- store the id for LR
+					set photosId to get the id of theNewPhoto
+					set newEntry to thePhotoFile & ":" & lrId & ":" & lrCat & ":" & photosId
+					log newEntry
+					copy newEntry to the end of importedPhotos
 				end if
-				-- store the id for LR
-				set photosId to get the id of theNewPhoto
-				set newEntry to thePhotoFile & ":" & lrId & ":" & lrCat & ":" & photosId
-				log newEntry
-				copy newEntry to the end of importedPhotos
-			end if
+			on error e
+				error "Can't keywords on imported photo. Error was: " & e
+			end try
 		end repeat
 		delay 2
 	end tell
@@ -299,7 +318,7 @@ end import
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
 on updateSessionFile(sessionFile, albumName, ignoreByRegex, hasErrors, errorMsg)
-	open for access sessionFile with write permission
+	open for access sessionFile as «class utf8» with write permission
 	if hasErrors is true then
 		set done to false
 	else
@@ -310,7 +329,7 @@ on updateSessionFile(sessionFile, albumName, ignoreByRegex, hasErrors, errorMsg)
 export_done=" & done & "
 ignoreByRegex=" & ignoreByRegex & "
 hasErrors=" & hasErrors & "
-errorMsg=" & errorMsg to sessionFile
+errorMsg=" & stringReplace(stringReplace(errorMsg, "„", ""), "“", "") to sessionFile
 	close access sessionFile
 end updateSessionFile
 -------------------------------------------------------------------------------
@@ -378,6 +397,20 @@ end getPreviousAlbums
 -------------------------------------------------------------------------------
 -- testImport
 -------------------------------------------------------------------------------
+on stringReplace(haystack, needle, replace)
+	tell AppleScript
+		set oldTIDs to text item delimiters
+		set text item delimiters to needle
+		set lst to text items of haystack
+		set text item delimiters to replace
+		set str to lst as string
+		set text item delimiters to oldTIDs
+	end tell
+	return str
+end stringReplace
+-------------------------------------------------------------------------------
+-- testImport
+-------------------------------------------------------------------------------
 on testImport()
 	local importAlbum
 	set importAlbum to createOrGetAlbum("/Test/Yield2")
@@ -402,7 +435,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Temp"}
+		set argv to {"/tmp"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

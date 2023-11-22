@@ -14,10 +14,12 @@ local logger = require("Logger")
 require("PhotosAPI")
 local Utils = require("Utils")
 
---local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
---LrMobdebug.start()
+local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+
 
 PhotosPublishTask = {}
+
+local debug=false
 
 local function split (inputstr, sep)
     if sep == nil then
@@ -73,6 +75,7 @@ local function getFullAlbumPath(exportContext)
 end
 
 local function createQueueEntry(exportContext )
+    LrFileUtils.createDirectory(LrPathUtils.child(_PLUGIN.path, "Queue"))
     local queueEntryPath = LrFileUtils.chooseUniqueFileName(LrPathUtils.child(_PLUGIN.path, "Queue/queue-entry"))
     local f = assert(io.open(queueEntryPath , "w", "encoding=utf-8"))
     f:write(exportContext.publishedCollectionInfo.name)
@@ -134,7 +137,6 @@ local function waitForPredecessors(queueEntry)
 end
 
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
-    --LrMobdebug.on()
     logger.trace("name=" .. exportContext.publishedCollectionInfo.name)
 
     local exportSession = exportContext.exportSession
@@ -214,11 +216,13 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     end
     g:close()
 
-    LrFileUtils.delete("/Users/dieterstockhausen/Temp/session.txt")
-    LrFileUtils.delete("/Users/dieterstockhausen/Temp/photos.txt")
+    if (debug) then
+        LrFileUtils.delete("/tmp/session.txt")
+        LrFileUtils.delete("/tmp/photos.txt")
 
-    LrFileUtils.copy(path .. "/session.txt", "/Users/dieterstockhausen/Temp/session.txt")
-    LrFileUtils.copy(path .. "/photos.txt", "/Users/dieterstockhausen/Temp/photos.txt")
+        LrFileUtils.copy(path .. "/session.txt", "/tmp/session.txt")
+        LrFileUtils.copy(path .. "/photos.txt", "/tmp/photos.txt")
+    end
 
     -- Import photos in iPhoto and wait till photos are imported by reading the session file
     local importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. LrPathUtils.parent(files[1]) .. "\""
@@ -238,6 +242,8 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     local errorMsg = ""
     while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
+        LrMobdebug.start()
+        LrMobdebug.on()
         local f = assert(io.open(path .. "/session.txt", "r"))
         for line in f:lines() do
             logger.trace("waiting..." .. line)
@@ -257,10 +263,12 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         f:close()
     end
     if (hasErrors) then
-        LrFileUtils.delete("/Users/dieterstockhausen/Temp/session.txt")
-        LrFileUtils.copy(path .. "/session.txt", "/Users/dieterstockhausen/Temp/session.txt")
-        LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntryName)
+        if (debug) then
+            LrFileUtils.delete("/tmp/session.txt")
+            LrFileUtils.copy(path .. "/session.txt", "/tmp/session.txt")
+            LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+            deleteQueueEntry(queueEntryName)
+        end
         return
     end
 
@@ -317,7 +325,6 @@ function PhotosPublishTask.getCollectionBehaviorInfo(publishSettings)
 end
 
 function PhotosPublishTask.metadataThatTriggersRepublish(publishSettings)
-
     return {
 
         default = false,
@@ -331,9 +338,7 @@ function PhotosPublishTask.metadataThatTriggersRepublish(publishSettings)
         -- customMetadata = true,
         -- com.whoever.plugin_name.* = true,
         -- com.whoever.plugin_name.field_name = true,
-
     }
-
 end
 
 function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, arrayOfPhotoIds, deletedCallback)
