@@ -4,6 +4,9 @@
 -----------------------------------------------------------------------------]]
 local LrApplication = import 'LrApplication'
 local logger = require("Logger")
+
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+
 PhotosAPI = {}
 
 function PhotosAPI.getPhotosId(photo)
@@ -11,7 +14,8 @@ function PhotosAPI.getPhotosId(photo)
 end
 
 function PhotosAPI.resetPhotoId(photoId)
-
+    LrMobdebug.start()
+    LrMobdebug.on()
     local activeCatalog = LrApplication.activeCatalog()
 
     local foundPhotos = activeCatalog:findPhotos {

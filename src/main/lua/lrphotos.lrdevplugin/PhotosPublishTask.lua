@@ -14,12 +14,13 @@ local logger = require("Logger")
 require("PhotosAPI")
 local Utils = require("Utils")
 
-local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 
 
 PhotosPublishTask = {}
 
 local debug=false
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+
 
 local function split (inputstr, sep)
     if sep == nil then
@@ -242,8 +243,6 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     local errorMsg = ""
     while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
-        LrMobdebug.start()
-        LrMobdebug.on()
         local f = assert(io.open(path .. "/session.txt", "r"))
         for line in f:lines() do
             logger.trace("waiting..." .. line)
@@ -343,14 +342,17 @@ end
 
 function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, arrayOfPhotoIds, deletedCallback)
     for _, photoId in ipairs(arrayOfPhotoIds) do
-        PhotosAPI.resetPhotoId(photoId)
+        -- todo
+        -- We can only remove it when photo does not longer exist.
+        -- 1. When we don't find it we can delete the id in LR
+        -- 2. Otherwise we remove it from the album, and delete the album: tag
+        -- PhotosAPI.resetPhotoId(photoId)
         deletedCallback(photoId)
     end
 end
 
 function PhotosPublishTask.startDialog(propertyTable)
 
-    -- Clear login if it's a new connection.
     -- LrMobdebug.on()
     if not propertyTable.LR_editingExistingPublishConnection then
         propertyTable.LR_jpeg_quality = 0.85
