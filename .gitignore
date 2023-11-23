@@ -4,3 +4,4 @@
 /src/main/lua/lrphotos.lrdevplugin/PhotosImport/PhotosImport.app/
 /target/mac/
 /target/Library/
+*.zip
