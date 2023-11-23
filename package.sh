@@ -5,7 +5,7 @@ export PACKAGE_NAME=LRPhotos
 export TARGET_DIR_MAC="$SCRIPT_DIR/target/mac/Library/Application Support/Adobe/Lightroom"
 export SOURCE_DIR=$SCRIPT_DIR/src/main/lua/$PACKAGE_NAME.lrdevplugin
 export RESOURCE_DIR=$SCRIPT_DIR/res
-export VERSION=1.0.2.0
+export VERSION=1.1.0.0
 #
 # mac
 #

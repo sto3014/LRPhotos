@@ -21,7 +21,7 @@ on getAlbumName(sessionContents)
 		set equalSignOffset to (offset of "=" in aLine)
 		if equalSignOffset > 0 then
 			set var to text 1 thru (equalSignOffset - 1) of aLine
-			if var = "album_name" then
+			if var = "albumName" then
 				set len to the length of aLine
 				if len is greater than equalSignOffset then
 					set albumName to text ((offset of "=" in aLine) + 1) thru -1 of aLine
@@ -51,6 +51,73 @@ on getIgnoreRegex(sessionContents)
 	end repeat
 	return ignoreByRegex
 end getIgnoreRegex
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+on getMode(sessionContents)
+	set mode to ""
+	set allLines to every paragraph of sessionContents
+	repeat with aLine in allLines
+		set equalSignOffset to (offset of "=" in aLine)
+		if equalSignOffset > 0 then
+			set var to text 1 thru (equalSignOffset - 1) of aLine
+			if var = "mode" then
+				set len to the length of aLine
+				if len is greater than equalSignOffset then
+					set mode to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+				end if
+			end if
+		end if
+	end repeat
+	return mode
+end getMode
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+on getSession(sessionContents)
+	local session
+	set session to {mode:"", albumName:"", ignoreByRegex:"", hasErrors:"false", errorMsg:"", exportDone:"false"} as record
+	local allLines
+	set allLines to every paragraph of sessionContents
+	repeat with aLine in allLines
+		set equalSignOffset to (offset of "=" in aLine)
+		if equalSignOffset > 0 then
+			-- get the value
+			set len to the length of aLine
+			if len is greater than equalSignOffset then
+				set value to text ((offset of "=" in aLine) + 1) thru -1 of aLine
+			else
+				set value to ""
+			end if
+			-- get the key
+			set aKey to text 1 thru (equalSignOffset - 1) of aLine
+			if aKey is equal to "mode" then
+				set mode of session to value
+			else
+				if aKey is equal to "albumName" then
+					set albumName of session to value
+				else
+					if aKey is equal to "ignoreByRegex" then
+						set ignoreByRegex of session to value
+					else
+						if aKey is equal to "hasError" then
+							set hasErrors of session to value
+						else
+							if aKey is equal to "errorMsg" then
+								set errorMsg of session to value
+							else
+								if aKey is equal to "exportDone" then
+									set exportDone of session to value
+								end if
+							end if
+						end if
+					end if
+				end if
+			end if
+		end if
+	end repeat
+	return session
+end getSession
 -------------------------------------------------------------------------------
 -- Extract the photo descriptors from the photos file
 -- Format is:
@@ -194,9 +261,9 @@ end createOrGetAlbum
 -------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
-on import(photoDescriptors, albumName, ignoreByRegex)
+on import(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
-	set importAlbum to createOrGetAlbum(albumName)
+	set importAlbum to createOrGetAlbum(albumName of session)
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -243,6 +310,7 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			-- now we import the LR photo
 			try
 				log "The file: " & thePhotoFile
+				local newPhotos
 				tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
 				if importAlbum is missing value then
 					-- on update, the standard album must me ignored.
@@ -260,8 +328,9 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 			
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
+					local aAlbumName
 					set aAlbumName to name of aAlbum
-					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex)
+					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
 							try
@@ -278,7 +347,7 @@ on import(photoDescriptors, albumName, ignoreByRegex)
 							try
 								add newPhotos to aAlbum
 							on error e
-								error "Can't add imported photos to album " & albumName & ". Error was: " & e
+								error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
 							end try
 							
 						end repeat
@@ -317,19 +386,20 @@ end import
 -------------------------------------------------------------------------------
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
-on updateSessionFile(sessionFile, albumName, ignoreByRegex, hasErrors, errorMsg)
+on updateSessionFile(sessionFile, session)
 	open for access sessionFile as «class utf8» with write permission
-	if hasErrors is true then
-		set done to false
+	if hasErrors of session is equal to "true" then
+		set exportDone of session to "false"
 	else
-		set done to true
+		set exportDone of session to "true"
 	end if
 	set eof of sessionFile to 0
-	write "album_name=" & albumName & "
-export_done=" & done & "
-ignoreByRegex=" & ignoreByRegex & "
-hasErrors=" & hasErrors & "
-errorMsg=" & stringReplace(stringReplace(errorMsg, "„", ""), "“", "") to sessionFile
+	write "albumName=" & albumName of session & "
+mode=" & mode of session & "
+exportDone=" & exportDone of session & "
+ignoreByRegex=" & ignoreByRegex of session & "
+hasErrors=" & hasErrors of session & "
+errorMsg=" & stringReplace(stringReplace(errorMsg of session, "„", ""), "“", "") to sessionFile
 	close access sessionFile
 end updateSessionFile
 -------------------------------------------------------------------------------
@@ -445,28 +515,38 @@ on run argv
 	set sessionContents to (read sessionFile as «class utf8»)
 	close access sessionFile
 	
+	local session
+	set session to getSession(sessionContents)
+	set hasErrors of session to "false"
 	try
-		set albumName to getAlbumName(sessionContents)
-		set ignoreByRegex to getIgnoreRegex(sessionContents)
-		
-		set photosFile to tempFolder & "/photos.txt"
-		open for access photosFile
-		set photosContents to (read photosFile)
-		close access photosFile
-		
-		set photoDescriptors to getPhotoDescriptors(photosContents)
-		set importedPhotos to import(photoDescriptors, albumName, ignoreByRegex)
-		if (count of importedPhotos) is equal to 0 then
-			updateSessionFile(sessionFile, albumName, ignoreByRegex, true, "Unknown error. Photos were not imported.")
+		if mode of session is equal to "" then
+			set errorMsg of session to "Mode is not set."
+			updateSessionFile(sessionFile, session)
 			return
+		else
+			if mode of session is equal to "publish" then
+				set photosFile to tempFolder & "/photos.txt"
+				open for access photosFile
+				set photosContents to (read photosFile)
+				close access photosFile
+				
+				set photoDescriptors to getPhotoDescriptors(photosContents)
+				set importedPhotos to import(photoDescriptors, session)
+				if (count of importedPhotos) is equal to 0 then
+					set hasErrors of session to "true"
+					set errorMessage of session to "Unknown error. Photos were not imported."
+					updateSessionFile(sessionFile, session)
+					return
+				end if
+				
+				updatePhotosFile(photosFile, importedPhotos)
+			end if
 		end if
-		updatePhotosFile(photosFile, importedPhotos)
 	on error e
-		updateSessionFile(sessionFile, albumName, ignoreByRegex, true, e)
+		set hasErrors of session to "true"
+		set errorMsg of session to e
+		updateSessionFile(sessionFile, session)
 		return
 	end try
-	
-	updateSessionFile(sessionFile, albumName, ignoreByRegex, false, "")
-	
-	
+	updateSessionFile(sessionFile, session)
 end run

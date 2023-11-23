@@ -5,3 +5,4 @@
 /target/mac/
 /target/Library/
 *.zip
+/src/main/lua/lrphotos.lrdevplugin/PhotosImport/
