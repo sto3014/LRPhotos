@@ -76,7 +76,7 @@ end getMode
 -------------------------------------------------------------------------------
 on getSession(sessionContents)
 	local session
-	set session to {mode:"", albumName:"", ignoreByRegex:"", hasErrors:"false", errorMsg:"", exportDone:"false"} as record
+	set session to {mode:"", albumName:"", ignoreByRegex:"", hasErrors:false, errorMsg:"", exportDone:false} as record
 	local allLines
 	set allLines to every paragraph of sessionContents
 	repeat with aLine in allLines
@@ -101,13 +101,13 @@ on getSession(sessionContents)
 						set ignoreByRegex of session to value
 					else
 						if aKey is equal to "hasError" then
-							set hasErrors of session to value
+							set hasErrors of session to value is equal to "true"
 						else
 							if aKey is equal to "errorMsg" then
 								set errorMsg of session to value
 							else
 								if aKey is equal to "exportDone" then
-									set exportDone of session to value
+									set exportDone of session to value is equal to "true"
 								end if
 							end if
 						end if
@@ -189,12 +189,12 @@ on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
 	end if
 end trimThis
 -------------------------------------------------------------------------------
--- createOrGetAlbum(albumPath)
+-- getAlbumByPath(albumPath)
 --
 -- format of albumPath:
 --   "folder1/folder2/..../album"
 -------------------------------------------------------------------------------
-on createOrGetAlbum(albumPath)
+on getAlbumByPath(albumPath, createIfNotExists)
 	try
 		if albumPath is missing value or albumPath is equal to "" then
 			return missing value
@@ -248,7 +248,11 @@ on createOrGetAlbum(albumPath)
 				if (count of allAlbums) is greater than 0 then
 					set theAlbum to item 1 of allAlbums
 				else
-					set theAlbum to make new album named albumPath at theFolder
+					if createIfNotExists then
+						set theAlbum to make new album named albumPath at theFolder
+					else
+						set theAlbum to missing value
+					end if
 				end if
 			end if
 		end tell
@@ -257,13 +261,13 @@ on createOrGetAlbum(albumPath)
 	end try
 	return theAlbum
 	
-end createOrGetAlbum
+end getAlbumByPath
 -------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
-	set importAlbum to createOrGetAlbum(albumName of session)
+	set importAlbum to getAlbumByPath(albumName of session, true)
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -284,6 +288,7 @@ on import(photoDescriptors, session)
 				end if
 			end try
 			
+			set previousAlbums to {}
 			try
 				if isUpdate is true then
 					set previousPhotos to (every media item whose id is equal to photosId)
@@ -378,20 +383,182 @@ on import(photoDescriptors, session)
 				error "Can't keywords on imported photo. Error was: " & e
 			end try
 		end repeat
+		--
+		
+		local aAlbumName
+		repeat with aAlbum in previousAlbums
+			set aAlbumName to name of aAlbum
+			tell me to set isValid to not matchesRegex(name of aAlbum, ignoreByRegex of session)
+			if isValid is true then
+				tell me to set aAlbum to cleanupAlbum(aAlbum)
+			end if
+		end repeat
+		(*
+		tell me to set importAlbum to cleanupAlbum(importAlbum)
+		tell importAlbum
+			spotlight
+		end tell
+		*)
 		delay 2
 	end tell
 	set AppleScript's text item delimiters to " "
 	return importedPhotos
 end import
 -------------------------------------------------------------------------------
+-- Remove item from list
+-------------------------------------------------------------------------------
+on removeItemFromList(theList, theItem)
+	repeat with theIndex from 1 to the count of theList
+		if item theIndex of theList is equal to theItem then
+			if theIndex = 1 then
+				return items 2 thru -1 of theList
+			else if theIndex is (count theList) then
+				return items 1 thru -2 of theList
+			else
+				tell theList to return items 1 thru (theIndex - 1) & items (theIndex + 1) thru -1
+			end if
+		end if
+	end repeat
+	return theList
+end removeItemFromList
+-------------------------------------------------------------------------------
+-- Remove photos from a single album
+-------------------------------------------------------------------------------
+on cleanupAlbum(theAlbum)
+	tell application id "com.apple.photos"
+		if theAlbum is missing value then
+			return missing value
+		end if
+		local allPhotos
+		local photosToBeKept
+		local photoIds
+		local albumPath
+		local aKeyword
+		tell me to set albumPath to getPathByAlbum(theAlbum)
+		set allPhotos to (get media items of theAlbum)
+		set photoIds to {}
+		repeat with photo in allPhotos
+			set theKeywords to the keywords of photo
+			set found to false
+			repeat with index from 1 to count of theKeywords
+				if item index of theKeywords is equal to "lr:out-of-date" or item index of theKeywords is equal to "lr:no-longer-published" then
+					set found to true
+				end if
+			end repeat
+			if not found then
+				set end of photoIds to id of photo
+			end if
+		end repeat
+		
+		set photosToBeKept to {}
+		
+		repeat with photoId in photoIds
+			set photos to (get media items whose id is equal to photoId)
+			set end of photosToBeKept to item 1 of photos
+		end repeat
+		
+		if (count of photosToBeKept) is not equal to (count of allPhotos) then
+			delete theAlbum
+			tell me to set theAlbum to getAlbumByPath(albumPath, true)
+			if (count of photosToBeKept) is greater than 0 then
+				add photosToBeKept to theAlbum
+			end if
+		end if
+		
+		return theAlbum
+		
+	end tell
+end cleanupAlbum
+-------------------------------------------------------------------------------
+-- Remove photos from albums
+-------------------------------------------------------------------------------
+on remove(photoDescriptors, session)
+	set AppleScript's text item delimiters to ":"
+	set removedPhotos to {}
+	
+	set importAlbum to getAlbumByPath(albumName of session, false)
+	if importAlbum is missing value then
+		return removedPhotos
+	end if
+	
+	tell application id "com.apple.photos"
+		set photosToBeRemovedFromAlbum to {}
+		repeat with aPhotoDescriptor in photoDescriptors
+			-- the LR id. For future use
+			set lrId to text item 2 of aPhotoDescriptor
+			-- name of cataloge
+			set lrCat to text item 3 of aPhotoDescriptor
+			-- Photos app UID
+			set photosId to text item 4 of aPhotoDescriptor
+			
+			try
+				set previousPhotos to (every media item whose id is equal to photosId)
+				if (count of previousPhotos) is greater than 0 then
+					set thePreviousPhoto to item 1 of previousPhotos
+					
+					local theseKeywords
+					set theseKeywords to the keywords of thePreviousPhoto
+					
+					local allUsedAlbums
+					tell me to set allUsedAlbums to getPreviousAlbums(photosId)
+					local validAlbums
+					set validAlbums to {}
+					repeat with aAlbum in allUsedAlbums
+						set aAlbumName to name of aAlbum
+						tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
+						if isValid then
+							set end of validAlbums to aAlbum
+						end if
+					end repeat
+					
+					if (count of validAlbums) is equal to 1 then
+						set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
+						copy newEntry to the end of removedPhotos
+						set noLongerPublishedKeyword to "lr:no-longer-published"
+					else
+						set noLongerPublishedKeyword to missing value
+					end if
+					
+					if theseKeywords is not missing value then
+						local oldKeyword
+						set oldKeyword to "album:" & name of importAlbum
+						tell me to set newKeywords to removeItemFromList(theseKeywords, oldKeyword)
+						if noLongerPublishedKeyword is not missing value then
+							set end of newKeywords to noLongerPublishedKeyword
+						end if
+						set keywords of thePreviousPhoto to newKeywords
+					else
+						if noLongerPublishedKeyword is not missing value then
+							set newKeywords to {}
+							set end of newKeywords to noLongerPublishedKeyword
+							set keywords of thePreviousPhoto to newKeywords
+						end if
+					end if
+					set end of photosToBeRemovedFromAlbum to thePreviousPhoto
+				end if
+			on error e
+				error "Can't remove photo from album for photoID " & photosId & ". Error was " & e
+			end try
+		end repeat
+		--
+		tell me to set importAlbum to cleanupAlbum(importAlbum)
+		tell importAlbum
+			spotlight
+		end tell
+	end tell
+	set AppleScript's text item delimiters to " "
+	return removedPhotos
+end remove
+
+-------------------------------------------------------------------------------
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
 on updateSessionFile(sessionFile, session)
 	open for access sessionFile as «class utf8» with write permission
-	if hasErrors of session is equal to "true" then
-		set exportDone of session to "false"
+	if hasErrors of session then
+		set exportDone of session to false
 	else
-		set exportDone of session to "true"
+		set exportDone of session to true
 	end if
 	set eof of sessionFile to 0
 	write "albumName=" & albumName of session & "
@@ -405,10 +572,10 @@ end updateSessionFile
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
-on updatePhotosFile(photosFile, importedPhotos)
+on updatePhotosFile(photosFile, photosList)
 	open for access photosFile with write permission
 	set eof of photosFile to 0
-	repeat with thePhotoFile in importedPhotos
+	repeat with thePhotoFile in photosList
 		log thePhotoFile
 		write thePhotoFile & "
 " to photosFile
@@ -432,6 +599,9 @@ on getPreviousAlbums(photosId)
 		
 		local previousFolderAlbumsL2
 		set previousFolderAlbumsL2 to get (albums in every folder in every folder whose id of media items contains photosId)
+		
+		local previousFolderAlbumsL3
+		set previousFolderAlbumsL3 to get (albums in every folder in every folder in every folder whose id of media items contains photosId)
 		
 		if (count of previousFolderAlbumsL0) is greater than 0 then
 			repeat with rootAlbums in previousFolderAlbumsL0
@@ -461,6 +631,19 @@ on getPreviousAlbums(photosId)
 			end repeat
 		end if
 		
+		if (count of previousFolderAlbumsL3) is greater than 0 then
+			repeat with folderL3Albums in previousFolderAlbumsL3
+				repeat with folderL2Albums in folderL3Albums
+					repeat with folderL1Albums in folderL2Albums
+						repeat with rootAlbums in folderL1Albums
+							set aAlbum to item 1 of rootAlbums
+							copy aAlbum to the end of the previousAlbums
+						end repeat
+					end repeat
+				end repeat
+			end repeat
+		end if
+		
 	end tell
 	return previousAlbums
 end getPreviousAlbums
@@ -479,23 +662,115 @@ on stringReplace(haystack, needle, replace)
 	return str
 end stringReplace
 -------------------------------------------------------------------------------
--- testImport
+-- getParentFolder
 -------------------------------------------------------------------------------
-on testImport()
-	local importAlbum
-	set importAlbum to createOrGetAlbum("/Test/Yield2")
-	set photosId to "981851C6-7D75-4D09-BF73-45D36113865B/L0/001"
-	local previousAlbums
-	set previousAlbums to getPreviousAlbums(photosId)
+on getParentFolder(aContainer, depth)
 	tell application id "com.apple.photos"
-		set importAlbumName to name of importAlbum
-		set previousPhotos to every media item whose id is equal to photosId
-		if (count of previousPhotos) is greater than 0 then
-			repeat with aAlbum in previousAlbums
-				add previousPhotos to aAlbum
+		set theParent to parent of aContainer
+		if theParent is missing value then
+			return missing value
+		end if
+		set parentId1 to id of parent of aContainer
+		set aFolder to missing value
+		if parentId1 is not missing value then
+			if depth is equal to 3 then
+				set folders1 to get every folder in every folder in every folder whose id is equal to parentId1
+			else
+				if depth is equal to 2 then
+					set folders1 to get every folder in every folder whose id is equal to parentId1
+				else
+					if depth is equal to 1 then
+						set folders1 to get every folder whose id is equal to parentId1
+					end if
+				end if
+			end if
+			set found to false
+			repeat with rootFolders in folders1
+				if not found then
+					set theType to class of rootFolders
+					if theType is folder then
+						set aFolder to rootFolders
+						set found to true
+					else
+						repeat with subfolders1 in rootFolders
+							if not found then
+								set theType to class of subfolders1
+								if theType is folder then
+									set aFolder to subfolders1
+									set found to true
+								else
+									repeat with subfolders2 in subfolders1
+										if not found then
+											set theType to class of subfolders2
+											if theType is folder then
+												set aFolder to subfolders2
+												set found to true
+											end if
+										end if
+									end repeat
+								end if
+							end if
+						end repeat
+					end if
+				end if
 			end repeat
 		end if
 	end tell
+	return aFolder
+end getParentFolder
+-------------------------------------------------------------------------------
+-- getPathByAlbum()
+-------------------------------------------------------------------------------
+on getPathByAlbum(aAlbum)
+	local theAlbumPath
+	set theAlbumPath to missing value
+	if parent of aAlbum is missing value then
+		set theAlbumPath to "/" & name of aAlbum
+		return theAlbumPath
+	end if
+	--
+	set albumPath to "/" & name of aAlbum
+	tell application id "com.apple.photos"
+		local aContainer
+		tell me to set aContainer to getParentFolder(aAlbum, 3)
+		if aContainer is not missing value then
+			set albumPath to "/" & name of aContainer & albumPath
+		else
+			set aContainer to aAlbum
+		end if
+		tell me to set aContainer to getParentFolder(aContainer, 2)
+		if aContainer is not missing value then
+			set albumPath to "/" & name of aContainer & albumPath
+		else
+			set aContainer to aAlbum
+		end if
+		tell me to set aContainer to getParentFolder(aContainer, 1)
+		if aContainer is not missing value then
+			set albumPath to "/" & name of aContainer & albumPath
+		end if
+	end tell
+	--
+	if albumPath is equal to "/" & name of aAlbum then
+		set theAlbumPath to missing value
+	else
+		set theAlbumPath to albumPath
+	end if
+	return theAlbumPath
+end getPathByAlbum
+-------------------------------------------------------------------------------
+-- testImport
+-------------------------------------------------------------------------------
+on testImport()
+	set importAlbum to getAlbumByPath("/Test/Test3/Test4/Yield4", false)
+	-- set importAlbum to getAlbumByPath("/Test/Test3/Yield5", false)
+	-- set importAlbum to getAlbumByPath("/Test/Yield2", false)
+	-- set importAlbum to getAlbumByPath("/Yield0", false)
+	-- set importAlbum to getAlbumByPath("/Test/Test3/Test4/Test5/Yield6", false)
+	local pFolder
+	local pFolderName
+	set pFolder to get parent of importAlbum
+	set pFolderName to name of pFolder
+	set dummy to "x"
 end testImport
 -------------------------------------------------------------------------------
 -- Run the import script
@@ -505,7 +780,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/tmp"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/com"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
@@ -517,33 +792,35 @@ on run argv
 	
 	local session
 	set session to getSession(sessionContents)
-	set hasErrors of session to "false"
+	set hasErrors of session to false
 	try
 		if mode of session is equal to "" then
-			set errorMsg of session to "Mode is not set."
-			updateSessionFile(sessionFile, session)
-			return
+			error "Mode is not set."
 		else
+			set photosFile to tempFolder & "/photos.txt"
+			open for access photosFile
+			set photosContents to (read photosFile)
+			close access photosFile
+			
+			set photoDescriptors to getPhotoDescriptors(photosContents)
 			if mode of session is equal to "publish" then
-				set photosFile to tempFolder & "/photos.txt"
-				open for access photosFile
-				set photosContents to (read photosFile)
-				close access photosFile
-				
-				set photoDescriptors to getPhotoDescriptors(photosContents)
 				set importedPhotos to import(photoDescriptors, session)
 				if (count of importedPhotos) is equal to 0 then
-					set hasErrors of session to "true"
-					set errorMessage of session to "Unknown error. Photos were not imported."
-					updateSessionFile(sessionFile, session)
-					return
+					error "Unknown error. No photos were not imported."
 				end if
 				
 				updatePhotosFile(photosFile, importedPhotos)
+			else
+				if mode of session is equal to "remove" then
+					set removedPhotos to remove(photoDescriptors, session)
+					updatePhotosFile(photosFile, removedPhotos)
+				else
+					error "The value for mode is not valid: " & mode of session
+				end if
 			end if
 		end if
 	on error e
-		set hasErrors of session to "true"
+		set hasErrors of session to true
 		set errorMsg of session to e
 		updateSessionFile(sessionFile, session)
 		return
