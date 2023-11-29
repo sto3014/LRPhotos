@@ -7,15 +7,28 @@ local logger = require("Logger")
 
 -- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 
-PhotosAPI = {}
+local PhotosAPI = {}
 
 function PhotosAPI.getPhotosId(photo)
     return photo:getPropertyForPlugin(_PLUGIN, 'photosId')
 end
 
 function PhotosAPI.resetPhotoId(photoId)
-    LrMobdebug.start()
-    LrMobdebug.on()
+    local activeCatalog = LrApplication.activeCatalog()
+
+
+    local foundPhotos = PhotosAPI.getPhotos(photoId)
+
+    activeCatalog:withWriteAccessDo("Reset photos ID", function()
+        for i, photo in ipairs(foundPhotos) do
+            logger.trace("Reset photoId: " .. photoId)
+            photo:setPropertyForPlugin(_PLUGIN, 'photosId', "")
+        end
+
+    end )
+end
+
+function PhotosAPI.getPhotos(photoId)
     local activeCatalog = LrApplication.activeCatalog()
 
     local foundPhotos = activeCatalog:findPhotos {
@@ -26,14 +39,8 @@ function PhotosAPI.resetPhotoId(photoId)
             value2 = "",
         }
     }
-
-    activeCatalog:withWriteAccessDo("Reset photos ID", function()
-        for i, photo in ipairs(foundPhotos) do
-            logger.trace("Reset photoId: " .. photoId)
-            photo:setPropertyForPlugin(_PLUGIN, 'photosId', "")
-        end
-
-    end )
-
+    return foundPhotos
 
 end
+
+return PhotosAPI
