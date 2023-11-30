@@ -189,80 +189,6 @@ on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
 	end if
 end trimThis
 -------------------------------------------------------------------------------
--- getAlbumByPath(albumPath)
---
--- format of albumPath:
---   "folder1/folder2/..../album"
--------------------------------------------------------------------------------
-on getAlbumByPath(albumPath, createIfNotExists)
-	try
-		if albumPath is missing value or albumPath is equal to "" then
-			return missing value
-		end if
-		set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
-		if not isValid then
-			error "Albumpath " & albumPath & " is not a valid path."
-		end if
-		set len to the length of albumPath
-		set albumPath to text 2 thru len of albumPath
-		set slashOffset to (offset of "/" in albumPath)
-		
-		set theFolder to missing value
-		if albumPath is missing value or albumPath is equal to "" then return missing value
-		tell application id "com.apple.photos"
-			-- go thru all path components of type folder
-			repeat until slashOffset is less than 1
-				-- there is at least one folder
-				set folderName to text 1 thru (slashOffset - 1) of albumPath
-				if theFolder is missing value then
-					--  we are in the root
-					set allFolders to every folder whose name is folderName
-					if (count of allFolders) is greater than 0 then
-						set theFolder to item 1 of allFolders
-					else
-						set theFolder to make new folder named folderName
-					end if
-				else
-					-- we are in between folders
-					tell theFolder to set allFolders to every folder whose name is folderName
-					if (count of allFolders) is greater than 0 then
-						set theFolder to item 1 of allFolders
-					else
-						set theFolder to make new folder named folderName at theFolder
-					end if
-				end if
-				set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
-				set slashOffset to (offset of "/" in albumPath)
-			end repeat
-			if theFolder is missing value then
-				--  we are in the root
-				set allAlbums to albums whose name is albumPath
-				if (count of allAlbums) is greater than 0 then
-					set theAlbum to item 1 of allAlbums
-				else
-					set theAlbum to make new album named albumPath
-				end if
-			else
-				-- we are in a folder
-				tell theFolder to set allAlbums to every album whose name is albumPath
-				if (count of allAlbums) is greater than 0 then
-					set theAlbum to item 1 of allAlbums
-				else
-					if createIfNotExists then
-						set theAlbum to make new album named albumPath at theFolder
-					else
-						set theAlbum to missing value
-					end if
-				end if
-			end if
-		end tell
-	on error e
-		error "Can't get album for path " & albumPath & ". Error was: " & e
-	end try
-	return theAlbum
-	
-end getAlbumByPath
--------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
@@ -293,7 +219,7 @@ on import(photoDescriptors, session)
 				if isUpdate is true then
 					set previousPhotos to (every media item whose id is equal to photosId)
 					if (count of previousPhotos) is greater than 0 then
-						tell me to set previousAlbums to getPreviousAlbums(photosId)
+						tell me to set previousAlbums to getUsedBy(photosId)
 						set thePreviousPhoto to item 1 of previousPhotos
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
@@ -390,15 +316,9 @@ on import(photoDescriptors, session)
 			set aAlbumName to name of aAlbum
 			tell me to set isValid to not matchesRegex(name of aAlbum, ignoreByRegex of session)
 			if isValid is true then
-				tell me to set aAlbum to cleanupAlbum(aAlbum)
+				tell me to cleanupAlbum(aAlbum)
 			end if
 		end repeat
-		(*
-		tell me to set importAlbum to cleanupAlbum(importAlbum)
-		tell importAlbum
-			spotlight
-		end tell
-		*)
 		delay 2
 	end tell
 	set AppleScript's text item delimiters to " "
@@ -435,6 +355,9 @@ on cleanupAlbum(theAlbum)
 		local albumPath
 		local aKeyword
 		tell me to set albumPath to getPathByAlbum(theAlbum)
+		if albumPath is missing value then
+			return missing value
+		end if
 		set allPhotos to (get media items of theAlbum)
 		set photoIds to {}
 		repeat with photo in allPhotos
@@ -500,7 +423,7 @@ on remove(photoDescriptors, session)
 					set theseKeywords to the keywords of thePreviousPhoto
 					
 					local allUsedAlbums
-					tell me to set allUsedAlbums to getPreviousAlbums(photosId)
+					tell me to set allUsedAlbums to getUsedBy(photosId)
 					local validAlbums
 					set validAlbums to {}
 					repeat with aAlbum in allUsedAlbums
@@ -542,9 +465,6 @@ on remove(photoDescriptors, session)
 		end repeat
 		--
 		tell me to set importAlbum to cleanupAlbum(importAlbum)
-		tell importAlbum
-			spotlight
-		end tell
 	end tell
 	set AppleScript's text item delimiters to " "
 	return removedPhotos
@@ -582,73 +502,8 @@ on updatePhotosFile(photosFile, photosList)
 	end repeat
 	close access photosFile
 end updatePhotosFile
-
 -------------------------------------------------------------------------------
--- getPreviousAlbums
--------------------------------------------------------------------------------
-on getPreviousAlbums(photosId)
-	tell application id "com.apple.photos"
-		local previousAlbums
-		set previousAlbums to {}
-		
-		local previousFolderAlbumsL0
-		set previousFolderAlbumsL0 to get (albums whose id of media items contains photosId)
-		
-		local previousFolderAlbumsL1
-		set previousFolderAlbumsL1 to get (albums in every folder whose id of media items contains photosId)
-		
-		local previousFolderAlbumsL2
-		set previousFolderAlbumsL2 to get (albums in every folder in every folder whose id of media items contains photosId)
-		
-		local previousFolderAlbumsL3
-		set previousFolderAlbumsL3 to get (albums in every folder in every folder in every folder whose id of media items contains photosId)
-		
-		if (count of previousFolderAlbumsL0) is greater than 0 then
-			repeat with rootAlbums in previousFolderAlbumsL0
-				set aAlbum to item 1 of rootAlbums
-				copy aAlbum to the end of the previousAlbums
-			end repeat
-		end if
-		
-		
-		if (count of previousFolderAlbumsL1) is greater than 0 then
-			repeat with folderL1Albums in previousFolderAlbumsL1
-				repeat with rootAlbums in folderL1Albums
-					set aAlbum to item 1 of rootAlbums
-					copy aAlbum to the end of the previousAlbums
-				end repeat
-			end repeat
-		end if
-		
-		if (count of previousFolderAlbumsL2) is greater than 0 then
-			repeat with folderL2Albums in previousFolderAlbumsL2
-				repeat with folderL1Albums in folderL2Albums
-					repeat with rootAlbums in folderL1Albums
-						set aAlbum to item 1 of rootAlbums
-						copy aAlbum to the end of the previousAlbums
-					end repeat
-				end repeat
-			end repeat
-		end if
-		
-		if (count of previousFolderAlbumsL3) is greater than 0 then
-			repeat with folderL3Albums in previousFolderAlbumsL3
-				repeat with folderL2Albums in folderL3Albums
-					repeat with folderL1Albums in folderL2Albums
-						repeat with rootAlbums in folderL1Albums
-							set aAlbum to item 1 of rootAlbums
-							copy aAlbum to the end of the previousAlbums
-						end repeat
-					end repeat
-				end repeat
-			end repeat
-		end if
-		
-	end tell
-	return previousAlbums
-end getPreviousAlbums
--------------------------------------------------------------------------------
--- testImport
+-- stringReplace
 -------------------------------------------------------------------------------
 on stringReplace(haystack, needle, replace)
 	tell AppleScript
@@ -662,115 +517,171 @@ on stringReplace(haystack, needle, replace)
 	return str
 end stringReplace
 -------------------------------------------------------------------------------
--- getParentFolder
+-- getUsedBy(photosId)
+--
+-- returns a list of albums of all folders which uses the photo identified by 
+-- ptotosId
+-- 
 -------------------------------------------------------------------------------
-on getParentFolder(aContainer, depth)
-	tell application id "com.apple.photos"
-		set theParent to parent of aContainer
-		if theParent is missing value then
+on getUsedBy(photosId)
+	local usedBy
+	set usedBy to {}
+	tell application "Photos"
+		set usedBy to get (albums whose id of media items contains photosId)
+		repeat with aFolder in folders
+			tell me to set usedBy to _getAlbumsAndFolders(aFolder, photosId, usedBy)
+		end repeat
+	end tell
+	return usedBy
+end getUsedBy
+
+-- recursive function used by getUsedBy()
+on _getAlbumsAndFolders(aFolder, photosId, usedBy)
+	local usedBy
+	tell application "Photos"
+		tell aFolder
+			set usedBy to usedBy & (albums whose id of media items contains photosId)
+			repeat with aFolder in folders
+				tell me to set usedBy to _getAlbumsAndFolders(aFolder, photosId, usedBy)
+			end repeat
+		end tell
+	end tell
+	return usedBy
+end _getAlbumsAndFolders
+-------------------------------------------------------------------------------
+-- getAlbumByPath(albumPath)
+--
+-- format of albumPath:
+--   "/folder1/folder2/..../album"
+-------------------------------------------------------------------------------
+on getAlbumByPath(albumPath, createIfNotExists)
+	try
+		if albumPath is missing value or albumPath is equal to "" then
 			return missing value
 		end if
-		set parentId1 to id of parent of aContainer
-		set aFolder to missing value
-		if parentId1 is not missing value then
-			if depth is equal to 3 then
-				set folders1 to get every folder in every folder in every folder whose id is equal to parentId1
-			else
-				if depth is equal to 2 then
-					set folders1 to get every folder in every folder whose id is equal to parentId1
+		set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
+		if not isValid then
+			error "Albumpath " & albumPath & " is not a valid path."
+		end if
+		set len to the length of albumPath
+		set albumPath to text 2 thru len of albumPath
+		set slashOffset to (offset of "/" in albumPath)
+		
+		set theFolder to missing value
+		if albumPath is missing value or albumPath is equal to "" then return missing value
+		tell application id "com.apple.photos"
+			-- go thru all path components of type folder
+			repeat until slashOffset is less than 1
+				-- there is at least one folder
+				set folderName to text 1 thru (slashOffset - 1) of albumPath
+				if theFolder is missing value then
+					--  we are in the root
+					set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						if createIfNotExists then
+							set theFolder to make new folder named folderName
+						else
+							return missing value
+						end if
+					end if
 				else
-					if depth is equal to 1 then
-						set folders1 to get every folder whose id is equal to parentId1
+					-- we are in between folders
+					tell theFolder to set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						if createIfNotExists then
+							set theFolder to make new folder named folderName at theFolder
+						else
+							return missing value
+						end if
+					end if
+				end if
+				set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
+				set slashOffset to (offset of "/" in albumPath)
+			end repeat
+			if theFolder is missing value then
+				--  we are in the root
+				set allAlbums to albums whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
+				else
+					if createIfNotExists then
+						set theAlbum to make new album named albumPath
+					else
+						return missing value
+					end if
+				end if
+			else
+				-- we are in a folder
+				tell theFolder to set allAlbums to every album whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
+				else
+					if createIfNotExists then
+						set theAlbum to make new album named albumPath at theFolder
+					else
+						return missing value
 					end if
 				end if
 			end if
-			set found to false
-			repeat with rootFolders in folders1
-				if not found then
-					set theType to class of rootFolders
-					if theType is folder then
-						set aFolder to rootFolders
-						set found to true
-					else
-						repeat with subfolders1 in rootFolders
-							if not found then
-								set theType to class of subfolders1
-								if theType is folder then
-									set aFolder to subfolders1
-									set found to true
-								else
-									repeat with subfolders2 in subfolders1
-										if not found then
-											set theType to class of subfolders2
-											if theType is folder then
-												set aFolder to subfolders2
-												set found to true
-											end if
-										end if
-									end repeat
-								end if
-							end if
-						end repeat
-					end if
-				end if
-			end repeat
-		end if
-	end tell
-	return aFolder
-end getParentFolder
+		end tell
+	on error e
+		error "Can't get album for path " & albumPath & ". Error was: " & e
+	end try
+	return theAlbum
+	
+end getAlbumByPath
 -------------------------------------------------------------------------------
 -- getPathByAlbum()
 -------------------------------------------------------------------------------
 on getPathByAlbum(aAlbum)
-	local theAlbumPath
-	set theAlbumPath to missing value
-	if parent of aAlbum is missing value then
-		set theAlbumPath to "/" & name of aAlbum
-		return theAlbumPath
-	end if
-	--
 	set albumPath to "/" & name of aAlbum
 	tell application id "com.apple.photos"
-		local aContainer
-		tell me to set aContainer to getParentFolder(aAlbum, 3)
-		if aContainer is not missing value then
-			set albumPath to "/" & name of aContainer & albumPath
-		else
-			set aContainer to aAlbum
-		end if
-		tell me to set aContainer to getParentFolder(aContainer, 2)
-		if aContainer is not missing value then
-			set albumPath to "/" & name of aContainer & albumPath
-		else
-			set aContainer to aAlbum
-		end if
-		tell me to set aContainer to getParentFolder(aContainer, 1)
-		if aContainer is not missing value then
-			set albumPath to "/" & name of aContainer & albumPath
+		set _p to parent of aAlbum
+		if _p is not missing value then
+			set albumPath to "/" & name of parent of aAlbum & albumPath
+			set _p to parent of parent of aAlbum
+			if _p is not missing value then
+				set albumPath to "/" & name of parent of parent of aAlbum & albumPath
+				set _p to parent of parent of parent of aAlbum
+				if _p is not missing value then
+					set albumPath to "/" & name of parent of parent of parent of aAlbum & albumPath
+					set _p to parent of parent of parent of parent of aAlbum
+					if _p is not missing value then
+						set albumPath to "/" & name of parent of parent of parent of parent of aAlbum & albumPath
+						set _p to parent of parent of parent of parent of parent of aAlbum
+						if _p is not missing value then
+							error "Only 4 levels of subfolders are supported."
+						end if
+					end if
+				end if
+			end if
 		end if
 	end tell
-	--
-	if albumPath is equal to "/" & name of aAlbum then
-		set theAlbumPath to missing value
-	else
-		set theAlbumPath to albumPath
-	end if
-	return theAlbumPath
+	return albumPath
 end getPathByAlbum
+-------------------------------------------------------------------------------
+-- spotlightImportAlbum(session)
+--
+--  activates import album
+-------------------------------------------------------------------------------
+on spotlightImportAlbum(session)
+	set importAlbum to getAlbumByPath(albumName of session, false)
+	tell application id "com.apple.photos"
+		if importAlbum is not missing value then
+			tell importAlbum
+				spotlight
+			end tell
+		end if
+	end tell
+end spotlightImportAlbum
 -------------------------------------------------------------------------------
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
-	set importAlbum to getAlbumByPath("/Test/Test3/Test4/Yield4", false)
-	-- set importAlbum to getAlbumByPath("/Test/Test3/Yield5", false)
-	-- set importAlbum to getAlbumByPath("/Test/Yield2", false)
-	-- set importAlbum to getAlbumByPath("/Yield0", false)
-	-- set importAlbum to getAlbumByPath("/Test/Test3/Test4/Test5/Yield6", false)
-	local pFolder
-	local pFolderName
-	set pFolder to get parent of importAlbum
-	set pFolderName to name of pFolder
-	set dummy to "x"
 end testImport
 -------------------------------------------------------------------------------
 -- Run the import script
@@ -825,5 +736,9 @@ on run argv
 		updateSessionFile(sessionFile, session)
 		return
 	end try
+	--
+	spotlightImportAlbum(session)
+	
 	updateSessionFile(sessionFile, session)
+	
 end run
