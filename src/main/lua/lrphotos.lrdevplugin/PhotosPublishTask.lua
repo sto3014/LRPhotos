@@ -87,18 +87,48 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function createQueueEntry(collectionName)
+local function getUniqueQueueEntry(collectionName)
+    logger.trace("getUniqueQueueEntry start")
 
+    local queueEntry = InitPlugin.queueEntry .. " " .. LrPathUtils.leafName(collectionName)
+    --[[
+    local index = 1
+    local isAvailable = false
+    while not isAvailable do
+        queueEntry = InitPlugin.queueEntry .. "-" .. tostring(index)
+        logger.trace("check availability for queueEntry=" .. queueEntry)
+        if ( not LrFileUtils.exists(queueEntry)) then
+            isAvailable = true
+        else
+            index = index + 1
+        end
+    end
+    --]]
+    logger.trace("getUniqueQueueEntry end")
+    return queueEntry
+end
+
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
+local function createQueueEntry(collectionName)
+    logger.trace("createQueueEntry start")
     local queueEntryPath = LrFileUtils.chooseUniqueFileName(InitPlugin.queueEntry)
+    -- local queueEntryPath = getUniqueQueueEntry(collectionName)
+    logger.trace("queueEntryPath=" .. queueEntryPath)
+    logger.trace("create queue-entry \""  ..  LrPathUtils.leafName(queueEntryPath) .. "\" for collection \"" .. collectionName .. "\"")
     local f = assert(io.open(queueEntryPath , "w", "encoding=utf-8"))
     f:write(collectionName)
+    f:flush()
     f:close()
+    logger.trace("createQueueEntry end")
     return LrPathUtils.leafName(queueEntryPath)
 end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function deleteQueueEntry(queueEntry)
+local function deleteQueueEntry(queueEntry, collectionName)
+    logger.trace("delete queue-entry \"" .. queueEntry .. "\"" .. "\" for collection \"" .. collectionName)
     LrFileUtils.delete(LrPathUtils.child(InitPlugin.queueDir, queueEntry))
 end
 
@@ -114,7 +144,7 @@ local function waitForPredecessors(queueEntry)
         for currentQueueEntry in LrFileUtils.directoryEntries(InitPlugin.queueDir) do
             local leafName = LrPathUtils.leafName(currentQueueEntry)
             if (Utils.startsWith(leafName, InitPlugin.queueEntryBaseName)) then
-                -- logger.trace("leafName=" .. leafName)
+                logger.trace("leafName=" .. leafName)
                 modDatesToQueueEntry[LrFileUtils.fileAttributes(currentQueueEntry).fileModificationDate] = leafName
             end
         end
@@ -254,7 +284,7 @@ end
 local function renderPhotos(exportContext, progressScope)
     local photoIDs = {}
     local renditions = {}
-
+    logger.trace("renderPhotos start")
     for i, rendition in exportContext:renditions { stopIfCanceled = true } do
         local photo = rendition.photo
         local success, pathOrMessage = rendition:waitForRender()
@@ -273,7 +303,7 @@ local function renderPhotos(exportContext, progressScope)
             photoIDs[#photoIDs + 1] = pathOrMessage .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
         end
     end
-
+    logger.trace("renderPhotos end")
     return renditions, photoIDs
 end
 
@@ -281,12 +311,17 @@ end
 
 -----------------------------------------------------------------------------]]
 local function recordPhotoIDs(renditions)
+    local activeCatalog = LrApplication.activeCatalog()
     -- store the remote photoIds in the service
     for _, rendition in ipairs(renditions) do
         local photo = rendition.photo
         local isVideo = photo:getRawMetadata("isVideo")
         logger.trace("isVideo=" .. tostring(isVideo))
-        local photoId = PhotosAPI.getPhotosId(photo)
+        -- local photoId = PhotosAPI.getPhotosId(photo)
+        local photoId = photo:getRawMetadata("uuid")
+        logger.trace("uuid=" .. tostring(photoId))
+        local p = activeCatalog:findPhotoByUuid(photoId)
+        logger.trace("p=" .. tostring(p))
         logger.trace("Record photo?:" .. tostring(photoId))
         -- Videos are always marked as skipped. Hmmm?
         if not rendition.wasSkipped or isVideo then
@@ -314,10 +349,10 @@ end
  processRenderedPhotos
 -----------------------------------------------------------------------------]]
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
-    logger.trace("name=" .. exportContext.publishedCollectionInfo.name)
+    logger.trace("processRenderedPhotos start")
+    logger.trace("collection=" .. exportContext.publishedCollectionInfo.name)
 
     local exportSession = exportContext.exportSession
-    local exportParams = exportContext.propertyTable
 
     -- Progress bar
     -- Does not work at the time. The standard bar will be displayed
@@ -327,6 +362,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
                 and LOC('$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photo', nPhotos)
                 or LOC '$$$/PhotosExportService/ProgressOne=Importing one photo in Photo',
     }
+
 
     -- Render the photos
     local renditions, photoIDs = renderPhotos(exportContext, progressScope)
@@ -345,7 +381,6 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     end
 
     local queueEntryName = createQueueEntry(exportContext.publishedCollectionInfo.name)
-    logger.trace("queueEntry=" .. queueEntryName)
     waitForPredecessors(queueEntryName)
 
     writeSessionFile(
@@ -362,21 +397,22 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                 LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntryName)
+        deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
         return
     end
 
     -- Wait till photos are imported by reading the session file
     local hasErrors, errorMsg = waitForPhotosApp()
     if (hasErrors) then
-        deleteQueueEntry(queueEntryName)
+        deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
         return
     end
 
     setPhotosID()
     recordPhotoIDs(renditions)
-    deleteQueueEntry(queueEntryName)
+    deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
+    logger.trace("processRenderedPhotos end")
 end
 --[[---------------------------------------------------------------------------
  getCollectionBehaviorInfo
@@ -400,11 +436,11 @@ function PhotosPublishTask.metadataThatTriggersRepublish(publishSettings)
     return {
 
         default = false,
-        title = true,
-        caption = true,
-        keywords = true,
-        gps = true,
-        dateCreated = true,
+        title = false,
+        caption = false,
+        keywords = false,
+        gps = false,
+        dateCreated = false,
 
         -- also (not used by Flickr sample plug-in):
         -- customMetadata = true,
@@ -438,7 +474,6 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         end
 
         local queueEntryName = createQueueEntry(publishSettings.LR_publishedCollectionInfo.name)
-        logger.trace("queueEntry=" .. queueEntryName)
         waitForPredecessors(queueEntryName)
 
         writeSessionFile(albumName, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove")
@@ -446,15 +481,16 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         local catName = LrPathUtils.leafName(activeCatalog:getPath())
 
         local photoIDs = {}
-        for i, photosID in ipairs(arrayOfPhotoIds) do
-            logger.trace("photosID=" .. tostring(photosID))
-            local photo = PhotosAPI.getPhotos(photosID)[1]
+        for i, lrUUID in ipairs(arrayOfPhotoIds) do
+            logger.trace("LrUUID=" .. tostring(lrUUID))
+            local photo = PhotosAPI.getPhotos(lrUUID)
             if (photo == nil) then
                 LrDialogs.message(LOC("$$$/Photos/Error/PhotoNotFound=Photo not found."),
-                        LOC("$$$/Photos/Error/PhotoNotFoundByPhotosID=Photo could not be found by its Photo-app UID: \"^1\".", photosID), "critical")
+                        LOC("$$$/Photos/Error/PhotoNotFoundByPhotosID=Photo could not be found by its Photo-app UID: \"^1\".", lrUUID), "critical")
             else
+                local photosID = PhotosAPI.getPhotosId(photo)
                 logger.trace("photo=" .. tostring(photo))
-                photoIDs[i] = "n.a." .. ":" .. photo:getRawMetadata("uuid") .. ":" .. catName .. ":" .. photosID
+                photoIDs[i] = "n.a." .. ":" .. lrUUID .. ":" .. catName .. ":" .. photosID
             end
         end
         writePhotosFile(photoIDs)
@@ -469,13 +505,13 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
 
         local hasErrors, errorMsg = waitForPhotosApp()
         if (hasErrors) then
-            deleteQueueEntry(queueEntryName)
+            deleteQueueEntry(queueEntryName,publishSettings.LR_publishedCollectionInfo.name)
             LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
         end
 
         removePhotosID()
 
-        deleteQueueEntry(queueEntryName)
+        deleteQueueEntry(queueEntryName,publishSettings.LR_publishedCollectionInfo.name)
 
         for _, photosID in ipairs(arrayOfPhotoIds) do
             logger.trace("photosID to be deleted = " .. tostring(photosID))

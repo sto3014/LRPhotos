@@ -21,6 +21,7 @@ local InitPlugin = {
 }
 
 local function init()
+    logger.trace("init start")
     local prefs = LrPrefs.prefsForPlugin()
     prefs.osSupported = true
     if (WIN_ENV) then
@@ -31,7 +32,7 @@ local function init()
     InitPlugin.pluginID = "at.homebrew.lrphotos"
 
     local tmpDir = LrPathUtils.parent(os.tmpname())
-    logger.trace("tmpDir=" .. tmpDir)
+
     InitPlugin.tmpDir = LrPathUtils.child(tmpDir, InitPlugin.pluginID)
     logger.trace("pluginTmpDir=" .. InitPlugin.tmpDir)
     LrFileUtils.delete(InitPlugin.tmpDir)
@@ -49,6 +50,7 @@ local function init()
     InitPlugin.queueEntryBaseName = "queue-entry"
     InitPlugin.queueEntry = LrPathUtils.child(InitPlugin.queueDir, InitPlugin.queueEntryBaseName)
 
+    logger.trace("init end")
 end
 
 init()

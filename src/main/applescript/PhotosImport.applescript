@@ -193,7 +193,7 @@ end trimThis
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
-	set importAlbum to getAlbumByPath(albumName of session, true)
+	set targetAlbum to getAlbumByPath(albumName of session, true)
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -217,17 +217,17 @@ on import(photoDescriptors, session)
 			set previousAlbums to {}
 			try
 				if isUpdate is true then
-					set previousPhotos to (every media item whose id is equal to photosId)
-					if (count of previousPhotos) is greater than 0 then
+					set targetPhotos to (every media item whose id is equal to photosId)
+					if (count of targetPhotos) is greater than 0 then
 						tell me to set previousAlbums to getUsedBy(photosId)
-						set thePreviousPhoto to item 1 of previousPhotos
+						set theTargetPhoto to item 1 of targetPhotos
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
-						set theseKeywords to the keywords of thePreviousPhoto
+						set theseKeywords to the keywords of theTargetPhoto
 						if theseKeywords is missing value then
-							set keywords of thePreviousPhoto to newKeywords
+							set keywords of theTargetPhoto to newKeywords
 						else
-							set keywords of thePreviousPhoto to (theseKeywords & newKeywords)
+							set keywords of theTargetPhoto to (theseKeywords & newKeywords)
 						end if
 					else
 						-- happens if photos were deleted
@@ -243,13 +243,13 @@ on import(photoDescriptors, session)
 				log "The file: " & thePhotoFile
 				local newPhotos
 				tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
-				if importAlbum is missing value then
+				if targetAlbum is missing value then
 					-- on update, the standard album must me ignored.
 					-- later it will  added to the albums of the previous photo version
 					set newPhotos to import aliasPhotoFile with skip check duplicates
 				else
 					-- if new, it goes into the standard album
-					set newPhotos to import aliasPhotoFile into importAlbum with skip check duplicates
+					set newPhotos to import aliasPhotoFile into targetAlbum with skip check duplicates
 				end if
 			on error e
 				error "Import of photos failed. Error was: " & e
@@ -290,8 +290,8 @@ on import(photoDescriptors, session)
 			try
 				if (count of newPhotos) is greater than 0 then
 					-- set the name of the LR catalog file
-					set importAlbumName to name of importAlbum
-					set newKeywords to {"lr:" & lrCat & ".lrcat", "album:" & importAlbumName}
+					set targetAlbumName to name of targetAlbum
+					set newKeywords to {"lr:" & lrCat & ".lrcat", "album:" & targetAlbumName}
 					set theNewPhoto to item 1 of newPhotos
 					set theseKeywords to the keywords of theNewPhoto
 					if theseKeywords is missing value then
@@ -342,7 +342,71 @@ on removeItemFromList(theList, theItem)
 	return theList
 end removeItemFromList
 -------------------------------------------------------------------------------
--- Remove photos from a single album
+-- removePhotosFromAlbum(theAlbum, thePhotos)
+--
+-- Removes photos from a single album
+-------------------------------------------------------------------------------
+on removePhotosFromAlbum(theAlbum, thePhotos)
+	tell application id "com.apple.photos"
+		if theAlbum is missing value then
+			return missing value
+		end if
+		if (count of thePhotos) is equal to 0 then
+			return theAlbum
+		end if
+		local allPhotos
+		local photosToBeKept
+		local photoIds
+		local albumPath
+		local aKeyword
+		tell me to set albumPath to getPathByAlbum(theAlbum)
+		if albumPath is missing value then
+			return missing value
+		end if
+		-- get all photos from theAlbum
+		set allPhotos to (get media items of theAlbum)
+		set photoIds to {}
+		-- collect all photos (the id) which should be kept
+		repeat with photo in allPhotos
+			set found to false
+			repeat with photoToBeDeleted in thePhotos
+				if id of photo is equal to id of photoToBeDeleted then
+					set found to true
+				end if
+			end repeat
+			if not found then
+				set end of photoIds to id of photo
+			end if
+		end repeat
+		
+		-- get the photos which should be kept
+		-- remarks:
+		-- the photo object in an album is different to the object which is 
+		-- in the global mediathek
+		set photosToBeKept to {}
+		
+		repeat with photoId in photoIds
+			set photos to (get media items whose id is equal to photoId)
+			set end of photosToBeKept to item 1 of photos
+		end repeat
+		
+		if (count of photosToBeKept) is not equal to (count of allPhotos) then
+			delete theAlbum
+			tell me to set theAlbum to getAlbumByPath(albumPath, true)
+			if (count of photosToBeKept) is greater than 0 then
+				add photosToBeKept to theAlbum
+			end if
+		end if
+		
+		return theAlbum
+		
+	end tell
+end removePhotosFromAlbum
+
+-------------------------------------------------------------------------------
+-- cleanupAlbum(theAlbum)
+--
+-- Removes photos from a single album which are out of date or no onger published
 -------------------------------------------------------------------------------
 on cleanupAlbum(theAlbum)
 	tell application id "com.apple.photos"
@@ -399,8 +463,8 @@ on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	
-	set importAlbum to getAlbumByPath(albumName of session, false)
-	if importAlbum is missing value then
+	set targetAlbum to getAlbumByPath(albumName of session, false)
+	if targetAlbum is missing value then
 		return removedPhotos
 	end if
 	
@@ -415,56 +479,89 @@ on remove(photoDescriptors, session)
 			set photosId to text item 4 of aPhotoDescriptor
 			
 			try
-				set previousPhotos to (every media item whose id is equal to photosId)
-				if (count of previousPhotos) is greater than 0 then
-					set thePreviousPhoto to item 1 of previousPhotos
+				set targetPhotos to (every media item whose id is equal to photosId)
+				if (count of targetPhotos) is greater than 0 then
+					-- the photo exists
+					set theTargetPhoto to item 1 of targetPhotos
+					local allUsedByAlbums
+					tell me to set allUsedByAlbums to getUsedBy(photosId)
 					
-					local theseKeywords
-					set theseKeywords to the keywords of thePreviousPhoto
 					
-					local allUsedAlbums
-					tell me to set allUsedAlbums to getUsedBy(photosId)
-					local validAlbums
-					set validAlbums to {}
-					repeat with aAlbum in allUsedAlbums
-						set aAlbumName to name of aAlbum
-						tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
-						if isValid then
-							set end of validAlbums to aAlbum
-						end if
-					end repeat
-					
-					if (count of validAlbums) is equal to 1 then
+					if (count of allUsedByAlbums) is equal to 0 then
+						-- if photos is not used any more we clear photosId from LR
 						set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
 						copy newEntry to the end of removedPhotos
-						set noLongerPublishedKeyword to "lr:no-longer-published"
 					else
-						set noLongerPublishedKeyword to missing value
-					end if
-					
-					if theseKeywords is not missing value then
-						local oldKeyword
-						set oldKeyword to "album:" & name of importAlbum
-						tell me to set newKeywords to removeItemFromList(theseKeywords, oldKeyword)
-						if noLongerPublishedKeyword is not missing value then
-							set end of newKeywords to noLongerPublishedKeyword
+						-- the photo exists and is used in any album
+						--
+						-- validate that the target photos is really in the target album
+						set photoIsInTargetAlbum to false
+						repeat with aUsedByAlbum in allUsedByAlbums
+							if id of aUsedByAlbum is equal to id of targetAlbum then
+								set photoIsInTargetAlbum to true
+							end if
+						end repeat
+						
+						-- if target photo is not in the target album, there is nothing to do
+						if photoIsInTargetAlbum then
+							local theseKeywords
+							set theseKeywords to the keywords of theTargetPhoto
+							
+							local validAlbums
+							local aAlbumName
+							set validAlbums to {}
+							repeat with aAlbum in allUsedByAlbums
+								set aAlbumName to name of aAlbum
+								tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
+								if isValid then
+									set end of validAlbums to aAlbum
+								end if
+							end repeat
+							
+							-- mark photo as no-longer-published if necessary
+							if (count of validAlbums) is equal to 1 then
+								-- target album is the last album which holds the target photo
+								-- we mark it as no-longer-published
+								set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
+								copy newEntry to the end of removedPhotos
+								set noLongerPublishedKeyword to "lr:no-longer-published"
+							else
+								-- target is still in use
+								set noLongerPublishedKeyword to missing value
+							end if
+							
+							-- remove the album keyword
+							if theseKeywords is not missing value then
+								local oldKeyword
+								set oldKeyword to "album:" & name of targetAlbum
+								tell me to set newKeywords to removeItemFromList(theseKeywords, oldKeyword)
+								if noLongerPublishedKeyword is not missing value then
+									set end of newKeywords to noLongerPublishedKeyword
+								end if
+								set keywords of theTargetPhoto to newKeywords
+							else
+								if noLongerPublishedKeyword is not missing value then
+									set newKeywords to {}
+									set end of newKeywords to noLongerPublishedKeyword
+									set keywords of theTargetPhoto to newKeywords
+								end if
+							end if
+							-- remove target photo from target album
+							set end of photosToBeRemovedFromAlbum to theTargetPhoto
 						end if
-						set keywords of thePreviousPhoto to newKeywords
-					else
-						if noLongerPublishedKeyword is not missing value then
-							set newKeywords to {}
-							set end of newKeywords to noLongerPublishedKeyword
-							set keywords of thePreviousPhoto to newKeywords
-						end if
 					end if
-					set end of photosToBeRemovedFromAlbum to thePreviousPhoto
+				else
+					-- target photo was not found at all.
+					-- but as it was sent from LR we should clear photosId in LR
+					set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
+					copy newEntry to the end of removedPhotos
 				end if
 			on error e
 				error "Can't remove photo from album for photoID " & photosId & ". Error was " & e
 			end try
 		end repeat
 		--
-		tell me to set importAlbum to cleanupAlbum(importAlbum)
+		tell me to set targetAlbum to removePhotosFromAlbum(targetAlbum, photosToBeRemovedFromAlbum)
 	end tell
 	set AppleScript's text item delimiters to " "
 	return removedPhotos
@@ -529,30 +626,90 @@ on getUsedBy(photosId)
 	tell application "Photos"
 		set usedBy to get (albums whose id of media items contains photosId)
 		repeat with aFolder in folders
-			tell me to set usedBy to _getAlbumsAndFolders(aFolder, photosId, usedBy)
+			tell me to set usedBy to _getUsedBy(aFolder, photosId, usedBy)
 		end repeat
 	end tell
 	return usedBy
 end getUsedBy
 
 -- recursive function used by getUsedBy()
-on _getAlbumsAndFolders(aFolder, photosId, usedBy)
+on _getUsedBy(aFolder, photosId, usedBy)
 	local usedBy
 	tell application "Photos"
 		tell aFolder
 			set usedBy to usedBy & (albums whose id of media items contains photosId)
 			repeat with aFolder in folders
-				tell me to set usedBy to _getAlbumsAndFolders(aFolder, photosId, usedBy)
+				tell me to set usedBy to _getUsedBy(aFolder, photosId, usedBy)
 			end repeat
 		end tell
 	end tell
 	return usedBy
-end _getAlbumsAndFolders
+end _getUsedBy
+
 -------------------------------------------------------------------------------
--- getAlbumByPath(albumPath)
+-- getPathByAlbum(theAlbum)
 --
--- format of albumPath:
---   "/folder1/folder2/..../album"
+-- Returns full path of theAlbum
+--
+-- format of path: "/folder1/folder2/..../album"
+-------------------------------------------------------------------------------
+on getPathByAlbum(theAlbum)
+	local thePath
+	set thePath to missing value
+	local theAlbums
+	tell application "Photos"
+		set theAlbums to get albums whose id is equal to id of theAlbum
+		-- repeat with aAlbum in albums
+		--	if id of aAlbum equals 
+		--end
+		if theAlbums is not {} then
+			return "/" & name of first item of theAlbums
+		end if
+		repeat with aFolder in folders
+			local folderName
+			set folderName to name of aFolder
+			tell me to set thePath to _getPathByAlbum(aFolder, theAlbum, thePath)
+			if thePath is not missing value then
+				set thePath to "/" & thePath
+				return thePath
+			end if
+		end repeat
+	end tell
+	return missing value
+end getPathByAlbum
+
+-- recursive function used by getPathByAlbum()
+on _getPathByAlbum(thisFolder, theAlbum, thePath)
+	local theAlbums
+	local thePath
+	local thisFolderName
+	tell application "Photos"
+		tell thisFolder
+			set thisFolderName to name of thisFolder
+			set theAlbums to albums whose id is equal to id of theAlbum
+			if theAlbums is not {} then
+				return thisFolderName & "/" & name of first item of theAlbums
+			end if
+			repeat with aFolder in folders
+				local folderName
+				set folderName to name of aFolder
+				tell me to set thePath to _getPathByAlbum(aFolder, theAlbum, thePath)
+				if thePath is not missing value then
+					set thePath to thisFolderName & "/" & thePath
+					return thePath
+				end if
+			end repeat
+		end tell
+	end tell
+	return missing value
+end _getPathByAlbum
+-------------------------------------------------------------------------------
+-- getAlbumByPath(albumPath, createIfNotExists)
+--
+-- returns the album for the given path
+--
+-- if createIfNotExists is true missing folders are created as well as the album
+-- format of albumPath: "/folder1/folder2/..../album"
 -------------------------------------------------------------------------------
 on getAlbumByPath(albumPath, createIfNotExists)
 	try
@@ -635,53 +792,33 @@ on getAlbumByPath(albumPath, createIfNotExists)
 	
 end getAlbumByPath
 -------------------------------------------------------------------------------
--- getPathByAlbum()
--------------------------------------------------------------------------------
-on getPathByAlbum(aAlbum)
-	set albumPath to "/" & name of aAlbum
-	tell application id "com.apple.photos"
-		set _p to parent of aAlbum
-		if _p is not missing value then
-			set albumPath to "/" & name of parent of aAlbum & albumPath
-			set _p to parent of parent of aAlbum
-			if _p is not missing value then
-				set albumPath to "/" & name of parent of parent of aAlbum & albumPath
-				set _p to parent of parent of parent of aAlbum
-				if _p is not missing value then
-					set albumPath to "/" & name of parent of parent of parent of aAlbum & albumPath
-					set _p to parent of parent of parent of parent of aAlbum
-					if _p is not missing value then
-						set albumPath to "/" & name of parent of parent of parent of parent of aAlbum & albumPath
-						set _p to parent of parent of parent of parent of parent of aAlbum
-						if _p is not missing value then
-							error "Only 4 levels of subfolders are supported."
-						end if
-					end if
-				end if
-			end if
-		end if
-	end tell
-	return albumPath
-end getPathByAlbum
--------------------------------------------------------------------------------
--- spotlightImportAlbum(session)
+-- spotlightTargetAlbum(session)
 --
 --  activates import album
 -------------------------------------------------------------------------------
-on spotlightImportAlbum(session)
-	set importAlbum to getAlbumByPath(albumName of session, false)
+on spotlightTargetAlbum(session)
+	set targetAlbum to getAlbumByPath(albumName of session, false)
 	tell application id "com.apple.photos"
-		if importAlbum is not missing value then
-			tell importAlbum
+		if targetAlbum is not missing value then
+			tell targetAlbum
 				spotlight
 			end tell
 		end if
 	end tell
-end spotlightImportAlbum
+end spotlightTargetAlbum
 -------------------------------------------------------------------------------
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
+	-- set targetAlbum to getAlbumByPath("/Test/Test3/Test4/Yield4", false)
+	set targetAlbum to getAlbumByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
+	-- set targetAlbum to getAlbumByPath("/Yield0", false)
+	-- set targetAlbum to getAlbumByPath("/Test/Yield2", false)
+	
+	
+	local thePath
+	set thePath to getPathByAlbum(targetAlbum)
+	set dummy to 0
 end testImport
 -------------------------------------------------------------------------------
 -- Run the import script
@@ -737,7 +874,7 @@ on run argv
 		return
 	end try
 	--
-	spotlightImportAlbum(session)
+	spotlightTargetAlbum(session)
 	
 	updateSessionFile(sessionFile, session)
 	

@@ -13,33 +13,26 @@ function PhotosAPI.getPhotosId(photo)
     return photo:getPropertyForPlugin(_PLUGIN, 'photosId')
 end
 
-function PhotosAPI.resetPhotoId(photoId)
+function PhotosAPI.getPhotos(lrUUID)
     local activeCatalog = LrApplication.activeCatalog()
-
-
-    local foundPhotos = PhotosAPI.getPhotos(photoId)
-
-    activeCatalog:withWriteAccessDo("Reset photos ID", function()
-        for i, photo in ipairs(foundPhotos) do
-            logger.trace("Reset photoId: " .. photoId)
-            photo:setPropertyForPlugin(_PLUGIN, 'photosId', "")
-        end
-
-    end )
-end
-
-function PhotosAPI.getPhotos(photoId)
-    local activeCatalog = LrApplication.activeCatalog()
-
-    local foundPhotos = activeCatalog:findPhotos {
-        searchDesc = {
-            criteria = "sdktext:at.homebrew.lrphotos.photosId",
-            operation = "any",
-            value = photoId,
-            value2 = "",
+    logger.trace("lrUUID=" .. lrUUID)
+    local foundPhoto = activeCatalog:findPhotoByUuid(lrUUID)
+    logger.trace("Photo found via LR UUID:" .. tostring(foundPhoto))
+    if (foundPhoto == nil) then
+        -- In version 1.2 the photoId was the id of Photos app. Maybe we hav some old photos
+        local foundPhotos = activeCatalog:findPhotos {
+            searchDesc = {
+                criteria = "sdktext:at.homebrew.lrphotos.photosId",
+                operation = "any",
+                value = lrUUID,
+                value2 = "",
+            }
         }
-    }
-    return foundPhotos
+        foundPhoto = foundPhotos[1]
+        logger.trace("Photos found via Photos UUID:" .. tostring(#foundPhotos))
+    end
+
+    return foundPhoto
 
 end
 
