@@ -19,7 +19,7 @@ function PhotosAPI.getPhotos(lrUUID)
     local foundPhoto = activeCatalog:findPhotoByUuid(lrUUID)
     logger.trace("Photo found via LR UUID:" .. tostring(foundPhoto))
     if (foundPhoto == nil) then
-        -- In version 1.2 the photoId was the id of Photos app. Maybe we hav some old photos
+        -- Up to version 1.2 the photoId was the id of Photos app. Maybe we hav some old photos
         local foundPhotos = activeCatalog:findPhotos {
             searchDesc = {
                 criteria = "sdktext:at.homebrew.lrphotos.photosId",

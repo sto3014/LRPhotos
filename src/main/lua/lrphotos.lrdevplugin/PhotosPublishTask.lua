@@ -13,9 +13,6 @@ local LrFileUtils = import 'LrFileUtils'
 local logger = require("Logger")
 local PhotosAPI = require("PhotosAPI")
 local Utils = require("Utils")
-local InitPlugin = require("InitPlugin")
-
-
 
 PhotosPublishTask = {}
 
@@ -84,102 +81,17 @@ local function getFullAlbumPath(albumBy, useAlbum, rootFolder, albumNameForServi
     logger.trace("Album: " .. albumName)
     return albumName
 end
---[[---------------------------------------------------------------------------
-
------------------------------------------------------------------------------]]
-local function getUniqueQueueEntry(collectionName)
-    logger.trace("getUniqueQueueEntry start")
-
-    local queueEntry = InitPlugin.queueEntry .. " " .. LrPathUtils.leafName(collectionName)
-    --[[
-    local index = 1
-    local isAvailable = false
-    while not isAvailable do
-        queueEntry = InitPlugin.queueEntry .. "-" .. tostring(index)
-        logger.trace("check availability for queueEntry=" .. queueEntry)
-        if ( not LrFileUtils.exists(queueEntry)) then
-            isAvailable = true
-        else
-            index = index + 1
-        end
-    end
-    --]]
-    logger.trace("getUniqueQueueEntry end")
-    return queueEntry
-end
 
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function createQueueEntry(collectionName)
-    logger.trace("createQueueEntry start")
-    local queueEntryPath = LrFileUtils.chooseUniqueFileName(InitPlugin.queueEntry)
-    -- local queueEntryPath = getUniqueQueueEntry(collectionName)
-    logger.trace("queueEntryPath=" .. queueEntryPath)
-    logger.trace("create queue-entry \""  ..  LrPathUtils.leafName(queueEntryPath) .. "\" for collection \"" .. collectionName .. "\"")
-    local f = assert(io.open(queueEntryPath , "w", "encoding=utf-8"))
-    f:write(collectionName)
-    f:flush()
-    f:close()
-    logger.trace("createQueueEntry end")
-    return LrPathUtils.leafName(queueEntryPath)
-end
---[[---------------------------------------------------------------------------
-
------------------------------------------------------------------------------]]
-local function deleteQueueEntry(queueEntry, collectionName)
-    logger.trace("delete queue-entry \"" .. queueEntry .. "\"" .. "\" for collection \"" .. collectionName)
-    LrFileUtils.delete(LrPathUtils.child(InitPlugin.queueDir, queueEntry))
-end
-
---[[---------------------------------------------------------------------------
-
------------------------------------------------------------------------------]]
-local function waitForPredecessors(queueEntry)
-    logger.trace("waitForPredecessors() start")
-    logger.trace("queueEntry=" .. queueEntry)
-    local done = false
-    while done ~= true do
-        local modDatesToQueueEntry = {}
-        for currentQueueEntry in LrFileUtils.directoryEntries(InitPlugin.queueDir) do
-            local leafName = LrPathUtils.leafName(currentQueueEntry)
-            if (Utils.startsWith(leafName, InitPlugin.queueEntryBaseName)) then
-                logger.trace("leafName=" .. leafName)
-                modDatesToQueueEntry[LrFileUtils.fileAttributes(currentQueueEntry).fileModificationDate] = leafName
-            end
-        end
-        local modDates = {}
-        for n in pairs(modDatesToQueueEntry) do table.insert(modDates, n) end
-        table.sort(modDates)
-        local entryToBeProcessed = modDatesToQueueEntry[modDates[1]]
-
-        if ( entryToBeProcessed == nil) then
-            logger.trace("No entry found. Should only happen if user delete all files. Proceed processing.")
-            done = true
-        else
-            logger.trace("entryToBeProcessed=" .. entryToBeProcessed )
-            if ( entryToBeProcessed == queueEntry) then
-                logger.trace("Processing...")
-                done=true
-            else
-                logger.trace("Waiting...")
-                LrTasks.sleep(2)
-            end
-        end
-    end
-    logger.trace("waitForPredecessors() end")
-end
-
---[[---------------------------------------------------------------------------
-
------------------------------------------------------------------------------]]
-local function writeSessionFile(albumName, ignoreAlbums, ignoreRegex, mode)
+local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode)
     -- Write Lightroom input to a session.txt file for AppleScript later on
-    logger.trace("sessionFile=" .. InitPlugin.sessionFile)
-    local f = assert(io.open(InitPlugin.sessionFile, "w+", "encoding=utf-8"))
+    logger.trace("sessionFile=" .. Utils.getSessionFile(albumPath))
+    local f = assert(io.open(Utils.getSessionFile(albumPath), "w+", "encoding=utf-8"))
     f:write("mode=" .. mode ..  "\n")
     f:write("exportDone=false\n")
-    f:write("albumName=" .. albumName .. "\n")
+    f:write("albumName=" .. albumPath .. "\n")
 
     if ignoreAlbums == true then
         f:write("ignoreByRegex=" .. ignoreRegex .. "\n")
@@ -191,9 +103,9 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function writePhotosFile(photoIDs)
-    logger.trace("photosFile=" .. InitPlugin.photosFile)
-    local g = assert(io.open(InitPlugin.photosFile, "w+"))
+local function writePhotosFile(photoIDs, albumPath)
+    logger.trace("photosFile=" .. Utils.getPhotosFile(albumPath))
+    local g = assert(io.open(Utils.getPhotosFile(albumPath), "w+"))
     for _, photoID in ipairs(photoIDs) do
         logger.trace(photoID)
         g:write(photoID .. "\n")
@@ -205,14 +117,14 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function waitForPhotosApp()
+local function waitForPhotosApp(albumPath)
     -- Wait for the import to be done
     local done = false
     local hasErrors = false
     local errorMsg = ""
     while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
-        local f = assert(io.open(InitPlugin.sessionFile, "r"))
+        local f = assert(io.open(Utils.getSessionFile(albumPath), "r"))
         for line in f:lines() do
             logger.trace("waiting..." .. line)
             if string.find(line, 'exportDone=true') then
@@ -236,9 +148,9 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function setPhotosID()
+local function setPhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(InitPlugin.photosFile, "r"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
 
     activeCatalog:withWriteAccessDo("Set photos ID", function()
         for line in f:lines() do
@@ -258,9 +170,9 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function removePhotosID()
+local function removePhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(InitPlugin.photosFile, "r"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
 
     activeCatalog:withWriteAccessDo("Remove photos ID", function()
         for line in f:lines() do
@@ -336,11 +248,73 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function sendPhotosToApp()
-    local importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. InitPlugin.comDir .. "\""
+local function sendPhotosToApp(albumPath)
+    local importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. Utils.getComDir(albumPath) .. "\""
     logger.trace(importer_command)
     return LrTasks.execute(importer_command)
 end
+
+local function createQueueEntry(albumPath)
+    logger.trace("createQueueEntry start")
+    local queueEntryPath = Utils.getQueueEntry()
+    logger.trace("queueEntryPath=" .. queueEntryPath)
+    logger.trace("create queue-entry \"" .. LrPathUtils.leafName(queueEntryPath) .. "\" for collection \"" .. albumPath .. "\"")
+    local f = assert(io.open(queueEntryPath, "w", "encoding=utf-8"))
+    f:write(albumPath)
+    f:flush()
+    f:close()
+    logger.trace("createQueueEntry end")
+    return LrPathUtils.leafName(queueEntryPath)
+end
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
+local function deleteQueueEntry(queueEntry, albumPath)
+    logger.trace("delete queue-entry \"" .. queueEntry .. "\"" .. "\" for collection \"" .. albumPath)
+    LrFileUtils.delete(LrPathUtils.child(Utils.getQueueDir(), queueEntry))
+end
+
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
+local function waitForPredecessors(queueEntry)
+    logger.trace("waitForPredecessors() start")
+    logger.trace("queueEntry=" .. queueEntry)
+    local done = false
+    while done ~= true do
+        local modDatesToQueueEntry = {}
+        for currentQueueEntry in LrFileUtils.directoryEntries(Utils.getQueueDir()) do
+            local leafName = LrPathUtils.leafName(currentQueueEntry)
+            if (Utils.startsWith(leafName, Utils.getQueueEntryBaseName())) then
+                logger.trace("leafName=" .. leafName)
+                modDatesToQueueEntry[LrFileUtils.fileAttributes(currentQueueEntry).fileModificationDate] = leafName
+            end
+        end
+        local modDates = {}
+        for n in pairs(modDatesToQueueEntry) do
+            table.insert(modDates, n)
+        end
+        table.sort(modDates)
+        local entryToBeProcessed = modDatesToQueueEntry[modDates[1]]
+
+        if (entryToBeProcessed == nil) then
+            logger.trace("No entry found. Should only happen if user delete all files. Proceed processing.")
+            done = true
+        else
+            logger.trace("entryToBeProcessed=" .. entryToBeProcessed)
+            if (entryToBeProcessed == queueEntry) then
+                logger.trace("Processing...")
+                done = true
+            else
+                logger.trace("Waiting...")
+                LrTasks.sleep(2)
+            end
+        end
+    end
+    logger.trace("waitForPredecessors() end")
+end
+
+
 
 --[[---------------------------------------------------------------------------
  global (inherited) functions
@@ -367,51 +341,52 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     -- Render the photos
     local renditions, photoIDs = renderPhotos(exportContext, progressScope)
 
-    local albumName = getFullAlbumPath(
+    local albumPath = getFullAlbumPath(
             exportContext.propertyTable.albumBy,
             exportContext.propertyTable.useAlbum,
             exportContext.propertyTable.rootFolder,
             exportContext.propertyTable.albumNameForService,
             exportContext.publishedCollectionInfo.name)
 
-    if (not isValidAlbumPath(albumName)) then
+    if (not isValidAlbumPath(albumPath)) then
         LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
-                LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
+                LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumPath), "critical")
         return
     end
 
-    local queueEntryName = createQueueEntry(exportContext.publishedCollectionInfo.name)
-    waitForPredecessors(queueEntryName)
-
     writeSessionFile(
-            albumName,
+            albumPath,
             exportContext.propertyTable.ignoreAlbums,
             exportContext.propertyTable.ignoreRegex,
             "publish")
 
-    writePhotosFile(photoIDs)
+    writePhotosFile(photoIDs, albumPath)
+
+    -- local queueEntry = createQueueEntry(albumPath)
+    -- waitForPredecessors(queueEntry)
 
     -- Import photos in Photos app
-    local result = sendPhotosToApp()
+    local result = sendPhotosToApp(albumPath)
     if (result ~= 0) then
         local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                 LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
+        -- deleteQueueEntry(queueEntry, albumPath)
         return
     end
 
     -- Wait till photos are imported by reading the session file
-    local hasErrors, errorMsg = waitForPhotosApp()
+    local hasErrors, errorMsg = waitForPhotosApp(albumPath)
     if (hasErrors) then
-        deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+        -- deleteQueueEntry(queueEntry, albumPath)
+
         return
     end
 
-    setPhotosID()
+    setPhotosID(albumPath)
     recordPhotoIDs(renditions)
-    deleteQueueEntry(queueEntryName, exportContext.publishedCollectionInfo.name)
+    -- deleteQueueEntry(queueEntry, albumPath)
     logger.trace("processRenderedPhotos end")
 end
 --[[---------------------------------------------------------------------------
@@ -459,24 +434,22 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         local albumName = publishSettings.LR_publishedCollectionInfo.name
         logger.trace("albumName=" .. albumName)
 
-        local albumName = getFullAlbumPath(
+    local albumPath = getFullAlbumPath(
                 publishSettings.albumBy,
                 publishSettings.useAlbum,
                 publishSettings.rootFolder,
                 publishSettings.albumNameForService,
                 publishSettings.LR_publishedCollectionInfo.name)
-        logger.trace("albumName=" .. albumName)
+    logger.trace("albumPath=" .. albumPath)
 
-        if (not isValidAlbumPath(albumName)) then
+
+    if (not isValidAlbumPath(albumPath)) then
             LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
                     LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
             return
         end
 
-        local queueEntryName = createQueueEntry(publishSettings.LR_publishedCollectionInfo.name)
-        waitForPredecessors(queueEntryName)
-
-        writeSessionFile(albumName, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove")
+    writeSessionFile(albumPath, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove")
         local activeCatalog = LrApplication.activeCatalog()
         local catName = LrPathUtils.leafName(activeCatalog:getPath())
 
@@ -493,25 +466,28 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
                 photoIDs[i] = "n.a." .. ":" .. lrUUID .. ":" .. catName .. ":" .. photosID
             end
         end
-        writePhotosFile(photoIDs)
+    writePhotosFile(photoIDs, albumPath)
 
-        local result = sendPhotosToApp()
+    -- waitForPredecessors(queueEntry)
+    -- local queueEntry = createQueueEntry(albumPath)
+
+    local result = sendPhotosToApp(albumPath)
         if (result ~= 0) then
             local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
             LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                     LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+            -- deleteQueueEntry(queueEntry, albumPath)
+
             return
         end
 
-        local hasErrors, errorMsg = waitForPhotosApp()
+    local hasErrors, errorMsg = waitForPhotosApp(albumPath)
         if (hasErrors) then
-            deleteQueueEntry(queueEntryName,publishSettings.LR_publishedCollectionInfo.name)
             LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
         end
 
-        removePhotosID()
-
-        deleteQueueEntry(queueEntryName,publishSettings.LR_publishedCollectionInfo.name)
+    removePhotosID(albumPath)
+    -- deleteQueueEntry(queueEntry, albumPath)
 
         for _, photosID in ipairs(arrayOfPhotoIds) do
             logger.trace("photosID to be deleted = " .. tostring(photosID))

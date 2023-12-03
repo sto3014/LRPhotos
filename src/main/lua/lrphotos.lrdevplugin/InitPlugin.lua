@@ -32,24 +32,11 @@ local function init()
     InitPlugin.pluginID = "at.homebrew.lrphotos"
 
     local tmpDir = LrPathUtils.parent(os.tmpname())
-
     InitPlugin.tmpDir = LrPathUtils.child(tmpDir, InitPlugin.pluginID)
     logger.trace("pluginTmpDir=" .. InitPlugin.tmpDir)
-    LrFileUtils.delete(InitPlugin.tmpDir)
-    LrFileUtils.createDirectory( InitPlugin.tmpDir)
-
-    InitPlugin.comDir = LrPathUtils.child(InitPlugin.tmpDir, "com")
-    LrFileUtils.createDirectory(InitPlugin.comDir)
-
-    InitPlugin.queueDir = LrPathUtils.child(InitPlugin.tmpDir, "queue")
-    LrFileUtils.createDirectory(InitPlugin.queueDir)
-
-    InitPlugin.sessionFile = LrPathUtils.child(InitPlugin.comDir, "session.txt")
-    InitPlugin.photosFile = LrPathUtils.child(InitPlugin.comDir, "photos.txt")
-
-    InitPlugin.queueEntryBaseName = "queue-entry"
-    InitPlugin.queueEntry = LrPathUtils.child(InitPlugin.queueDir, InitPlugin.queueEntryBaseName)
-
+    if ( not LrFileUtils.exists(InitPlugin.tmpDir)) then
+        LrFileUtils.createDirectory( InitPlugin.tmpDir)
+    end
     logger.trace("init end")
 end
 
