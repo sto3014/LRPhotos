@@ -1,26 +1,19 @@
 --[[---------------------------------------------------------------------------
 -- Created by Dieter Stockhausen
--- Created on 31.05.21
+-- Created on 04.12.23
 -----------------------------------------------------------------------------]]
-local LrDialogs = import 'LrDialogs'
-local LrPrefs = import 'LrPrefs'
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
+local LrDialogs = import 'LrDialogs'
+local LrPrefs = import 'LrPrefs'
 
 local logger = require("Logger")
 
-local InitPlugin = {
-    pluginID,
-    comDir,
-    queueDir,
-    tmpDir,
-    sessionFile,
-    photosFile,
-    queueEntry,
-    queueEntryBaseName
-}
+_G.PLUGIN_ID = "at.homebrew.lrphotos"
+_G.TMP_DIR = LrPathUtils.child(LrPathUtils.parent(os.tmpname()), _G.PLUGIN_ID)
+_G.QUEUE_DIR = LrPathUtils.child(_G.TMP_DIR, "queue")
 
-local function init()
+function init()
     logger.trace("init start")
     local prefs = LrPrefs.prefsForPlugin()
     prefs.osSupported = true
@@ -29,17 +22,26 @@ local function init()
         prefs.osSupported = false
     end
 
-    InitPlugin.pluginID = "at.homebrew.lrphotos"
+    logger.trace("tmpDir=" .. _G.TMP_DIR)
+    logger.trace("queueDir=" .. _G.QUEUE_DIR)
 
-    local tmpDir = LrPathUtils.parent(os.tmpname())
-    InitPlugin.tmpDir = LrPathUtils.child(tmpDir, InitPlugin.pluginID)
-    logger.trace("pluginTmpDir=" .. InitPlugin.tmpDir)
-    if ( not LrFileUtils.exists(InitPlugin.tmpDir)) then
-        LrFileUtils.createDirectory( InitPlugin.tmpDir)
+    if ( not LrFileUtils.exists(_G.TMP_DIR)) then
+        logger.trace("Create directory " .. _G.TMP_DIR)
+        LrFileUtils.createAllDirectories( _G.TMP_DIR)
     end
+
+    --[[
+    if ( LrFileUtils.exists( _G.QUEUE_DIR)) then
+        logger.trace("Delete directory " .. _G.QUEUE_DIR)
+        LrFileUtils.delete(_G.QUEUE_DIR)
+    end
+    --]]
+    if ( not LrFileUtils.exists(_G.QUEUE_DIR)) then
+        logger.trace("Create directory " .. _G.QUEUE_DIR)
+        LrFileUtils.createAllDirectories( _G.QUEUE_DIR)
+    end
+
     logger.trace("init end")
 end
 
 init()
-
-return InitPlugin
