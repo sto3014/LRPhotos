@@ -25,9 +25,9 @@ function init()
     logger.trace("tmpDir=" .. _G.TMP_DIR)
     logger.trace("queueDir=" .. _G.QUEUE_DIR)
 
-    if ( not LrFileUtils.exists(_G.TMP_DIR)) then
+    if (not LrFileUtils.exists(_G.TMP_DIR)) then
         logger.trace("Create directory " .. _G.TMP_DIR)
-        LrFileUtils.createAllDirectories( _G.TMP_DIR)
+        LrFileUtils.createAllDirectories(_G.TMP_DIR)
     end
 
     --[[
@@ -36,9 +36,9 @@ function init()
         LrFileUtils.delete(_G.QUEUE_DIR)
     end
     --]]
-    if ( not LrFileUtils.exists(_G.QUEUE_DIR)) then
+    if (not LrFileUtils.exists(_G.QUEUE_DIR)) then
         logger.trace("Create directory " .. _G.QUEUE_DIR)
-        LrFileUtils.createAllDirectories( _G.QUEUE_DIR)
+        LrFileUtils.createAllDirectories(_G.QUEUE_DIR)
     end
 
     logger.trace("init end")

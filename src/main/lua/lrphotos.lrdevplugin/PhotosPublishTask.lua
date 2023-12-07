@@ -16,8 +16,8 @@ local Utils = require("Utils")
 
 PhotosPublishTask = {}
 
-local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
-
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+-- LrMobdebug.start()
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
@@ -118,6 +118,7 @@ end
 
 -----------------------------------------------------------------------------]]
 local function waitForPhotosApp(albumPath)
+    logger.trace("PhotosPublishTask.waitForPhotosApp()) start")
     -- Wait for the import to be done
     local done = false
     local hasErrors = false
@@ -142,6 +143,7 @@ local function waitForPhotosApp(albumPath)
         end
         f:close()
     end
+    logger.trace("PhotosPublishTask.waitForPhotosApp()) end")
     return hasErrors, errorMsg
 end
 
@@ -193,10 +195,41 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
+local function getPhotoDescriptor(photo, photoPath, lrcatName)
+    local pID = photo:getPropertyForPlugin(_PLUGIN, 'photosId')
+    if (pID == nil) then
+        pID = ""
+    end
+    local path = photoPath
+
+    local cameraModel = photo:getFormattedMetadata("cameraModel")
+    if ( cameraModel ~= nil and Utils.startsWith(cameraModel, "iPhone")) then
+        local isHDR = false
+        local keywords = photo:getFormattedMetadata("keywordTags")
+
+        if ( keywords ~=nil) then
+            for token in string.gmatch(keywords, "[^,]+") do
+                local keyword = Utils.trim(token)
+                if ( keyword == "iso_hdr") then
+                    isHDR = true
+                    break
+                end
+            end
+        end
+        if ( isHDR) then
+             path = photo:getRawMetadata("path")
+        end
+    end
+    return path .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
+
+end
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
 local function renderPhotos(exportContext, progressScope)
     local photoIDs = {}
     local renditions = {}
-    logger.trace("renderPhotos start")
+    logger.trace("PhotosPublishTask.renderPhotos start")
     for i, rendition in exportContext:renditions { stopIfCanceled = true } do
         local photo = rendition.photo
         local success, pathOrMessage = rendition:waitForRender()
@@ -212,10 +245,10 @@ local function renderPhotos(exportContext, progressScope)
             if (pID == nil) then
                 pID = ""
             end
-            photoIDs[#photoIDs + 1] = pathOrMessage .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
+            photoIDs[#photoIDs + 1] = getPhotoDescriptor(photo, pathOrMessage , lrcatName)
         end
     end
-    logger.trace("renderPhotos end")
+    logger.trace("PhotosPublishTask.renderPhotos end")
     return renditions, photoIDs
 end
 --[[---------------------------------------------------------------------------
@@ -273,7 +306,7 @@ end
 
 -----------------------------------------------------------------------------]]
 local function waitForPredecessors(queueEntry)
-    logger.trace("waitForPredecessors() start")
+    logger.trace("PhotosPublishTask.waitForPredecessors() start")
     logger.trace("queueEntry=" .. queueEntry)
     local done = false
     while done ~= true do
@@ -306,7 +339,7 @@ local function waitForPredecessors(queueEntry)
             end
         end
     end
-    logger.trace("waitForPredecessors() end")
+    logger.trace("PhotosPublishTask.waitForPredecessors() end")
 end
 
 
@@ -318,7 +351,7 @@ end
  processRenderedPhotos
 -----------------------------------------------------------------------------]]
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
-    logger.trace("processRenderedPhotos start")
+    logger.trace("PhotosPublishTask.processRenderedPhotos start")
     logger.trace("collection=" .. exportContext.publishedCollectionInfo.name)
 
     local exportSession = exportContext.exportSession
@@ -382,7 +415,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     setPhotosID(albumPath)
     recordPhotoIDs(renditions)
     deleteQueueEntry(queueEntry, albumPath)
-    logger.trace("processRenderedPhotos end")
+    logger.trace("PhotosPublishTask.processRenderedPhotos end")
 end
 --[[---------------------------------------------------------------------------
  getCollectionBehaviorInfo
@@ -423,7 +456,7 @@ end
  deletePhotosFromPublishedCollection
 -----------------------------------------------------------------------------]]
 function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, arrayOfPhotoIds, deletedCallback)
-
+    logger.trace("PhotosPublishTask.deletePhotosFromPublishedCollection start")
         -- LrMobdebug.start()
         -- LrMobdebug.on()
         local albumName = publishSettings.LR_publishedCollectionInfo.name
@@ -463,8 +496,8 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         end
     writePhotosFile(photoIDs, albumPath)
 
-    waitForPredecessors(queueEntry)
     local queueEntry = createQueueEntry(albumPath)
+    waitForPredecessors(queueEntry)
 
     local result = sendPhotosToApp(albumPath)
         if (result ~= 0) then
@@ -488,7 +521,10 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
             logger.trace("photosID to be deleted = " .. tostring(photosID))
             deletedCallback(photosID)
         end
+    logger.trace("PhotosPublishTask.deletePhotosFromPublishedCollection end")
+
 end
+
 
 --[[---------------------------------------------------------------------------
     startDialog
@@ -501,3 +537,6 @@ function PhotosPublishTask.startDialog(propertyTable)
         propertyTable.LR_removeFaceMetadata = false
     end
 end
+
+
+

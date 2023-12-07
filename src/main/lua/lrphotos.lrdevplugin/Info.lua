@@ -13,5 +13,4 @@ return {
     title = "Photos",  -- this string appears as the export destination
     file = "PhotosServiceProvider.lua",
   },
-
 }
