@@ -571,7 +571,7 @@ end remove
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
 on updateSessionFile(sessionFile, session)
-	open for access sessionFile as «class utf8» with write permission
+	open for access sessionFile with write permission
 	if hasErrors of session then
 		set exportDone of session to false
 	else
@@ -583,7 +583,7 @@ mode=" & mode of session & "
 exportDone=" & exportDone of session & "
 ignoreByRegex=" & ignoreByRegex of session & "
 hasErrors=" & hasErrors of session & "
-errorMsg=" & stringReplace(stringReplace(errorMsg of session, "„", ""), "“", "") to sessionFile
+errorMsg=" & encodeText(errorMsg of session, true, true) to sessionFile
 	close access sessionFile
 end updateSessionFile
 -------------------------------------------------------------------------------
@@ -600,19 +600,38 @@ on updatePhotosFile(photosFile, photosList)
 	close access photosFile
 end updatePhotosFile
 -------------------------------------------------------------------------------
--- stringReplace
+--
 -------------------------------------------------------------------------------
-on stringReplace(haystack, needle, replace)
-	tell AppleScript
-		set oldTIDs to text item delimiters
-		set text item delimiters to needle
-		set lst to text items of haystack
-		set text item delimiters to replace
-		set str to lst as string
-		set text item delimiters to oldTIDs
-	end tell
-	return str
-end stringReplace
+on encodeCharacter(theCharacter)
+	return theCharacter
+	return ""
+	set theASCIINumber to (the ASCII number theCharacter)
+	set theHexList to {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	set theFirstItem to item ((theASCIINumber div 16) + 1) of theHexList
+	set theSecondItem to item ((theASCIINumber mod 16) + 1) of theHexList
+	return ("%" & theFirstItem & theSecondItem) as string
+end encodeCharacter
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+on encodeText(theText, encodeCommonSpecialCharacters, encodeExtendedSpecialCharacters)
+	set theStandardCharacters to "abcdefghijklmnopqrstuvwxyz0123456789 "
+	set theCommonSpecialCharacterList to "$+!'/?;&@=#%><{}\"~`^\\|*"
+	set theExtendedSpecialCharacterList to ".-_:"
+	set theAcceptableCharacters to theStandardCharacters
+	if encodeCommonSpecialCharacters is false then set theAcceptableCharacters to theAcceptableCharacters & theCommonSpecialCharacterList
+	if encodeExtendedSpecialCharacters is false then set theAcceptableCharacters to theAcceptableCharacters & theExtendedSpecialCharacterList
+	set theEncodedText to ""
+	repeat with theCurrentCharacter in theText
+		if theCurrentCharacter is in theAcceptableCharacters then
+			set theEncodedText to (theEncodedText & theCurrentCharacter)
+		else
+			set theEncodedText to (theEncodedText & encodeCharacter(theCurrentCharacter)) as string
+		end if
+	end repeat
+	return theEncodedText
+end encodeText
+
 -------------------------------------------------------------------------------
 -- getUsedBy(photosId)
 --
@@ -828,14 +847,14 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/com"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb1"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
 	
 	set sessionFile to POSIX file (tempFolder & "/session.txt")
 	open for access sessionFile
-	set sessionContents to (read sessionFile as «class utf8»)
+	set sessionContents to (read sessionFile)
 	close access sessionFile
 	
 	local session
@@ -849,7 +868,7 @@ on run argv
 			open for access photosFile
 			set photosContents to (read photosFile)
 			close access photosFile
-			
+			local photoDescriptors
 			set photoDescriptors to getPhotoDescriptors(photosContents)
 			if mode of session is equal to "publish" then
 				set importedPhotos to import(photoDescriptors, session)

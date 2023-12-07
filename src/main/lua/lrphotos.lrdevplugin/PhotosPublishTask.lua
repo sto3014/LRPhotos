@@ -105,7 +105,7 @@ end
 -----------------------------------------------------------------------------]]
 local function writePhotosFile(photoIDs, albumPath)
     logger.trace("photosFile=" .. Utils.getPhotosFile(albumPath))
-    local g = assert(io.open(Utils.getPhotosFile(albumPath), "w+"))
+    local g = assert(io.open(Utils.getPhotosFile(albumPath), "w+", "encoding=utf-8"))
     for _, photoID in ipairs(photoIDs) do
         logger.trace(photoID)
         g:write(photoID .. "\n")
@@ -125,7 +125,7 @@ local function waitForPhotosApp(albumPath)
     local errorMsg = ""
     while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
-        local f = assert(io.open(Utils.getSessionFile(albumPath), "r"))
+        local f = assert(io.open(Utils.getSessionFile(albumPath), "r","encoding=utf-8"))
         for line in f:lines() do
             logger.trace("waiting..." .. line)
             if string.find(line, 'exportDone=true') then
@@ -152,7 +152,7 @@ end
 -----------------------------------------------------------------------------]]
 local function setPhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r","encoding=utf-8"))
 
     activeCatalog:withWriteAccessDo("Set photos ID", function()
         for line in f:lines() do
@@ -174,7 +174,7 @@ end
 -----------------------------------------------------------------------------]]
 local function removePhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r","encoding=utf-8"))
 
     activeCatalog:withWriteAccessDo("Remove photos ID", function()
         for line in f:lines() do

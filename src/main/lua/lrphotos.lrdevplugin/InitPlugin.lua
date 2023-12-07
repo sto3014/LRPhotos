@@ -30,12 +30,12 @@ function init()
         LrFileUtils.createAllDirectories(_G.TMP_DIR)
     end
 
-    --[[
+
     if ( LrFileUtils.exists( _G.QUEUE_DIR)) then
-        logger.trace("Delete directory " .. _G.QUEUE_DIR)
+        logger.trace("Delete directory on start-up: " .. _G.QUEUE_DIR)
         LrFileUtils.delete(_G.QUEUE_DIR)
     end
-    --]]
+
     if (not LrFileUtils.exists(_G.QUEUE_DIR)) then
         logger.trace("Create directory " .. _G.QUEUE_DIR)
         LrFileUtils.createAllDirectories(_G.QUEUE_DIR)
