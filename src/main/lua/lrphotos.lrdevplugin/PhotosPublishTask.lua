@@ -14,10 +14,11 @@ local logger = require("Logger")
 local PhotosAPI = require("PhotosAPI")
 local Utils = require("Utils")
 
+require("stringutil")
+
 PhotosPublishTask = {}
 
 -- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
--- LrMobdebug.start()
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
@@ -88,7 +89,7 @@ end
 local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode)
     -- Write Lightroom input to a session.txt file for AppleScript later on
     logger.trace("sessionFile=" .. Utils.getSessionFile(albumPath))
-    local f = assert(io.open(Utils.getSessionFile(albumPath), "w+", "encoding=utf-8"))
+    local f = assert(io.open(Utils.getSessionFile(albumPath), "w+"))
     f:write("mode=" .. mode ..  "\n")
     f:write("exportDone=false\n")
     f:write("albumName=" .. albumPath .. "\n")
@@ -105,15 +106,13 @@ end
 -----------------------------------------------------------------------------]]
 local function writePhotosFile(photoIDs, albumPath)
     logger.trace("photosFile=" .. Utils.getPhotosFile(albumPath))
-    local g = assert(io.open(Utils.getPhotosFile(albumPath), "w+", "encoding=utf-8"))
+    local g = assert(io.open(Utils.getPhotosFile(albumPath), "w+"))
     for _, photoID in ipairs(photoIDs) do
         logger.trace(photoID)
         g:write(photoID .. "\n")
     end
     g:close()
-
 end
-
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
@@ -125,18 +124,24 @@ local function waitForPhotosApp(albumPath)
     local errorMsg = ""
     while done ~= true and hasErrors ~= true do
         LrTasks.sleep(2)
-        local f = assert(io.open(Utils.getSessionFile(albumPath), "r","encoding=utf-8"))
+        local aLine =""
+        local f = assert(io.open(Utils.getSessionFile(albumPath), "r"))
         for line in f:lines() do
-            logger.trace("waiting..." .. line)
             if string.find(line, 'exportDone=true') then
+                logger.trace("waiting..." .. line)
                 done = true
                 break
             else
                 if string.find(line, 'hasErrors=true') then
+                    logger.trace("waiting..." .. line)
                     hasErrors = true
                 else
                     if string.find(line, 'errorMsg=') then
-                        errorMsg = string.sub(line, 10)
+                        -- The error message is in Western (Mac OS Roman).
+                        -- At least for latin languages.
+                        -- todo check if unicode or not
+                        errorMsg = string.toutf8_mac(string.sub(line, 10))
+                        logger.trace("waiting...errorMsg=" .. errorMsg)
                     end
                 end
             end
@@ -152,7 +157,7 @@ end
 -----------------------------------------------------------------------------]]
 local function setPhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r","encoding=utf-8"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
 
     activeCatalog:withWriteAccessDo("Set photos ID", function()
         for line in f:lines() do
@@ -174,7 +179,7 @@ end
 -----------------------------------------------------------------------------]]
 local function removePhotosID(albumPath)
     local activeCatalog = LrApplication.activeCatalog()
-    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r","encoding=utf-8"))
+    local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
 
     activeCatalog:withWriteAccessDo("Remove photos ID", function()
         for line in f:lines() do
@@ -290,7 +295,7 @@ end
 local function createQueueEntry(collectionName)
 
     local queueEntryPath = LrFileUtils.chooseUniqueFileName(Utils.getQueueEntry())
-    local f = assert(io.open(queueEntryPath , "w", "encoding=utf-8"))
+    local f = assert(io.open(queueEntryPath , "w"))
     f:write(collectionName)
     f:close()
     return LrPathUtils.leafName(queueEntryPath)
@@ -537,6 +542,8 @@ function PhotosPublishTask.startDialog(propertyTable)
         propertyTable.LR_removeFaceMetadata = false
     end
 end
+
+
 
 
 

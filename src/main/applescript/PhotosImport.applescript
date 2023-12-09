@@ -571,26 +571,27 @@ end remove
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
 on updateSessionFile(sessionFile, session)
-	open for access sessionFile with write permission
+	-- tell application "Finder" to delete POSIX file sessionFile
+	set fileRef to open for access sessionFile as «class utf8» with write permission
+	set eof fileRef to 0
 	if hasErrors of session then
 		set exportDone of session to false
 	else
 		set exportDone of session to true
 	end if
-	set eof of sessionFile to 0
 	write "albumName=" & albumName of session & "
 mode=" & mode of session & "
 exportDone=" & exportDone of session & "
 ignoreByRegex=" & ignoreByRegex of session & "
 hasErrors=" & hasErrors of session & "
-errorMsg=" & encodeText(errorMsg of session, true, true) to sessionFile
-	close access sessionFile
+errorMsg=" & errorMsg of session to sessionFile
+	close access fileRef
 end updateSessionFile
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
 on updatePhotosFile(photosFile, photosList)
-	open for access photosFile with write permission
+	open for access photosFile as «class utf8» with write permission
 	set eof of photosFile to 0
 	repeat with thePhotoFile in photosList
 		log thePhotoFile
@@ -599,39 +600,6 @@ on updatePhotosFile(photosFile, photosList)
 	end repeat
 	close access photosFile
 end updatePhotosFile
--------------------------------------------------------------------------------
---
--------------------------------------------------------------------------------
-on encodeCharacter(theCharacter)
-	return theCharacter
-	return ""
-	set theASCIINumber to (the ASCII number theCharacter)
-	set theHexList to {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
-	set theFirstItem to item ((theASCIINumber div 16) + 1) of theHexList
-	set theSecondItem to item ((theASCIINumber mod 16) + 1) of theHexList
-	return ("%" & theFirstItem & theSecondItem) as string
-end encodeCharacter
--------------------------------------------------------------------------------
---
--------------------------------------------------------------------------------
-on encodeText(theText, encodeCommonSpecialCharacters, encodeExtendedSpecialCharacters)
-	set theStandardCharacters to "abcdefghijklmnopqrstuvwxyz0123456789 "
-	set theCommonSpecialCharacterList to "$+!'/?;&@=#%><{}\"~`^\\|*"
-	set theExtendedSpecialCharacterList to ".-_:"
-	set theAcceptableCharacters to theStandardCharacters
-	if encodeCommonSpecialCharacters is false then set theAcceptableCharacters to theAcceptableCharacters & theCommonSpecialCharacterList
-	if encodeExtendedSpecialCharacters is false then set theAcceptableCharacters to theAcceptableCharacters & theExtendedSpecialCharacterList
-	set theEncodedText to ""
-	repeat with theCurrentCharacter in theText
-		if theCurrentCharacter is in theAcceptableCharacters then
-			set theEncodedText to (theEncodedText & theCurrentCharacter)
-		else
-			set theEncodedText to (theEncodedText & encodeCharacter(theCurrentCharacter)) as string
-		end if
-	end repeat
-	return theEncodedText
-end encodeText
-
 -------------------------------------------------------------------------------
 -- getUsedBy(photosId)
 --
@@ -853,7 +821,7 @@ on run argv
 	set tempFolder to item 1 of argv
 	
 	set sessionFile to POSIX file (tempFolder & "/session.txt")
-	open for access sessionFile
+	open for access sessionFile as «class utf8»
 	set sessionContents to (read sessionFile)
 	close access sessionFile
 	
@@ -865,7 +833,7 @@ on run argv
 			error "Mode is not set."
 		else
 			set photosFile to tempFolder & "/photos.txt"
-			open for access photosFile
+			open for access photosFile as «class utf8»
 			set photosContents to (read photosFile)
 			close access photosFile
 			local photoDescriptors

@@ -20,3 +20,4 @@
 "$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid form. The name must start with a \"/\" but may NOT end with a \"/\"."
 "$$$/Photos/Error/PhotoNotFound=Photo not found."
 "$$$/Photos/Error/PhotoNotFoundByPhotosID=Photo could not be found by its Photo-app UID: \"^1\"."
+"$$$/Photos/Text=^1"
