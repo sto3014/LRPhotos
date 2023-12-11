@@ -21,3 +21,4 @@
 "$$$/Photos/Error/PhotoNotFound=Photo not found."
 "$$$/Photos/Error/PhotoNotFoundByPhotosID=Photo could not be found by its Photo-app UID: \"^1\"."
 "$$$/Photos/Text=^1"
+"$$$/Photos/KeepOldPhotos=Keep out of date photos in albums."

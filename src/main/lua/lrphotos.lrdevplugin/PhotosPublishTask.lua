@@ -86,13 +86,14 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode)
+local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode, keepOldPhotos)
     -- Write Lightroom input to a session.txt file for AppleScript later on
     logger.trace("sessionFile=" .. Utils.getSessionFile(albumPath))
     local f = assert(io.open(Utils.getSessionFile(albumPath), "w+"))
     f:write("mode=" .. mode ..  "\n")
     f:write("exportDone=false\n")
     f:write("albumName=" .. albumPath .. "\n")
+    f:write("keepOldPhotos=" .. tostring(keepOldPhotos) .. "\n")
 
     if ignoreAlbums == true then
         f:write("ignoreByRegex=" .. ignoreRegex .. "\n")
@@ -391,7 +392,9 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             albumPath,
             exportContext.propertyTable.ignoreAlbums,
             exportContext.propertyTable.ignoreRegex,
-            "publish")
+            "publish",
+            exportContext.propertyTable.keepOldPhotos
+    )
 
     writePhotosFile(photoIDs, albumPath)
 
@@ -482,7 +485,7 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
             return
         end
 
-    writeSessionFile(albumPath, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove")
+    writeSessionFile(albumPath, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove", publishSettings.keepOldPhotos)
         local activeCatalog = LrApplication.activeCatalog()
         local catName = LrPathUtils.leafName(activeCatalog:getPath())
 

@@ -21,3 +21,4 @@
 "$$$/Photos/Error/PhotoNotFound=Foto nicht gefunden."
 "$$$/Photos/Error/PhotoNotFoundByPhotosID=Foto konnte nicht über ihre Fotos-App UID gefunden werden: \"^1\"."
 "$$$/Photos/Text=^1"
+"$$$/Photos/KeepOldPhotos=Behalte veraltete Fotos in den Alben."
