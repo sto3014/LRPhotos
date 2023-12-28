@@ -265,10 +265,8 @@ on import(photoDescriptors, session)
 			end try
 			--
 			-- put it into the previous albums
-
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
-					local aAlbumName
 					set aAlbumName to name of aAlbum
 					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
 					if isValid is true then
@@ -590,13 +588,14 @@ on updateSessionFile(sessionFile, session)
 	else
 		set exportDone of session to true
 	end if
+
 	write ¬
-		"albumName=" & albumName of session & return & ¬
-		"mode=" & mode of session & return & ¬
-		"exportDone=" & exportDone of session & return & ¬
-		"ignoreByRegex=" & ignoreByRegex of session & return & ¬
-		"hasErrors=" & hasErrors of session & return & ¬
-		"keepOldPotos=" & keepOldPhotos of session & return & ¬
+		"albumName=" & albumName of session & linefeed & ¬
+		"mode=" & mode of session & linefeed & ¬
+		"exportDone=" & exportDone of session & linefeed & ¬
+		"ignoreByRegex=" & ignoreByRegex of session & linefeed & ¬
+		"hasErrors=" & hasErrors of session & linefeed & ¬
+		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session to sessionFile
 	close access fileRef
 end updateSessionFile
@@ -828,7 +827,7 @@ on run argv
 	-- return
 
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb2"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/Test/Yield2, Yield2.1"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

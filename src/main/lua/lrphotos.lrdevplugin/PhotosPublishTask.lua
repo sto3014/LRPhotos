@@ -54,6 +54,13 @@ local function isValidAlbumPath(albumPath)
     if (idx == #albumPath) then
         return nil
     end
+    -- Commas are not allowed in the nam eof an album.
+    -- An album has not a problem with commas, but the album name is stored as a keyword.
+    -- If y keyword contains a comma, Photos creates two keywords out of it.
+    idx = string.find(string.reverse(albumPath), "/")
+    if string.find(string.sub(albumPath, -idx, #albumPath), ",") then
+        return nil
+    end
     return true
 end
 --[[---------------------------------------------------------------------------
@@ -118,14 +125,14 @@ end
 
 -----------------------------------------------------------------------------]]
 local function waitForPhotosApp(albumPath)
-    logger.trace("PhotosPublishTask.waitForPhotosApp()) start")
+    logger.trace("PhotosPublishTask.waitForPhotosApp() start")
     -- Wait for the import to be done
     local done = false
     local hasErrors = false
     local errorMsg = ""
-    while done ~= true and hasErrors ~= true do
+
+    while done == false do
         LrTasks.sleep(2)
-        local aLine =""
         local f = assert(io.open(Utils.getSessionFile(albumPath), "r"))
         for line in f:lines() do
             if string.find(line, 'exportDone=true') then
@@ -137,19 +144,22 @@ local function waitForPhotosApp(albumPath)
                     logger.trace("waiting..." .. line)
                     hasErrors = true
                 else
-                    if string.find(line, 'errorMsg=') then
-                        -- The error message is in Western (Mac OS Roman).
-                        -- At least for latin languages.
-                        -- todo check if unicode or not
-                        errorMsg = string.toutf8_mac(string.sub(line, 10))
-                        logger.trace("waiting...errorMsg=" .. errorMsg)
+                    if string.find(line, 'errorMsg') then
+                        if hasErrors then
+                            -- The error message is in Western (Mac OS Roman).
+                            -- At least for latin languages.
+                            -- todo check if unicode or not
+                            errorMsg = string.toutf8_mac(string.sub(line, 10))
+                            logger.trace("waiting...errorMsg=" .. errorMsg)
+                            done = true
+                        end
                     end
                 end
             end
         end
         f:close()
     end
-    logger.trace("PhotosPublishTask.waitForPhotosApp()) end")
+    logger.trace("PhotosPublishTask.waitForPhotosApp() end")
     return hasErrors, errorMsg
 end
 
@@ -360,6 +370,19 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     logger.trace("PhotosPublishTask.processRenderedPhotos start")
     logger.trace("collection=" .. exportContext.publishedCollectionInfo.name)
 
+    local albumPath = getFullAlbumPath(
+            exportContext.propertyTable.albumBy,
+            exportContext.propertyTable.useAlbum,
+            exportContext.propertyTable.rootFolder,
+            exportContext.propertyTable.albumNameForService,
+            exportContext.publishedCollectionInfo.name)
+
+    if (not isValidAlbumPath(albumPath)) then
+        LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
+                LOC("$$$/Photos/Error/AlbumPathSub=The path or name of the album \"^1\" has not a valid from. The path must start with a \"/\". The album name (last portion of path) may not contain a \".\" or \"/\".", albumPath), "critical")
+        return
+    end
+
     local exportSession = exportContext.exportSession
 
     -- Progress bar
@@ -371,22 +394,8 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
                 or LOC '$$$/PhotosExportService/ProgressOne=Importing one photo in Photo',
     }
 
-
     -- Render the photos
     local renditions, photoIDs = renderPhotos(exportContext, progressScope)
-
-    local albumPath = getFullAlbumPath(
-            exportContext.propertyTable.albumBy,
-            exportContext.propertyTable.useAlbum,
-            exportContext.propertyTable.rootFolder,
-            exportContext.propertyTable.albumNameForService,
-            exportContext.publishedCollectionInfo.name)
-
-    if (not isValidAlbumPath(albumPath)) then
-        LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
-                LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumPath), "critical")
-        return
-    end
 
     writeSessionFile(
             albumPath,
@@ -480,8 +489,8 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
 
 
     if (not isValidAlbumPath(albumPath)) then
-            LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
-                    LOC("$$$/Photos/Error/AlbumPathSub=The name of the album \"^1\" has not a valid from. The name must start with a slash but may NOT end with a slash.", albumName), "critical")
+        LrDialogs.message(LOC("$$$/Photos/Error/AlbumPath=Album path is not valid."),
+                LOC("$$$/Photos/Error/AlbumPathSub=The path or name of the album \"^1\" has not a valid from. The path must start with a \"/\". The album name (last portion of path) may not contain a \".\" or \"/\".", albumPath), "critical")
             return
         end
 

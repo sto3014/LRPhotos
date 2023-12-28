@@ -17,7 +17,7 @@
 "$$$/Photos/UseOneAlbumForService=Verwende ein Album für alle Sammlungen"
 "$$$/Photos/UseCollectionNameAsAlbum=Verwende Sammlungsname als Album"
 "$$$/Photos/Error/AlbumPath=Album Pfad ist ungültig."
-"$$$/Photos/Error/AlbumPathSub=Der Name des Albums \"^1\" ist ungültig. Der Name muss mit einem \"/\" anfangen, aber er darf NICHT mit einem \"/\" enden."
+"$$$/Photos/Error/AlbumPathSub=Der Pfad oder der Name des Albums \"^1\" ist ungültig. Der Album-Pfad muss mit einem \"/\" anfangen. Der Album-Name (letzter Teil des Pfades) darf keinen \".\" or \"/\" enthalten."
 "$$$/Photos/Error/PhotoNotFound=Foto nicht gefunden."
 "$$$/Photos/Error/PhotoNotFoundByPhotosID=Foto konnte nicht über ihre Fotos-App UID gefunden werden: \"^1\"."
 "$$$/Photos/Text=^1"
