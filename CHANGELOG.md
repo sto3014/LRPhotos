@@ -33,7 +33,7 @@ an unreasonable error message.
 * Videos are always set as being published. This is a workaround, because even if the video is successfully rendered the
 rendition is marked as skipped.
 
-## [1.0.2.0] - 2023-11-19
+## [1.1.0.0] - 2023-12-28
 
 ### Added
 
