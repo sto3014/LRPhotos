@@ -37,8 +37,9 @@ rendition is marked as skipped.
 
 ### Added
 
-* Add root folder property
-* Add queue for import jobs.
+* Added root folder property
+* Added queue for import jobs.
+* Added service for displaying photo UUID in Photos. 
 
 ### Changed
 

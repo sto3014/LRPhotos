@@ -1,4 +1,3 @@
-#@osa-lang:AppleScript
 -------------------------------------------------------------------------------
 -- Initial created by Simon Schoeters in 2011
 --
@@ -160,33 +159,33 @@ on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
 	-- pstrSourceText : The text to be trimmed
 	-- pstrCharToTrim     : A list of characters to trim, or true to use default
 	-- pstrTrimDirection : Direction of Trim left, right or any value for full
-
+	
 	set strTrimedText to pstrSourceText
-
+	
 	-- If undefinied use default whitespaces
 	if pstrCharToTrim is missing value or class of pstrCharToTrim is not list then
 		-- trim tab, newline, return and all the unicode characters from the 'separator space' category
 		-- [url]http://www.fileformat.info/info/unicode/category/Zs/list.htm[/url]
 		set pstrCharToTrim to {tab, linefeed, return, space, character id 160, character id 5760, character id 8192, character id 8193, character id 8194, character id 8195, character id 8196, character id 8197, character id 8198, character id 8199, character id 8200, character id 8201, character id 8202, character id 8239, character id 8287, character id 12288}
 	end if
-
+	
 	set lLoc to 1
 	set rLoc to count of strTrimedText
-
+	
 	--- From left to right, get location of first non-whitespace character
 	if pstrTrimDirection is not right then
 		repeat until lLoc = (rLoc + 1) or character lLoc of strTrimedText is not in pstrCharToTrim
 			set lLoc to lLoc + 1
 		end repeat
 	end if
-
+	
 	-- From right to left, get location of first non-whitespace character
 	if pstrTrimDirection is not left then
 		repeat until rLoc = 0 or character rLoc of strTrimedText is not in pstrCharToTrim
 			set rLoc to rLoc - 1
 		end repeat
 	end if
-
+	
 	if lLoc ≥ rLoc then
 		return ""
 	else
@@ -199,10 +198,10 @@ end trimThis
 on import(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set targetAlbum to getAlbumByPath(albumName of session, true)
-
+	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
-
+		
 		repeat with aPhotoDescriptor in photoDescriptors
 			-- the posix file path
 			local thePhotoFile
@@ -222,7 +221,7 @@ on import(photoDescriptors, session)
 					set isUpdate to true
 				end if
 			end try
-
+			
 			set previousAlbums to {}
 			try
 				if isUpdate is true then
@@ -264,7 +263,7 @@ on import(photoDescriptors, session)
 				error "Import of photos failed. Error was: " & e
 			end try
 			--
-			-- put it into the previous albums
+			-- put it into the previous albums			
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
@@ -287,7 +286,7 @@ on import(photoDescriptors, session)
 							on error e
 								error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
 							end try
-
+							
 						end repeat
 					end if
 				end repeat
@@ -317,7 +316,7 @@ on import(photoDescriptors, session)
 			end try
 		end repeat
 		--
-
+		
 		local aAlbumName
 		repeat with aAlbum in previousAlbums
 			set aAlbumName to name of aAlbum
@@ -387,18 +386,18 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 				set end of photoIds to id of photo
 			end if
 		end repeat
-
+		
 		-- get the photos which should be kept
 		-- remarks:
-		-- the photo object in an album is different to the object which is
+		-- the photo object in an album is different to the object which is 
 		-- in the global mediathek
 		set photosToBeKept to {}
-
+		
 		repeat with photoId in photoIds
 			set photos to (get media items whose id is equal to photoId)
 			set end of photosToBeKept to item 1 of photos
 		end repeat
-
+		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
 			tell me to set theAlbum to getAlbumByPath(albumPath, true)
@@ -406,9 +405,9 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 				add photosToBeKept to theAlbum
 			end if
 		end if
-
+		
 		return theAlbum
-
+		
 	end tell
 end removePhotosFromAlbum
 
@@ -445,14 +444,14 @@ on cleanupAlbum(theAlbum)
 				set end of photoIds to id of photo
 			end if
 		end repeat
-
+		
 		set photosToBeKept to {}
-
+		
 		repeat with photoId in photoIds
 			set photos to (get media items whose id is equal to photoId)
 			set end of photosToBeKept to item 1 of photos
 		end repeat
-
+		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
 			tell me to set theAlbum to getAlbumByPath(albumPath, true)
@@ -460,9 +459,9 @@ on cleanupAlbum(theAlbum)
 				add photosToBeKept to theAlbum
 			end if
 		end if
-
+		
 		return theAlbum
-
+		
 	end tell
 end cleanupAlbum
 -------------------------------------------------------------------------------
@@ -471,12 +470,12 @@ end cleanupAlbum
 on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
-
+	
 	set targetAlbum to getAlbumByPath(albumName of session, false)
 	if targetAlbum is missing value then
 		return removedPhotos
 	end if
-
+	
 	tell application id "com.apple.photos"
 		set photosToBeRemovedFromAlbum to {}
 		repeat with aPhotoDescriptor in photoDescriptors
@@ -486,7 +485,7 @@ on remove(photoDescriptors, session)
 			set lrCat to text item 3 of aPhotoDescriptor
 			-- Photos app UID
 			set photosId to text item 4 of aPhotoDescriptor
-
+			
 			try
 				set targetPhotos to (every media item whose id is equal to photosId)
 				if (count of targetPhotos) is greater than 0 then
@@ -494,8 +493,8 @@ on remove(photoDescriptors, session)
 					set theTargetPhoto to item 1 of targetPhotos
 					local allUsedByAlbums
 					tell me to set allUsedByAlbums to getUsedBy(photosId)
-
-
+					
+					
 					if (count of allUsedByAlbums) is equal to 0 then
 						-- if photos is not used any more we clear photosId from LR
 						set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
@@ -510,23 +509,24 @@ on remove(photoDescriptors, session)
 								set photoIsInTargetAlbum to true
 							end if
 						end repeat
-
+						
 						-- if target photo is not in the target album, there is nothing to do
 						if photoIsInTargetAlbum then
 							local theseKeywords
 							set theseKeywords to the keywords of theTargetPhoto
-
+							
 							local validAlbums
 							local aAlbumName
 							set validAlbums to {}
 							repeat with aAlbum in allUsedByAlbums
 								set aAlbumName to name of aAlbum
 								tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
+								-- if isValid and aAlbumName does not start with "Duplikate" then
 								if isValid then
 									set end of validAlbums to aAlbum
 								end if
 							end repeat
-
+							
 							-- mark photo as no-longer-published if necessary
 							if (count of validAlbums) is equal to 1 then
 								-- target album is the last album which holds the target photo
@@ -538,7 +538,7 @@ on remove(photoDescriptors, session)
 								-- target is still in use
 								set noLongerPublishedKeyword to missing value
 							end if
-
+							
 							-- remove the album keyword
 							if theseKeywords is not missing value then
 								local oldKeyword
@@ -588,7 +588,7 @@ on updateSessionFile(sessionFile, session)
 	else
 		set exportDone of session to true
 	end if
-
+	
 	write ¬
 		"albumName=" & albumName of session & linefeed & ¬
 		"mode=" & mode of session & linefeed & ¬
@@ -615,9 +615,9 @@ end updatePhotosFile
 -------------------------------------------------------------------------------
 -- getUsedBy(photosId)
 --
--- returns a list of albums of all folders which uses the photo identified by
+-- returns a list of albums of all folders which uses the photo identified by 
 -- ptotosId
---
+-- 
 -------------------------------------------------------------------------------
 on getUsedBy(photosId)
 	local usedBy
@@ -659,7 +659,7 @@ on getPathByAlbum(theAlbum)
 	tell application "Photos"
 		set theAlbums to get albums whose id is equal to id of theAlbum
 		-- repeat with aAlbum in albums
-		--	if id of aAlbum equals
+		--	if id of aAlbum equals 
 		--end
 		if theAlbums is not {} then
 			return "/" & name of first item of theAlbums
@@ -722,7 +722,7 @@ on getAlbumByPath(albumPath, createIfNotExists)
 		set len to the length of albumPath
 		set albumPath to text 2 thru len of albumPath
 		set slashOffset to (offset of "/" in albumPath)
-
+		
 		set theFolder to missing value
 		if albumPath is missing value or albumPath is equal to "" then return missing value
 		tell application id "com.apple.photos"
@@ -788,7 +788,7 @@ on getAlbumByPath(albumPath, createIfNotExists)
 		error "Can't get album for path " & albumPath & ". Error was: " & e
 	end try
 	return theAlbum
-
+	
 end getAlbumByPath
 -------------------------------------------------------------------------------
 -- spotlightTargetAlbum(session)
@@ -813,8 +813,8 @@ on testImport()
 	set targetAlbum to getAlbumByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
 	-- set targetAlbum to getAlbumByPath("/Yield0", false)
 	-- set targetAlbum to getAlbumByPath("/Test/Yield2", false)
-
-
+	
+	
 	local thePath
 	set thePath to getPathByAlbum(targetAlbum)
 	set dummy to 0
@@ -825,19 +825,19 @@ end testImport
 on run argv
 	-- testImport()
 	-- return
-
+	
 	if (argv = me) then
 		set argv to {"/private/tmp/at.homebrew.lrphotos/Test/Yield2, Yield2.1"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
-
+	
 	set sessionFile to POSIX file (tempFolder & "/session.txt")
 	open for access sessionFile
 	local sessionContents
 	set sessionContents to (read sessionFile as «class utf8»)
 	close access sessionFile
-
+	
 	local session
 	set session to getSession(sessionContents)
 	set hasErrors of session to false
@@ -856,7 +856,7 @@ on run argv
 				if (count of importedPhotos) is equal to 0 then
 					error "Unknown error. No photos were not imported."
 				end if
-
+				
 				updatePhotosFile(photosFile, importedPhotos)
 			else
 				if mode of session is equal to "remove" then
@@ -875,7 +875,7 @@ on run argv
 	end try
 	--
 	spotlightTargetAlbum(session)
-
+	
 	updateSessionFile(sessionFile, session)
-
+	
 end run
