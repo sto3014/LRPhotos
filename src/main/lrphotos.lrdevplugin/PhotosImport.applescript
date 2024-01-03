@@ -339,7 +339,11 @@ on removeItemFromList(theList, theItem)
 	repeat with theIndex from 1 to the count of theList
 		if item theIndex of theList is equal to theItem then
 			if theIndex = 1 then
-				return items 2 thru -1 of theList
+				if (count theList) is equal to 1 then
+					return {}
+				else
+					return items 2 thru -1 of theList
+				end if
 			else if theIndex is (count theList) then
 				return items 1 thru -2 of theList
 			else
@@ -465,12 +469,52 @@ on cleanupAlbum(theAlbum)
 	end tell
 end cleanupAlbum
 -------------------------------------------------------------------------------
+-- removeAlbumKeyword( photo, albumName )
+-------------------------------------------------------------------------------
+on removeAlbumKeyword(photo, albumName)
+	tell application "Photos"
+		set theseKeywords to the keywords of photo
+		set newKeywords to {}
+		repeat with aKeyword in theseKeywords
+			if aKeyword does not start with "album:" then
+				set end of newKeywords to aKeyword
+			else
+				if albumName is not equal to "*" and aKeyword does not end with albumName then
+					set end of newKeywords to aKeyword
+				end if
+			end if
+		end repeat
+		if (count of theseKeywords) is not equal to (count of newKeywords) then
+			set keywords of photo to newKeywords
+		end if
+	end tell
+end removeAlbumKeyword
+-------------------------------------------------------------------------------
+-- setNoLongerPublished( photo )
+-------------------------------------------------------------------------------
+on setNoLongerPublished(photo)
+	tell application "Photos"
+		set newKeywords to {}
+		set noLongerPublishedKeyword to {"lr:no-longer-published"}
+		set theseKeywords to the keywords of photo
+		if theseKeywords does not contain noLongerPublishedKeyword then
+			if theseKeywords is missing value then
+				set newKeywords to {}
+			else
+				copy theseKeywords to end of newKeywords
+			end if
+			set end of newKeywords to noLongerPublishedKeyword
+			set keywords of photo to newKeywords
+		end if
+	end tell
+end setNoLongerPublished
+-------------------------------------------------------------------------------
 -- Remove photos from albums
 -------------------------------------------------------------------------------
 on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
-	
+	local targetAlbum
 	set targetAlbum to getAlbumByPath(albumName of session, false)
 	if targetAlbum is missing value then
 		return removedPhotos
@@ -491,72 +535,36 @@ on remove(photoDescriptors, session)
 				if (count of targetPhotos) is greater than 0 then
 					-- the photo exists
 					set theTargetPhoto to item 1 of targetPhotos
-					local allUsedByAlbums
-					tell me to set allUsedByAlbums to getUsedBy(photosId)
 					
+					local psAlbums
+					tell me to set psAlbums to getPublishServiceAlbums(theTargetPhoto)
 					
-					if (count of allUsedByAlbums) is equal to 0 then
-						-- if photos is not used any more we clear photosId from LR
+					if (count of psAlbums) is equal to 0 then
+						-- This should never happen
+						-- Clean up album:* keywords
+						tell me to removeAlbumKeyword(theTargetPhoto, "*")
+						-- set no longer published
+						tell me to setNoLongerPublished(theTargetPhoto)
+						-- remove ID in Lightroom
 						set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
 						copy newEntry to the end of removedPhotos
 					else
-						-- the photo exists and is used in any album
-						--
-						-- validate that the target photos is really in the target album
-						set photoIsInTargetAlbum to false
-						repeat with aUsedByAlbum in allUsedByAlbums
-							if id of aUsedByAlbum is equal to id of targetAlbum then
-								set photoIsInTargetAlbum to true
-							end if
-						end repeat
-						
-						-- if target photo is not in the target album, there is nothing to do
-						if photoIsInTargetAlbum then
-							local theseKeywords
-							set theseKeywords to the keywords of theTargetPhoto
-							
-							local validAlbums
-							local aAlbumName
-							set validAlbums to {}
-							repeat with aAlbum in allUsedByAlbums
-								set aAlbumName to name of aAlbum
-								tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
-								-- if isValid and aAlbumName does not start with "Duplikate" then
-								if isValid then
-									set end of validAlbums to aAlbum
-								end if
-							end repeat
-							
-							-- mark photo as no-longer-published if necessary
-							if (count of validAlbums) is equal to 1 then
-								-- target album is the last album which holds the target photo
-								-- we mark it as no-longer-published
+						tell me to set hasAlbum to containsAlbum(psAlbums, targetAlbum)
+						if hasAlbum then
+							-- remove photo from album
+							set end of photosToBeRemovedFromAlbum to theTargetPhoto
+							-- remove album:keyword
+							tell me to removeAlbumKeyword(theTargetPhoto, name of targetAlbum)
+							if (count of psAlbums) is equal to 1 then
+								tell me to setNoLongerPublished(theTargetPhoto)
+								-- remove ID in Lightroom
 								set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
 								copy newEntry to the end of removedPhotos
-								set noLongerPublishedKeyword to "lr:no-longer-published"
-							else
-								-- target is still in use
-								set noLongerPublishedKeyword to missing value
 							end if
-							
-							-- remove the album keyword
-							if theseKeywords is not missing value then
-								local oldKeyword
-								set oldKeyword to "album:" & name of targetAlbum
-								tell me to set newKeywords to removeItemFromList(theseKeywords, oldKeyword)
-								if noLongerPublishedKeyword is not missing value then
-									set end of newKeywords to noLongerPublishedKeyword
-								end if
-								set keywords of theTargetPhoto to newKeywords
-							else
-								if noLongerPublishedKeyword is not missing value then
-									set newKeywords to {}
-									set end of newKeywords to noLongerPublishedKeyword
-									set keywords of theTargetPhoto to newKeywords
-								end if
-							end if
-							-- remove target photo from target album
-							set end of photosToBeRemovedFromAlbum to theTargetPhoto
+						else
+							-- This should never happen
+							-- But there is no metadata which we have to clean up.
+							-- Even the ID in Lightroom may not be deleted.
 						end if
 					end if
 				else
@@ -644,7 +652,66 @@ on _getUsedBy(aFolder, photosId, usedBy)
 	end tell
 	return usedBy
 end _getUsedBy
-
+-------------------------------------------------------------------------------
+-- getPublishServiceAlbums(photosId)
+--
+-- returns a list of albums wich uses the photosId and are maintanined by 
+-- a Lightroom publish service.
+-- 
+-------------------------------------------------------------------------------
+on getPublishServiceAlbums(thePhoto)
+	local psAlbums
+	set psAlbums to {}
+	
+	local allPSAlbumNames
+	set allPSAlbumNames to getPublishServiceAlbumNames(thePhoto)
+	tell application id "com.apple.photos"
+		local allAlbums
+		tell me to set allAlbums to getUsedBy(get id of thePhoto)
+		repeat with aAlbum in allAlbums
+			repeat with aPSAlbumName in allPSAlbumNames
+				if aPSAlbumName as string is equal to name of aAlbum then
+					set end of psAlbums to aAlbum
+				end if
+			end repeat
+		end repeat
+	end tell
+	return psAlbums
+end getPublishServiceAlbums
+-------------------------------------------------------------------------------
+-- getPublishServiceAlbumNames(thePhoto)
+--
+-- returns a list of album names which are mentioned in the "album:*" keywords of 
+-- thePhoto.
+-- 
+-------------------------------------------------------------------------------
+on getPublishServiceAlbumNames(thePhoto)
+	local psAlbumNames
+	set psAlbumNames to {}
+	tell application id "com.apple.photos" to set currentKeywords to the keywords of thePhoto
+	set AppleScript's text item delimiters to "album:"
+	repeat with aKeyword in currentKeywords
+		if aKeyword starts with "album:" then
+			set aAlbumName to text item 2 of aKeyword
+			copy aAlbumName to the end of psAlbumNames
+		end if
+	end repeat
+	set AppleScript's text item delimiters to " "
+	return psAlbumNames
+end getPublishServiceAlbumNames
+-------------------------------------------------------------------------------
+-- containsAlbum(theList, theAlbum)
+-------------------------------------------------------------------------------
+on containsAlbum(theList, theAlbum)
+	tell application id "com.apple.photos"
+		repeat with aAlbum in theList
+			if id of aAlbum is equal to id of theAlbum then
+				return true
+			end if
+		end repeat
+	end tell
+	return false
+end containsAlbum
 -------------------------------------------------------------------------------
 -- getPathByAlbum(theAlbum)
 --
@@ -827,7 +894,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/Test/Yield2, Yield2.1"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb1"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
