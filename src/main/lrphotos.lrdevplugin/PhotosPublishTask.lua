@@ -149,7 +149,8 @@ local function waitForPhotosApp(albumPath)
                             -- The error message is in Western (Mac OS Roman).
                             -- At least for latin languages.
                             -- todo check if unicode or not
-                            errorMsg = string.toutf8_mac(string.sub(line, 10))
+                            --errorMsg = string.toutf8_mac(string.sub(line, 10))
+                            errorMsg = string.sub(line, 10)
                             logger.trace("waiting...errorMsg=" .. errorMsg)
                             done = true
                         end

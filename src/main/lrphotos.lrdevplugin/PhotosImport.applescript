@@ -596,15 +596,16 @@ on updateSessionFile(sessionFile, session)
 	else
 		set exportDone of session to true
 	end if
-	
-	write ¬
+	set romanContent to ¬
 		"albumName=" & albumName of session & linefeed & ¬
 		"mode=" & mode of session & linefeed & ¬
 		"exportDone=" & exportDone of session & linefeed & ¬
 		"ignoreByRegex=" & ignoreByRegex of session & linefeed & ¬
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
-		"errorMsg=" & errorMsg of session to sessionFile
+		"errorMsg=" & errorMsg of session
+	tell script "MacRomanToUTF8" to set utf8Content to MacRomanToUTF8(romanContent)
+	write utf8Content to sessionFile
 	close access fileRef
 end updateSessionFile
 -------------------------------------------------------------------------------
@@ -894,7 +895,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb1"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/NSFW/BDSM"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

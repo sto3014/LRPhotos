@@ -1,12 +1,6 @@
 /.idea/
-/src/main/applescript/PhotosImport (Automatisch gesichert).\*/
-
-/src/main/lua/lrphotos.lrdevplugin/PhotosImport/PhotosImport.app/
 /target/mac/
 /target/Library/
 *.zip
-/src/main/lua/lrphotos.lrdevplugin/PhotosImport/
-/src/main/lua/lrphotos.lrdevplugin/PhotosImport (Automatisch gesichert).\*
-/src/main/applescript/PhotosImport (Automatisch gesichert).\*
-/src/main/lrphotos.lrdevplugin/PhotosImport/
 /src/main/lrphotos.lrdevplugin/PhotosImport (Automatisch gesichert).\*
+/src/main/lrphotos.lrdevplugin/PhotosImport/
