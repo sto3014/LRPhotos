@@ -494,14 +494,15 @@ end removeAlbumKeyword
 -------------------------------------------------------------------------------
 on setNoLongerPublished(photo)
 	tell application "Photos"
+		local newKeywords
 		set newKeywords to {}
-		set noLongerPublishedKeyword to {"lr:no-longer-published"}
+		set noLongerPublishedKeyword to "lr:no-longer-published"
 		set theseKeywords to the keywords of photo
 		if theseKeywords does not contain noLongerPublishedKeyword then
 			if theseKeywords is missing value then
 				set newKeywords to {}
 			else
-				copy theseKeywords to end of newKeywords
+				set newKeywords to theseKeywords
 			end if
 			set end of newKeywords to noLongerPublishedKeyword
 			set keywords of photo to newKeywords
@@ -895,7 +896,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/NSFW/BDSM"}
+		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb1"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
