@@ -4,7 +4,7 @@
 "$$$/PhotosExportService/NewAlbumForCollection=/Lightroom/Import"
 "$$$/PhotosExportService/ProgressMany=Importiere ^1 Fotos in Photos"
 "$$$/PhotosExportService/ProgressOne=Importiere ein Foto in Photos"
-"$$$/Photos/Metadata/Fields/PhotosId=Photos ID"
+"$$$/Photos/Metadata/Fields/PhotosId=Photos UUID"
 "$$$/Photos/Error/Import=Fehler beim Importieren"
 "$$$/Photos/PlaceHolder=^1"
 "$$$/Photos/DefaultCollectionName/Photostream=Veröffentlichte Sammlung"
@@ -22,3 +22,10 @@
 "$$$/Photos/Error/PhotoNotFoundByPhotosID=Foto konnte nicht über ihre Fotos-App UID gefunden werden: \"^1\"."
 "$$$/Photos/Text=^1"
 "$$$/Photos/KeepOldPhotos=Behalte veraltete Fotos in den Alben."
+"$$$/Photos/Metadata/Fields/LocalId=Lightroom ID"
+"$$$/Photos/Metadata/Fields/CatalogName=Lightroom Katalog"
+"$$$/Photos/Metadata/OrigLabel=Standard"
+"$$$/Photos/Metadata/Tagset/Title=Fotos App"
+"$$$/Photos/Metadata/ExifLabel=EXIF"
+
+

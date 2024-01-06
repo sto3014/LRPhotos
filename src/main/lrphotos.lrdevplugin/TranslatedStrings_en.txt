@@ -4,7 +4,7 @@
 "$$$/PhotosExportService/NewAlbumForCollection=/Lightroom/Import"
 "$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photos"
 "$$$/PhotosExportService/ProgressOne=Importing one photo in Photos"
-"$$$/Photos/Metadata/Fields/PhotosId=Photos ID"
+"$$$/Photos/Metadata/Fields/PhotosId=Photos UUID"
 "$$$/Photos/Error/Import=Error while importing photos"
 "$$$/Photos/PlaceHolder=^1"
 "$$$/Photos/DefaultCollectionName/Photostream=Published Collection"
@@ -25,3 +25,9 @@
 "$$$/Photos/Error/CollectionNameSub=The collection name \"^1\" is not valid. It may not contain"
 "$$$/Photos/Text=^1"
 "$$$/Photos/KeepOldPhotos=Keep out of date photos in albums."
+"$$$/Photos/Metadata/Fields/LocalId=Lightroom ID"
+"$$$/Photos/Metadata/Fields/CatalogName=Lightroom catalog"
+"$$$/Photos/Metadata/OrigLabel=Standard"
+"$$$/Photos/Metadata/Tagset/Title=Photos App"
+"$$$/Photos/Metadata/ExifLabel=EXIF"
+

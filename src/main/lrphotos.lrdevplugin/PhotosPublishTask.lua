@@ -16,6 +16,8 @@ local Utils = require("Utils")
 
 require("stringutil")
 
+local editionDetailsID = "at.homebrew.lreditiondetails"
+
 PhotosPublishTask = {}
 
 -- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
@@ -181,6 +183,9 @@ local function setPhotosID(albumPath)
             if (photo ~= nil) then
                 logger.trace("PhotosID: " .. tokens[4])
                 photo:setPropertyForPlugin(_PLUGIN, 'photosId', tokens[4])
+                photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
+                local catName = LrPathUtils.leafName(photo.catalog:getPath())
+                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
             end
         end
     end)
@@ -219,6 +224,7 @@ local function getPhotoDescriptor(photo, photoPath, lrcatName)
     end
     local path = photoPath
 
+    --[[
     local cameraModel = photo:getFormattedMetadata("cameraModel")
     if ( cameraModel ~= nil and Utils.startsWith(cameraModel, "iPhone")) then
         local isHDR = false
@@ -237,7 +243,15 @@ local function getPhotoDescriptor(photo, photoPath, lrcatName)
              path = photo:getRawMetadata("path")
         end
     end
-    return path .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
+    ]]--
+    local destPath = LrPathUtils.addExtension(LrPathUtils.child(LrPathUtils.parent(path), tostring(photo.localIdentifier)), LrPathUtils.extension(path))
+    if LrFileUtils.move(path, destPath) then
+        logger.trace("Rename " .. path .. " to " .. destPath)
+        return destPath .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
+    else
+        logger.error("File " .. path .. " could not be renamed to " .. destPath)
+        return path .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
+    end
 
 end
 --[[---------------------------------------------------------------------------

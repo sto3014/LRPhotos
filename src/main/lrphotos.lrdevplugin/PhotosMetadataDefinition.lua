@@ -20,6 +20,21 @@ local PhotosMetadataDefinition = {
             searchable = true,
             readOnly = false,
         },
+        {
+            id = 'localId',
+            title = LOC "$$$/Photos/Metadata/Fields/LocalId=Local ID",
+            dataType = 'string', -- Specifies the data type for this field.
+            searchable = true,
+            readOnly = true,
+        },
+        {
+            id = 'catalogName',
+            title = LOC "$$$/Photos/Metadata/Fields/CatalogName=Catalog name",
+            dataType = 'string', -- Specifies the data type for this field.
+            searchable = true,
+            browsable = true,
+            readOnly = true,
+        },
     },
 
     schemaVersion = 1, -- must be a number, preferably a positive integer

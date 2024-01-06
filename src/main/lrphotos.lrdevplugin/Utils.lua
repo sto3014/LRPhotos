@@ -4,6 +4,8 @@
 --- DateTime: 05.05.21 19:19
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
+local LrApplication = import 'LrApplication'
+
 --[[----------------------------------------------------------------------------
 -----------------------------------------------------------------------------]]
 
@@ -102,4 +104,16 @@ function Utils.getQueueEntry()
 end
 --[[----------------------------------------------------------------------------
 -----------------------------------------------------------------------------]]
+--[[---------------------------------------------------------------------------
+getCatName()
+-----------------------------------------------------------------------------]]
+function Utils.getCatName ()
+    local activeCatalog = LrApplication.activeCatalog()
+    local catName = LrPathUtils.removeExtension(LrPathUtils.leafName(activeCatalog:getPath()))
+    local i = string.find(catName, "-v")
+    if (i ~= nil and i > 1) then
+        catName = string.sub(catName, 1, i - 1)
+    end
+    return catName
+end
 return Utils

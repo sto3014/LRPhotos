@@ -8,7 +8,10 @@ return {
   LrInitPlugin = "InitPlugin.lua",
   -- Add the Metadata Definition File
   LrMetadataProvider = 'PhotosMetadataDefinition.lua',
-
+  -- Add the Metadata Tagset File
+  LrMetadataTagsetFactory = {
+    'PhotosMetadataTagset.lua',
+  },
   LrExportServiceProvider = {
     title = "Photos",  -- this string appears as the export destination
     file = "PhotosServiceProvider.lua",
