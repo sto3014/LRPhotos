@@ -18,6 +18,7 @@ local PhotosMetadataDefinition = {
             title = LOC "$$$/Photos/Metadata/Fields/PhotosId=Photos ID",
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
+            browsable = true,
             readOnly = false,
         },
         {
@@ -25,11 +26,20 @@ local PhotosMetadataDefinition = {
             title = LOC "$$$/Photos/Metadata/Fields/LocalId=Local ID",
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
+            browsable = true,
             readOnly = true,
         },
         {
             id = 'catalogName',
             title = LOC "$$$/Photos/Metadata/Fields/CatalogName=Catalog name",
+            dataType = 'string', -- Specifies the data type for this field.
+            searchable = true,
+            browsable = true,
+            readOnly = true,
+        },
+        {
+            id = 'format',
+            title = LOC "$$$/Photos/Metadata/Fields/Format=Format",
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
             browsable = true,

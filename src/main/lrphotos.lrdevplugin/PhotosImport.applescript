@@ -196,6 +196,7 @@ end trimThis
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
+	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
 	set targetAlbum to getAlbumByPath(albumName of session, true)
 	
@@ -329,7 +330,7 @@ on import(photoDescriptors, session)
 		end repeat
 		delay 2
 	end tell
-	set AppleScript's text item delimiters to " "
+	set AppleScript's text item delimiters to currentDelimiter
 	return importedPhotos
 end import
 -------------------------------------------------------------------------------
@@ -513,6 +514,7 @@ end setNoLongerPublished
 -- Remove photos from albums
 -------------------------------------------------------------------------------
 on remove(photoDescriptors, session)
+	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
@@ -581,7 +583,7 @@ on remove(photoDescriptors, session)
 		--
 		tell me to set targetAlbum to removePhotosFromAlbum(targetAlbum, photosToBeRemovedFromAlbum)
 	end tell
-	set AppleScript's text item delimiters to " "
+	set AppleScript's text item delimiters to currentDelimiter
 	return removedPhotos
 end remove
 
@@ -691,6 +693,7 @@ on getPublishServiceAlbumNames(thePhoto)
 	local psAlbumNames
 	set psAlbumNames to {}
 	tell application id "com.apple.photos" to set currentKeywords to the keywords of thePhoto
+	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "album:"
 	repeat with aKeyword in currentKeywords
 		if aKeyword starts with "album:" then
@@ -698,7 +701,7 @@ on getPublishServiceAlbumNames(thePhoto)
 			copy aAlbumName to the end of psAlbumNames
 		end if
 	end repeat
-	set AppleScript's text item delimiters to " "
+	set AppleScript's text item delimiters to currentDelimiter
 	return psAlbumNames
 end getPublishServiceAlbumNames
 -------------------------------------------------------------------------------

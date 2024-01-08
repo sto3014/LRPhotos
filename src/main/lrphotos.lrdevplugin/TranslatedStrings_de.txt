@@ -27,5 +27,7 @@
 "$$$/Photos/Metadata/OrigLabel=Standard"
 "$$$/Photos/Metadata/Tagset/Title=Fotos App"
 "$$$/Photos/Metadata/ExifLabel=EXIF"
+"$$$/Photos/TitleForGoToPublishedPhoto=Zeige in Fotos App"
+"$$$/Photos/Metadata/Fields/Format=Format"
 
 

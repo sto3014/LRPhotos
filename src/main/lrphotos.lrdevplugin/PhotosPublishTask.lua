@@ -183,9 +183,6 @@ local function setPhotosID(albumPath)
             if (photo ~= nil) then
                 logger.trace("PhotosID: " .. tokens[4])
                 photo:setPropertyForPlugin(_PLUGIN, 'photosId', tokens[4])
-                photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
-                local catName = LrPathUtils.leafName(photo.catalog:getPath())
-                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
             end
         end
     end)
@@ -277,6 +274,13 @@ local function renderPhotos(exportContext, progressScope)
                 pID = ""
             end
             photoIDs[#photoIDs + 1] = getPhotoDescriptor(photo, pathOrMessage , lrcatName)
+            local activeCatalog = LrApplication.activeCatalog()
+            activeCatalog:withWriteAccessDo("Set photos ID", function()
+                photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
+                local catName = LrPathUtils.leafName(photo.catalog:getPath())
+                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
+                photo:setPropertyForPlugin(_PLUGIN, 'format', LrPathUtils.extension(pathOrMessage))
+            end)
         end
     end
     logger.trace("PhotosPublishTask.renderPhotos end")
@@ -318,19 +322,19 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function createQueueEntry(collectionName)
+local function createQueueEntry(comment)
 
     local queueEntryPath = LrFileUtils.chooseUniqueFileName(Utils.getQueueEntry())
     local f = assert(io.open(queueEntryPath , "w"))
-    f:write(collectionName)
+    f:write(comment)
     f:close()
     return LrPathUtils.leafName(queueEntryPath)
 end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function deleteQueueEntry(queueEntry, albumPath)
-    logger.trace("delete queue-entry \"" .. queueEntry .. "\"" .. "\" for collection \"" .. albumPath)
+local function deleteQueueEntry(queueEntry)
+    logger.trace("delete queue-entry \"" .. queueEntry .. "\"")
     LrFileUtils.delete(LrPathUtils.child(Utils.getQueueDir(), queueEntry))
 end
 --[[---------------------------------------------------------------------------
@@ -422,7 +426,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
 
     writePhotosFile(photoIDs, albumPath)
 
-    local queueEntry = createQueueEntry(albumPath)
+    local queueEntry = createQueueEntry("Publish to album " .. albumPath)
     waitForPredecessors(queueEntry)
 
     -- Import photos in Photos app
@@ -431,7 +435,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                 LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntry, albumPath)
+        deleteQueueEntry(queueEntry)
         return
     end
 
@@ -439,14 +443,14 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     local hasErrors, errorMsg = waitForPhotosApp(albumPath)
     if (hasErrors) then
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntry, albumPath)
+        deleteQueueEntry(queueEntry)
 
         return
     end
 
     setPhotosID(albumPath)
     recordPhotoIDs(renditions)
-    deleteQueueEntry(queueEntry, albumPath)
+    deleteQueueEntry(queueEntry)
     logger.trace("PhotosPublishTask.processRenderedPhotos end")
 end
 --[[---------------------------------------------------------------------------
@@ -528,7 +532,7 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         end
     writePhotosFile(photoIDs, albumPath)
 
-    local queueEntry = createQueueEntry(albumPath)
+    local queueEntry = createQueueEntry("Remove from alnum " .. albumPath)
     waitForPredecessors(queueEntry)
 
     local result = sendPhotosToApp(albumPath)
@@ -536,7 +540,7 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
             local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
             LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
                     LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-            deleteQueueEntry(queueEntry, albumPath)
+            deleteQueueEntry(queueEntry)
 
             return
         end
@@ -547,7 +551,7 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
         end
 
     removePhotosID(albumPath)
-    deleteQueueEntry(queueEntry, albumPath)
+    deleteQueueEntry(queueEntry)
 
         for _, photosID in ipairs(arrayOfPhotoIds) do
             logger.trace("photosID to be deleted = " .. tostring(photosID))
@@ -557,6 +561,23 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
 
 end
 
+local function showPhoto(thePhoto)
+    local photoId = PhotosAPI.getPhotosId(thePhoto)
+    local queueEntry = createQueueEntry("Show photo " .. photoId)
+    waitForPredecessors(queueEntry)
+    local show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowPhoto/ShowPhoto.app") .. "\" "  .. photoId
+    logger.trace(show_command)
+    local result = LrTasks.execute(show_command)
+    LrTasks.sleep(1)
+    deleteQueueEntry(queueEntry)
+    return result
+end
+
+function PhotosPublishTask.goToPublishedPhoto( publishSettings, info )
+    logger.trace("goToPublishedPhoto() start")
+    showPhoto(info.photo)
+    logger.trace("goToPublishedPhoto() end")
+end
 
 --[[---------------------------------------------------------------------------
     startDialog

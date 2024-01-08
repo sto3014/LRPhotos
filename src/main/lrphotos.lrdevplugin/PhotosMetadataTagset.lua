@@ -35,6 +35,8 @@ return{
 
 		PluginInit.pluginID .. '.localId',
 
+		PluginInit.pluginID .. '.format',
+
 		{PluginInit.pluginID .. '.photosId', height_in_lines = 3},
 
 		PluginInit.pluginID .. '.mark',

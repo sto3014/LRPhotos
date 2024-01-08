@@ -30,4 +30,6 @@
 "$$$/Photos/Metadata/OrigLabel=Standard"
 "$$$/Photos/Metadata/Tagset/Title=Photos App"
 "$$$/Photos/Metadata/ExifLabel=EXIF"
+"$$$/Photos/TitleForGoToPublishedPhoto=Show in Photos App"
+"$$$/Photos/Metadata/Fields/Format=Format"
 

@@ -29,6 +29,8 @@ local PhotosServiceProvider = {
   viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
   deletePhotosFromPublishedCollection = PhotosPublishTask.deletePhotosFromPublishedCollection,
+  titleForGoToPublishedPhoto=LOC "$$$/Photos/TitleForGoToPublishedPhoto=Show in Photos",
+  goToPublishedPhoto=PhotosPublishTask.goToPublishedPhoto,
   startDialog = PhotosPublishTask.startDialog,
   supportsIncrementalPublish = 'only',
   small_icon = 'photos_small.png',
