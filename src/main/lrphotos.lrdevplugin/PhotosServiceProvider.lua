@@ -30,12 +30,13 @@ local PhotosServiceProvider = {
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
   deletePhotosFromPublishedCollection = PhotosPublishTask.deletePhotosFromPublishedCollection,
   titleForGoToPublishedPhoto=LOC "$$$/Photos/TitleForGoToPublishedPhoto=Show in Photos",
+  titleForGoToPublishedCollection = LOC "$$$/Photos/TitleForGoToPublishedCollection=Show album in Photos",
   goToPublishedPhoto=PhotosPublishTask.goToPublishedPhoto,
+  goToPublishedCollection=PhotosPublishTask.goToPublishedCollection,
   startDialog = PhotosPublishTask.startDialog,
   supportsIncrementalPublish = 'only',
   small_icon = 'photos_small.png',
   publish_fallbackNameBinding = 'fullname',
-  titleForGoToPublishedCollection = 'disable'
 }
 local prefs = LrPrefs.prefsForPlugin()
 if (prefs.osSupported) then

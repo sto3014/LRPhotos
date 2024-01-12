@@ -29,5 +29,6 @@
 "$$$/Photos/Metadata/ExifLabel=EXIF"
 "$$$/Photos/TitleForGoToPublishedPhoto=Zeige in Fotos App"
 "$$$/Photos/Metadata/Fields/Format=Format"
+"$$$/Photos/TitleForGoToPublishedCollection=Zeige Album in Fotos"
 
 

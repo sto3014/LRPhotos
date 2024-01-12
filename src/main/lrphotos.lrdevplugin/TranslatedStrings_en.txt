@@ -32,4 +32,5 @@
 "$$$/Photos/Metadata/ExifLabel=EXIF"
 "$$$/Photos/TitleForGoToPublishedPhoto=Show in Photos App"
 "$$$/Photos/Metadata/Fields/Format=Format"
+"$$$/Photos/TitleForGoToPublishedCollection=Show album in Photos"
 

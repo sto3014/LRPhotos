@@ -20,7 +20,7 @@ local editionDetailsID = "at.homebrew.lreditiondetails"
 
 PhotosPublishTask = {}
 
--- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
@@ -577,6 +577,30 @@ function PhotosPublishTask.goToPublishedPhoto( publishSettings, info )
     logger.trace("goToPublishedPhoto() start")
     showPhoto(info.photo)
     logger.trace("goToPublishedPhoto() end")
+end
+
+function showCollection(publishSettings, info)
+    local albumPath = getFullAlbumPath(
+            publishSettings.albumBy,
+            publishSettings.useAlbum,
+            publishSettings.rootFolder,
+            publishSettings.albumNameForService,
+            info.publishedCollectionInfo.name)
+
+    local queueEntry = createQueueEntry("Show collection " .. albumPath)
+    waitForPredecessors(queueEntry)
+    local show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowAlbum/ShowAlbum.app") .. "\" \""  .. albumPath .. "\""
+    logger.trace(show_command)
+    local result = LrTasks.execute(show_command)
+    LrTasks.sleep(1)
+    deleteQueueEntry(queueEntry)
+    return result
+
+end
+function PhotosPublishTask.goToPublishedCollection( publishSettings, info )
+    logger.trace("goToPublishedCollection() start")
+    showCollection(publishSettings, info)
+    logger.trace("goToPublishedCollection() end")
 end
 
 --[[---------------------------------------------------------------------------

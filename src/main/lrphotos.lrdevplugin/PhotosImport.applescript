@@ -607,7 +607,7 @@ on updateSessionFile(sessionFile, session)
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
-	tell script "MacRomanToUTF8" to set utf8Content to MacRomanToUTF8(romanContent)
+	tell script "MacRomanUtilities" to set utf8Content to macRomanToUTF8(romanContent)
 	write utf8Content to sessionFile
 	close access fileRef
 end updateSessionFile
