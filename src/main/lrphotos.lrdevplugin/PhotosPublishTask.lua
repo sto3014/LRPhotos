@@ -315,7 +315,12 @@ end
 
 -----------------------------------------------------------------------------]]
 local function sendPhotosToApp(albumPath)
-    local importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. Utils.getComDir(albumPath) .. "\""
+    local importer_command
+    if LrFileUtils.exists(LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app")) then
+        importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport/PhotosImport.app") .. "\" " .. "\"" .. Utils.getComDir(albumPath) .. "\""
+    else
+        importer_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosImport.app") .. "\" " .. "\"" .. Utils.getComDir(albumPath) .. "\""
+    end
     logger.trace(importer_command)
     return LrTasks.execute(importer_command)
 end
@@ -565,7 +570,12 @@ local function showPhoto(thePhoto)
     local photoId = PhotosAPI.getPhotosId(thePhoto)
     local queueEntry = createQueueEntry("Show photo " .. photoId)
     waitForPredecessors(queueEntry)
-    local show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowPhoto/ShowPhoto.app") .. "\" "  .. photoId
+    local show_command
+    if LrFileUtils.exists(LrPathUtils.child(_PLUGIN.path, "ShowPhoto/ShowPhoto.app")) then
+        show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowPhoto/ShowPhoto.app") .. "\" "  .. photoId
+    else
+        show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowPhoto.app") .. "\" "  .. photoId
+    end
     logger.trace(show_command)
     local result = LrTasks.execute(show_command)
     LrTasks.sleep(1)
@@ -589,7 +599,12 @@ function showCollection(publishSettings, info)
 
     local queueEntry = createQueueEntry("Show collection " .. albumPath)
     waitForPredecessors(queueEntry)
-    local show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowAlbum/ShowAlbum.app") .. "\" \""  .. albumPath .. "\""
+    local show_command
+    if LrFileUtils.exists(LrPathUtils.child(_PLUGIN.path, "ShowAlbum/ShowAlbum.app")) then
+        show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowAlbum/ShowAlbum.app") .. "\" \""  .. albumPath .. "\""
+    else
+        show_command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "ShowAlbum.app") .. "\" \""  .. albumPath .. "\""
+    end
     logger.trace(show_command)
     local result = LrTasks.execute(show_command)
     LrTasks.sleep(1)
