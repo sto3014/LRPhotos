@@ -7,5 +7,5 @@ on run argv
 	else
 		set albumPath to first item of argv
 	end if
-	tell script "PhotosUtilities" to photosAlbumDisplay(albumPath, true)
+	tell script "hbPhotosUtilities" to photosAlbumDisplay(albumPath, true)
 end run

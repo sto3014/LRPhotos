@@ -8,9 +8,9 @@ use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
 
-property pPhotosUtilitiesLib : script "PhotosUtilities"
-property pMacRomanUtilitiesLib : script "MacRomanUtilities"
-property pRegexUtilitiesLib : script "RegexUtilities"
+property pPhotosLib : script "hbPhotosUtilities"
+property pMacRomanLib : script "hbMacRomanUtilities"
+property pStringLib : script "hbStringUtilities"
 
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
@@ -135,7 +135,7 @@ on getPhotoDescriptors(photosContents)
 	set photos to {}
 	set allLines to every paragraph of photosContents
 	repeat with aLine in allLines
-		set aLine to trimThis(aLine, true, true)
+		set aLine to pStringLib's trim(aLine)
 		log aLine
 		if aLine is not equal to "" then
 			copy aLine to the end of photos
@@ -144,53 +144,12 @@ on getPhotoDescriptors(photosContents)
 	return photos
 end getPhotoDescriptors
 -------------------------------------------------------------------------------
---
--------------------------------------------------------------------------------
-on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
-	-- http://macscripter.net/viewtopic.php?id=18519
-	-- pstrSourceText : The text to be trimmed
-	-- pstrCharToTrim     : A list of characters to trim, or true to use default
-	-- pstrTrimDirection : Direction of Trim left, right or any value for full
-	
-	set strTrimedText to pstrSourceText
-	
-	-- If undefinied use default whitespaces
-	if pstrCharToTrim is missing value or class of pstrCharToTrim is not list then
-		-- trim tab, newline, return and all the unicode characters from the 'separator space' category
-		-- [url]http://www.fileformat.info/info/unicode/category/Zs/list.htm[/url]
-		set pstrCharToTrim to {tab, linefeed, return, space, character id 160, character id 5760, character id 8192, character id 8193, character id 8194, character id 8195, character id 8196, character id 8197, character id 8198, character id 8199, character id 8200, character id 8201, character id 8202, character id 8239, character id 8287, character id 12288}
-	end if
-	
-	set lLoc to 1
-	set rLoc to count of strTrimedText
-	
-	--- From left to right, get location of first non-whitespace character
-	if pstrTrimDirection is not right then
-		repeat until lLoc = (rLoc + 1) or character lLoc of strTrimedText is not in pstrCharToTrim
-			set lLoc to lLoc + 1
-		end repeat
-	end if
-	
-	-- From right to left, get location of first non-whitespace character
-	if pstrTrimDirection is not left then
-		repeat until rLoc = 0 or character rLoc of strTrimedText is not in pstrCharToTrim
-			set rLoc to rLoc - 1
-		end repeat
-	end if
-	
-	if lLoc ≥ rLoc then
-		return ""
-	else
-		return text lLoc thru rLoc of strTrimedText
-	end if
-end trimThis
--------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
 	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
-	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, true)
+	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, true)
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -220,7 +179,7 @@ on import(photoDescriptors, session)
 				if isUpdate is true then
 					set targetPhotos to (every media item whose id is equal to photosId)
 					if (count of targetPhotos) is greater than 0 then
-						tell me to set previousAlbums to pPhotosUtilitiesLib's photosAlbumsUsedByMediaItem(photosId)
+						tell me to set previousAlbums to pPhotosLib's photosAlbumsUsedByMediaItem(photosId)
 						set theTargetPhoto to item 1 of targetPhotos
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
@@ -260,7 +219,7 @@ on import(photoDescriptors, session)
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
-					tell me to set isValid to not pRegexUtilitiesLib's regexMatches(aAlbumName, ignoreByRegex of session)
+					tell me to set isValid to not pStringLib's matches(aAlbumName, ignoreByRegex of session)
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
 							try
@@ -313,7 +272,7 @@ on import(photoDescriptors, session)
 		local aAlbumName
 		repeat with aAlbum in previousAlbums
 			set aAlbumName to name of aAlbum
-			tell me to set isValid to not pRegexUtilitiesLib's regexMatches(name of aAlbum, ignoreByRegex of session)
+			tell me to set isValid to not pStringLib's matches(name of aAlbum, ignoreByRegex of session)
 			if isValid is true then
 				if not keepOldPhotos of session then
 					tell me to cleanupAlbum(aAlbum)
@@ -397,7 +356,7 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			set theAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumPath, true)
+			set theAlbum to pPhotosLib's photosAlbumGetByPath(albumPath, true)
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -451,7 +410,7 @@ on cleanupAlbum(theAlbum)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			set theAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumPath, true)
+			set theAlbum to pPhotosLib's photosAlbumGetByPath(albumPath, true)
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -510,7 +469,7 @@ on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
-	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, false)
+	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, false)
 	if targetAlbum is missing value then
 		return removedPhotos
 	end if
@@ -599,7 +558,7 @@ on updateSessionFile(sessionFile, session)
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
-	set utf8Content to pMacRomanUtilitiesLib's macRomanToUTF8(romanContent)
+	set utf8Content to pMacRomanLib's macRomanToUTF8(romanContent)
 	write utf8Content to sessionFile
 	close access fileRef
 end updateSessionFile
@@ -617,7 +576,11 @@ on updatePhotosFile(photosFile, photosList)
 	close access photosFile
 end updatePhotosFile
 -------------------------------------------------------------------------------
+-- getPublishServiceAlbums(photosId)
 --
+-- returns a list of albums wich uses the photosId and are maintanined by 
+-- a Lightroom publish service.
+-- 
 -------------------------------------------------------------------------------
 on getPublishServiceAlbums(thePhoto)
 	local psAlbums
@@ -627,7 +590,7 @@ on getPublishServiceAlbums(thePhoto)
 	set allPSAlbumNames to getPublishServiceAlbumNames(thePhoto)
 	tell application id "com.apple.photos"
 		local allAlbums
-		tell me to set allAlbums to pPhotosUtilitiesLib's photosAlbumsUsedByMediaItem(get id of thePhoto)
+		tell me to set allAlbums to pPhotosLib's photosAlbumsUsedByMediaItem(get id of thePhoto)
 		repeat with aAlbum in allAlbums
 			repeat with aPSAlbumName in allPSAlbumNames
 				if aPSAlbumName as string is equal to name of aAlbum then
@@ -736,7 +699,7 @@ end _getPathByAlbum
 --  activates import album
 -------------------------------------------------------------------------------
 on spotlightTargetAlbum(session)
-	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, false)
+	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, false)
 	tell application id "com.apple.photos"
 		if targetAlbum is not missing value then
 			tell targetAlbum
@@ -749,7 +712,7 @@ end spotlightTargetAlbum
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
-	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
+	set targetAlbum to pPhotosLib's photosAlbumGetByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
 	local thePath
 	set thePath to getPathByAlbum(targetAlbum)
 	set dummy to 0

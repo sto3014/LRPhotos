@@ -7,5 +7,5 @@ on run argv
 	else
 		set mediaItemUUID to first item of argv
 	end if
-	tell script "PhotosUtilities" to photosMediaItemDisplay(mediaItemUUID)
+	tell script "hbPhotosUtilities" to photosMediaItemDisplay(mediaItemUUID)
 end run
