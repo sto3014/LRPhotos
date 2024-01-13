@@ -8,6 +8,10 @@ use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
 
+property pPhotosUtilitiesLib : script "PhotosUtilities"
+property pMacRomanUtilitiesLib : script "MacRomanUtilities"
+property pRegexUtilitiesLib : script "RegexUtilities"
+
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
 property inputEncoding : "UTF-8"
@@ -140,18 +144,6 @@ on getPhotoDescriptors(photosContents)
 	return photos
 end getPhotoDescriptors
 -------------------------------------------------------------------------------
--- matchesRegex
--------------------------------------------------------------------------------
-on matchesRegex(theText, theRegex)
-	set theText to current application's NSString's stringWithString:theText
-	set theRange to theText's rangeOfString:(theRegex) options:NSRegularExpressionSearch
-	if |length| of theRange is greater than 0 then
-		return true
-	else
-		return false
-	end if
-end matchesRegex
--------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
 on trimThis(pstrSourceText, pstrCharToTrim, pstrTrimDirection)
@@ -198,7 +190,7 @@ end trimThis
 on import(photoDescriptors, session)
 	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
-	set targetAlbum to getAlbumByPath(albumName of session, true)
+	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, true)
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -228,7 +220,7 @@ on import(photoDescriptors, session)
 				if isUpdate is true then
 					set targetPhotos to (every media item whose id is equal to photosId)
 					if (count of targetPhotos) is greater than 0 then
-						tell me to set previousAlbums to getUsedBy(photosId)
+						tell me to set previousAlbums to pPhotosUtilitiesLib's photosAlbumsUsedByMediaItem(photosId)
 						set theTargetPhoto to item 1 of targetPhotos
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
@@ -268,7 +260,7 @@ on import(photoDescriptors, session)
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
-					tell me to set isValid to not matchesRegex(aAlbumName, ignoreByRegex of session)
+					tell me to set isValid to not pRegexUtilitiesLib's regexMatches(aAlbumName, ignoreByRegex of session)
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
 							try
@@ -321,7 +313,7 @@ on import(photoDescriptors, session)
 		local aAlbumName
 		repeat with aAlbum in previousAlbums
 			set aAlbumName to name of aAlbum
-			tell me to set isValid to not matchesRegex(name of aAlbum, ignoreByRegex of session)
+			tell me to set isValid to not pRegexUtilitiesLib's regexMatches(name of aAlbum, ignoreByRegex of session)
 			if isValid is true then
 				if not keepOldPhotos of session then
 					tell me to cleanupAlbum(aAlbum)
@@ -405,7 +397,7 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			tell me to set theAlbum to getAlbumByPath(albumPath, true)
+			set theAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumPath, true)
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -459,7 +451,7 @@ on cleanupAlbum(theAlbum)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			tell me to set theAlbum to getAlbumByPath(albumPath, true)
+			set theAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumPath, true)
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -518,7 +510,7 @@ on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
-	set targetAlbum to getAlbumByPath(albumName of session, false)
+	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, false)
 	if targetAlbum is missing value then
 		return removedPhotos
 	end if
@@ -607,7 +599,7 @@ on updateSessionFile(sessionFile, session)
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
-	tell script "MacRomanUtilities" to set utf8Content to macRomanToUTF8(romanContent)
+	set utf8Content to pMacRomanUtilitiesLib's macRomanToUTF8(romanContent)
 	write utf8Content to sessionFile
 	close access fileRef
 end updateSessionFile
@@ -625,43 +617,7 @@ on updatePhotosFile(photosFile, photosList)
 	close access photosFile
 end updatePhotosFile
 -------------------------------------------------------------------------------
--- getUsedBy(photosId)
 --
--- returns a list of albums of all folders which uses the photo identified by 
--- ptotosId
--- 
--------------------------------------------------------------------------------
-on getUsedBy(photosId)
-	local usedBy
-	set usedBy to {}
-	tell application "Photos"
-		set usedBy to get (albums whose id of media items contains photosId)
-		repeat with aFolder in folders
-			tell me to set usedBy to _getUsedBy(aFolder, photosId, usedBy)
-		end repeat
-	end tell
-	return usedBy
-end getUsedBy
-
--- recursive function used by getUsedBy()
-on _getUsedBy(aFolder, photosId, usedBy)
-	local usedBy
-	tell application "Photos"
-		tell aFolder
-			set usedBy to usedBy & (albums whose id of media items contains photosId)
-			repeat with aFolder in folders
-				tell me to set usedBy to _getUsedBy(aFolder, photosId, usedBy)
-			end repeat
-		end tell
-	end tell
-	return usedBy
-end _getUsedBy
--------------------------------------------------------------------------------
--- getPublishServiceAlbums(photosId)
---
--- returns a list of albums wich uses the photosId and are maintanined by 
--- a Lightroom publish service.
--- 
 -------------------------------------------------------------------------------
 on getPublishServiceAlbums(thePhoto)
 	local psAlbums
@@ -671,7 +627,7 @@ on getPublishServiceAlbums(thePhoto)
 	set allPSAlbumNames to getPublishServiceAlbumNames(thePhoto)
 	tell application id "com.apple.photos"
 		local allAlbums
-		tell me to set allAlbums to getUsedBy(get id of thePhoto)
+		tell me to set allAlbums to pPhotosUtilitiesLib's photosAlbumsUsedByMediaItem(get id of thePhoto)
 		repeat with aAlbum in allAlbums
 			repeat with aPSAlbumName in allPSAlbumNames
 				if aPSAlbumName as string is equal to name of aAlbum then
@@ -775,100 +731,12 @@ on _getPathByAlbum(thisFolder, theAlbum, thePath)
 	return missing value
 end _getPathByAlbum
 -------------------------------------------------------------------------------
--- getAlbumByPath(albumPath, createIfNotExists)
---
--- returns the album for the given path
---
--- if createIfNotExists is true missing folders are created as well as the album
--- format of albumPath: "/folder1/folder2/..../album"
--------------------------------------------------------------------------------
-on getAlbumByPath(albumPath, createIfNotExists)
-	try
-		if albumPath is missing value or albumPath is equal to "" then
-			return missing value
-		end if
-		set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
-		if not isValid then
-			error "Albumpath " & albumPath & " is not a valid path."
-		end if
-		set len to the length of albumPath
-		set albumPath to text 2 thru len of albumPath
-		set slashOffset to (offset of "/" in albumPath)
-		
-		set theFolder to missing value
-		if albumPath is missing value or albumPath is equal to "" then return missing value
-		tell application id "com.apple.photos"
-			-- go thru all path components of type folder
-			repeat until slashOffset is less than 1
-				-- there is at least one folder
-				set folderName to text 1 thru (slashOffset - 1) of albumPath
-				if theFolder is missing value then
-					--  we are in the root
-					set allFolders to every folder whose name is folderName
-					if (count of allFolders) is greater than 0 then
-						set theFolder to item 1 of allFolders
-					else
-						if createIfNotExists then
-							set theFolder to make new folder named folderName
-						else
-							return missing value
-						end if
-					end if
-				else
-					-- we are in between folders
-					tell theFolder to set allFolders to every folder whose name is folderName
-					if (count of allFolders) is greater than 0 then
-						set theFolder to item 1 of allFolders
-					else
-						if createIfNotExists then
-							set theFolder to make new folder named folderName at theFolder
-						else
-							return missing value
-						end if
-					end if
-				end if
-				set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
-				set slashOffset to (offset of "/" in albumPath)
-			end repeat
-			if theFolder is missing value then
-				--  we are in the root
-				set allAlbums to albums whose name is albumPath
-				if (count of allAlbums) is greater than 0 then
-					set theAlbum to item 1 of allAlbums
-				else
-					if createIfNotExists then
-						set theAlbum to make new album named albumPath
-					else
-						return missing value
-					end if
-				end if
-			else
-				-- we are in a folder
-				tell theFolder to set allAlbums to every album whose name is albumPath
-				if (count of allAlbums) is greater than 0 then
-					set theAlbum to item 1 of allAlbums
-				else
-					if createIfNotExists then
-						set theAlbum to make new album named albumPath at theFolder
-					else
-						return missing value
-					end if
-				end if
-			end if
-		end tell
-	on error e
-		error "Can't get album for path " & albumPath & ". Error was: " & e
-	end try
-	return theAlbum
-	
-end getAlbumByPath
--------------------------------------------------------------------------------
 -- spotlightTargetAlbum(session)
 --
 --  activates import album
 -------------------------------------------------------------------------------
 on spotlightTargetAlbum(session)
-	set targetAlbum to getAlbumByPath(albumName of session, false)
+	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath(albumName of session, false)
 	tell application id "com.apple.photos"
 		if targetAlbum is not missing value then
 			tell targetAlbum
@@ -881,12 +749,7 @@ end spotlightTargetAlbum
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
-	-- set targetAlbum to getAlbumByPath("/Test/Test3/Test4/Yield4", false)
-	set targetAlbum to getAlbumByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
-	-- set targetAlbum to getAlbumByPath("/Yield0", false)
-	-- set targetAlbum to getAlbumByPath("/Test/Yield2", false)
-	
-	
+	set targetAlbum to pPhotosUtilitiesLib's photosAlbumGetByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
 	local thePath
 	set thePath to getPathByAlbum(targetAlbum)
 	set dummy to 0
