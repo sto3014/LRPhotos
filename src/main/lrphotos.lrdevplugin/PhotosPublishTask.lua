@@ -20,7 +20,7 @@ local editionDetailsID = "at.homebrew.lreditiondetails"
 
 PhotosPublishTask = {}
 
-local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
