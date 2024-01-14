@@ -2,14 +2,14 @@
 cd "$(dirname "$0")"
 export SCRIPT_DIR="$(pwd)"
 export PACKAGE_NAME=LRPhotos
-export TARGET_DIR_MAC="$SCRIPT_DIR/target/mac/Library/Application Support/Adobe/Lightroom"
-export TARGET_DIR_SERVICES="$SCRIPT_DIR/target/mac/Library/Services"
-export TARGET_DIR_SCRIPT_LIBRARIES="$SCRIPT_DIR/target/mac/Library/Script Libraries"
+export TARGET_DIR_MAC="$SCRIPT_DIR/target/mac/LRPhotos/Application Support/Adobe/Lightroom"
+export TARGET_DIR_SERVICES="$SCRIPT_DIR/target/mac/LRPhotos/Services"
+export TARGET_DIR_SCRIPT_LIBRARIES="$SCRIPT_DIR/target/mac/LRPhotos/Script Libraries"
 export SOURCE_DIR=$SCRIPT_DIR/src/main/$PACKAGE_NAME.lrdevplugin
 export SOURCE_DIR_SERVICES=/Users/dieterstockhausen/Projekte/Automation/Services/workflow
 export SOURCE_DIR_SCRIPT_LIBRARIES="/Users/dieterstockhausen/Projekte/Automation/Script Libraries/src"
 export RESOURCE_DIR=$SCRIPT_DIR/res
-export VERSION=1.1.0.0
+export VERSION=2.0.0.0
 #
 # mac
 #
@@ -25,6 +25,7 @@ mkdir -p "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 mkdir -p "$TARGET_DIR_SERVICES"
 # copy dev
 
+cp install.sh "$SCRIPT_DIR/target/mac/LRPhotos"
 cp $SOURCE_DIR/* "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 cp -R $SOURCE_DIR/PhotosImport/PhotosImport.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 cp -R $SOURCE_DIR/ShowAlbum/ShowAlbum.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
@@ -48,4 +49,4 @@ cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosServices/hbPhotosServices.scptd" "$T
 # cd $RESOURCE_DIR
 # cp -R * "$TARGET_DIR_MAC"
 cd "$SCRIPT_DIR/target/mac"
-zip -q -r ../$PACKAGE_NAME$VERSION"_mac.zip" Library
+zip -q -r ../$PACKAGE_NAME$VERSION"_mac.zip" LRPhotos

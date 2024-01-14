@@ -8,3 +8,4 @@
 /src/main/lrphotos.lrdevplugin/ShowPhoto/
 /src/main/lrphotos.lrdevplugin/ShowAlbum/
 *.\*
+/target/LRPhotos/

@@ -33,13 +33,15 @@ an unreasonable error message.
 * Videos are always set as being published. This is a workaround, because even if the video is successfully rendered the
 rendition is marked as skipped.
 
-## [1.1.0.0] - 2023-12-28
+## [2.0.0.0] - 2023-12-28
 
 ### Added
 
 * Added root folder property
 * Added queue for import jobs.
-* Added service for displaying photo UUID in Photos. 
+* Added service for displaying photo UUID in Photos.
+* Added Lightroom menu action for displaying published photos in Photos.
+* Added Lightroom menu action for displaying published collections in Photos.
 
 ### Changed
 
