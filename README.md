@@ -65,8 +65,8 @@ Of course, you may change these settings for your service definition.
 ### Re-Publishing
 The re-publishing process…
 * puts re-published photos into the same albums as their predecessors.
-* puts tag __LR:out-of-date__ onto the predecessors
-* removes out-of-date photos when __Keep out of date photos in albums__ is un-checked.
+* puts tag __LR:out-of-date__ on the predecessor
+* removes out-of-date photos if collection configuration __Keep out of date photos in albums__ is un-checked.
 
 ### Remove photos from publishing service
 
@@ -95,7 +95,8 @@ __^!|!$__ excludes all albums which have an exclamation mark at the beginning or
 The __Root Folder for Albums__ is used to define a global folder for all albums in this service. 
 
 The checkbox __Keep out of date photos in albums__ decides if a out-of-date photo is removed from the album.
-Remarks: As it is not possible in applescript to remove media items from an album, the album is deleted an recreated.
+Remarks: In Applescript it is not possible to remove media items from an album therefor, the album is deleted an
+recreated.
 
 ## Use Cases
 
@@ -103,6 +104,8 @@ Remarks: As it is not possible in applescript to remove media items from an albu
 The applescript interface for Photos.app is restricted:
 * It does not support deleting of photos
 * It does not allow put photos into shared albums.
+* It is not possible to remove media items from an album. Therefor, the album is deleted an
+  recreated if __Keep out of date photos in albums__ is unchecked.
 
 ### Update albums
 You must delete "old" photos manually after a re-publish.
