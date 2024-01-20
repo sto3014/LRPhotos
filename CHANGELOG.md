@@ -42,6 +42,7 @@ rendition is marked as skipped.
 * Added service for displaying photo UUID in Photos.
 * Added Lightroom menu action for displaying published photos in Photos.
 * Added Lightroom menu action for displaying published collections in Photos.
+* Added "Photos App" metadata
 
 ### Changed
 

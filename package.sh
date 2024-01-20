@@ -34,7 +34,7 @@ rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowPhoto.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowAlbum.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/PhotosImport.applescript"
 
-cp -R "$SOURCE_DIR_SERVICES/PhotosDisplayUUID.workflow" "$TARGET_DIR_SERVICES/"
+cp -R "$SOURCE_DIR_SERVICES/hbPhotosDisplayUUID.workflow" "$TARGET_DIR_SERVICES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosUtilities/hbPhotosUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbMacRomanUtilities/hbMacRomanUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbStringUtilities/hbStringUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"

@@ -18,18 +18,24 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 ## Installation
 
 ---
-1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/archive/refs/tags/1.0.0.2.zip).
+
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.0.0.0_mac.zip).
 2. Extract the archive in the download folder
-3. Copy plug-in into the configuration folder of Lightroom  
-   Open a terminal window, change to Downloads/LRPhotos-1.0.0.2 and execute install.sh:
+3. Copy plug-in, applescript files and automator workflow into ~/Library  
+   Open a terminal window, change to Downloads/LRPhotos and execute install.sh:
    ```
-   -> ~ cd Downloads/LRPhotos-1.0.0.2
+   -> ~ cd Downloads/LRPhotos
    -> ./install.sh 
     ```
-   Install.sh copies the plug-in into:
-    ```
-    ~/Library/Application Support/Adobe/Lightroom/Modules/LRPhotos.lrplugin
-    ```
+   Install.sh copies the plug-in, the applescript files and the automator workflow into:
+   * ~/Library/Application Support/Adobe/Lightroom/Modules/LRPhotos.lrplugin
+   * ~/Library/Script Libraries
+     * hbPhotosUtilities.scptd
+     * hbMacRomanUtilities.scptd
+     * hbStringUtilities.scptd
+     * hbPhotosServices.scptd
+   * ~/Library/Services
+     * hbPhotosDisplayUUID.workflow
 4. Restart Lightroom
 
 ## Usage
@@ -38,8 +44,14 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 ### Publishing
 The publish process…
 * imports photos into Photos.app
-* sets tag __LR:&lt;name of LR catalog file&gt;__
-* writes Photos.app IDs to Lightroom  metadata field __Photos ID__
+* sets tag
+    * LR:&lt;name of LR catalog file>
+    * album:&lt;name of collection>
+* saves "Photos App" metadata in Lightroom
+    * Lightroom catalog: The name of lightroom catalog
+    * Lightroom ID: The internal Lightroom id
+    * Format: The format (i.e. extension of the Photos file)
+    * Photos UUID: The unique Photos ID
 
 When creating a new publishing service, there are three predefined options which are not default by Adobe:
 * Quality for JPEGs is 85% not 60%
@@ -54,9 +66,13 @@ Of course, you may change these settings for your service definition.
 The re-publishing process…
 * puts re-published photos into the same albums as their predecessors.
 * puts tag __LR:out-of-date__ onto the predecessors
+* removes out-of-date photos when __Keep out of date photos in albums__ is un-checked.
 
 ### Remove photos from publishing service
-The Photos ID is set back, if you remove a photo from the service
+
+* Removes the photo from the Photos album.
+* Set tag __LR:no-longer-published__ to the current media item in Photos if it is no longer used in any album
+* Set back the Photos ID in Lightroom, if the photo is no longer used in any album.
 
 ### Configuration
 The __Use Album__ configuration in the publishing service setup defines the name of the album where photos are imported in.
@@ -77,6 +93,9 @@ For instance, the default regex expression
 __^!|!$__ excludes all albums which have an exclamation mark at the beginning or at the end of their names.
 
 The __Root Folder for Albums__ is used to define a global folder for all albums in this service. 
+
+The checkbox __Keep out of date photos in albums__ decides if a out-of-date photo is removed from the album.
+Remarks: As it is not possible in applescript to remove media items from an album, the album is deleted an recreated.
 
 ## Use Cases
 
