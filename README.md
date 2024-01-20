@@ -44,6 +44,10 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 ### Publishing
 The publish process…
 * imports photos into Photos.app
+    * the file name of the photo will be different from the file name in Lightroom.
+        * The name is set to the photo ID in Lightroom. This ID is displayed also in the metadata of Lightroom.
+        * The suffix reflects the format which is used during publishing. The suffix is displayed also in the metadata
+          of Lightroom.
 * sets tag
     * LR:&lt;name of LR catalog file>
     * album:&lt;name of collection>
