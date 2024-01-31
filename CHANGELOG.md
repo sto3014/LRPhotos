@@ -50,3 +50,9 @@ rendition is marked as skipped.
 
 * Fixed unicode issue with album names
 * Fixed update of albums which are in folders.
+
+## [2.0.0.1] - 2024-01-31
+
+### Fixed
+
+* Fix reset issue for photosId tag

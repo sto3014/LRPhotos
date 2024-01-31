@@ -9,7 +9,7 @@ export SOURCE_DIR=$SCRIPT_DIR/src/main/$PACKAGE_NAME.lrdevplugin
 export SOURCE_DIR_SERVICES=/Users/dieterstockhausen/Projekte/Automation/Services/workflow
 export SOURCE_DIR_SCRIPT_LIBRARIES="/Users/dieterstockhausen/Projekte/Automation/Script Libraries/src"
 export RESOURCE_DIR=$SCRIPT_DIR/res
-export VERSION=2.0.0.0
+export VERSION=2.0.0.1
 #
 # mac
 #

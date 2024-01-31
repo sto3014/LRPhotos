@@ -204,7 +204,7 @@ local function removePhotosID(albumPath)
             logger.trace("Photo: " .. tostring(photo))
             if (photo ~= nil) then
                 logger.trace("PhotosID removed: " .. tokens[4])
-                photo:setPropertyForPlugin(_PLUGIN, 'photosId', "")
+                photo:setPropertyForPlugin(_PLUGIN, 'photosId', nil)
             end
         end
     end)
