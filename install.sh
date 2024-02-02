@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cd "$(dirname "$0")" 
 export SCRIPT_DIR="$(pwd)"
-export VERSION=2.0.0.1
+export VERSION=2.0.0.2
 
 echo copy LRPhotos to ~/Library/...
 cp -R "./Application Support" ~/Library

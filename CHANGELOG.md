@@ -48,11 +48,17 @@ rendition is marked as skipped.
 
 ### Fixed
 
-* Fixed unicode issue with album names
+* Fixed unicode issue with album names.
 * Fixed update of albums which are in folders.
 
 ## [2.0.0.1] - 2024-01-31
 
 ### Fixed
 
-* Fix reset issue for photosId tag
+* Fix reset issue for photosId tag.
+
+## [2.0.0.2] - 2024-02.01
+
+### Changed
+
+* Exchange- and queue-folder are moved to ~/Library/Caches.

@@ -10,7 +10,7 @@ local LrPrefs = import 'LrPrefs'
 local logger = require("Logger")
 
 _G.PLUGIN_ID = "at.homebrew.lrphotos"
-_G.TMP_DIR = LrPathUtils.child(LrPathUtils.parent(os.tmpname()), _G.PLUGIN_ID)
+_G.TMP_DIR = LrPathUtils.child(LrPathUtils.getStandardFilePath("home") .. "/Library/Caches", _G.PLUGIN_ID)
 _G.QUEUE_DIR = LrPathUtils.child(_G.TMP_DIR, "queue")
 
 function init()
