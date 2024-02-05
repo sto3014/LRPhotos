@@ -9,7 +9,7 @@ export SOURCE_DIR=$SCRIPT_DIR/src/main/$PACKAGE_NAME.lrdevplugin
 export SOURCE_DIR_SERVICES=/Users/dieterstockhausen/Projekte/Automation/Services/workflow
 export SOURCE_DIR_SCRIPT_LIBRARIES="/Users/dieterstockhausen/Projekte/Automation/Script Libraries/src"
 export RESOURCE_DIR=$SCRIPT_DIR/res
-export VERSION=2.0.0.2
+export VERSION=2.0.0.3
 #
 # mac
 #
@@ -34,11 +34,10 @@ rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowPhoto.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowAlbum.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/PhotosImport.applescript"
 
-cp -R "$SOURCE_DIR_SERVICES/hbPhotosDisplayUUID.workflow" "$TARGET_DIR_SERVICES/"
-cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosUtilities/hbPhotosUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
-cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbMacRomanUtilities/hbMacRomanUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
-cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbStringUtilities/hbStringUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
-cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosServices/hbPhotosServices.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
+cp -R "$SOURCE_DIR_SERVICES/hbPhotosDisplayID.workflow" "$TARGET_DIR_SERVICES/"
+cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
+cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbMacRomanUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
+cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbStringUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 
 # compile
 #cd "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"

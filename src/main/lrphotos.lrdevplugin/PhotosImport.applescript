@@ -8,9 +8,9 @@ use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
 
-property pPhotosLib : script "hbPhotosUtilities"
-property pMacRomanLib : script "hbMacRomanUtilities"
-property pStringLib : script "hbStringUtilities"
+-- property pPhotosLib : "hbPhotosUtilities"
+-- property pMacRomanLib : "hbMacRomanUtilities"
+-- property pStringLib : "hbStringUtilities"
 
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
@@ -135,7 +135,9 @@ on getPhotoDescriptors(photosContents)
 	set photos to {}
 	set allLines to every paragraph of photosContents
 	repeat with aLine in allLines
-		set aLine to pStringLib's trim(aLine)
+		tell script "hbStringUtilities"
+			set aLine to (remove white space around aLine)
+		end tell
 		log aLine
 		if aLine is not equal to "" then
 			copy aLine to the end of photos
@@ -149,7 +151,9 @@ end getPhotoDescriptors
 on import(photoDescriptors, session)
 	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
-	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, true)
+	tell script "hbPhotosUtilities"
+		set targetAlbum to album by path albumName of session with create if not exists
+	end tell
 	
 	tell application id "com.apple.photos"
 		set importedPhotos to {}
@@ -179,7 +183,9 @@ on import(photoDescriptors, session)
 				if isUpdate is true then
 					set targetPhotos to (every media item whose id is equal to photosId)
 					if (count of targetPhotos) is greater than 0 then
-						tell me to set previousAlbums to pPhotosLib's photosAlbumsUsedByMediaItem(photosId)
+						tell script "hbPhotosUtilities"
+							set previousAlbums to every album containing media item id photosId
+						end tell
 						set theTargetPhoto to item 1 of targetPhotos
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
@@ -219,7 +225,10 @@ on import(photoDescriptors, session)
 			if isUpdate is true then
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
-					tell me to set isValid to not pStringLib's matches(aAlbumName, ignoreByRegex of session)
+					tell script "hbStringUtilities"
+						set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
+					end tell
+					
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
 							try
@@ -272,7 +281,10 @@ on import(photoDescriptors, session)
 		local aAlbumName
 		repeat with aAlbum in previousAlbums
 			set aAlbumName to name of aAlbum
-			tell me to set isValid to not pStringLib's matches(name of aAlbum, ignoreByRegex of session)
+			tell script "hbStringUtilities"
+				set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
+			end tell
+			
 			if isValid is true then
 				if not keepOldPhotos of session then
 					tell me to cleanupAlbum(aAlbum)
@@ -356,7 +368,9 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			set theAlbum to pPhotosLib's photosAlbumGetByPath(albumPath, true)
+			tell script "hbPhotosUtilities"
+				set theAlbum to album by path albumPath with create if not exists
+			end tell
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -410,7 +424,9 @@ on cleanupAlbum(theAlbum)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete theAlbum
-			set theAlbum to pPhotosLib's photosAlbumGetByPath(albumPath, true)
+			tell script "hbPhotosUtilities"
+				set theAlbum to album by path albumPath with create if not exists
+			end tell
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -469,7 +485,9 @@ on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
-	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, false)
+	tell script "hbPhotosUtilities"
+		set targetAlbum to album by path albumName of session without create if not exists
+	end tell
 	if targetAlbum is missing value then
 		return removedPhotos
 	end if
@@ -558,7 +576,9 @@ on updateSessionFile(sessionFile, session)
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
-	set utf8Content to pMacRomanLib's macRomanToUTF8(romanContent)
+	tell script "hbMacRomanUtilities"
+		set utf8Content to transform macroman text romanContent to UTF8
+	end tell
 	write utf8Content to sessionFile
 	close access fileRef
 end updateSessionFile
@@ -590,7 +610,9 @@ on getPublishServiceAlbums(thePhoto)
 	set allPSAlbumNames to getPublishServiceAlbumNames(thePhoto)
 	tell application id "com.apple.photos"
 		local allAlbums
-		tell me to set allAlbums to pPhotosLib's photosAlbumsUsedByMediaItem(get id of thePhoto)
+		tell script "hbPhotosUtilities"
+			set allAlbums to every album containing media item id (get id of thePhoto)
+		end tell
 		repeat with aAlbum in allAlbums
 			repeat with aPSAlbumName in allPSAlbumNames
 				if aPSAlbumName as string is equal to name of aAlbum then
@@ -699,7 +721,9 @@ end _getPathByAlbum
 --  activates import album
 -------------------------------------------------------------------------------
 on spotlightTargetAlbum(session)
-	set targetAlbum to pPhotosLib's photosAlbumGetByPath(albumName of session, false)
+	tell script "hbPhotosUtilities"
+		set targetAlbum to album by path albumName of session without create if not exists
+	end tell
 	tell application id "com.apple.photos"
 		if targetAlbum is not missing value then
 			tell targetAlbum
@@ -712,7 +736,9 @@ end spotlightTargetAlbum
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
-	set targetAlbum to pPhotosLib's photosAlbumGetByPath("/Test/Test3/Test4/Test5/Test6/Yield7", false)
+	tell script "hbPhotosUtilities"
+		set targetAlbum to album by path "/Test/Test3/Test4/Test5/Test6/Yield7" without create if not exists
+	end tell
 	local thePath
 	set thePath to getPathByAlbum(targetAlbum)
 	set dummy to 0
@@ -725,7 +751,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/private/tmp/at.homebrew.lrphotos/Dieses und Dases/Dev/Alb1"}
+		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Tests/Fotos"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

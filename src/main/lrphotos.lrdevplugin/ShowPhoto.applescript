@@ -3,9 +3,9 @@ use scripting additions
 
 on run argv
 	if argv = me then
-		set mediaItemUUID to "4380429F-26A7-48D5-8521-BD4B1B2F7664/L0/001"
+		set mediaItemUUID to "212A2955-EF79-4EE0-B088-C94B62B1F4F9/L0/001"
 	else
 		set mediaItemUUID to first item of argv
 	end if
-	tell script "hbPhotosUtilities" to photosMediaItemDisplay(mediaItemUUID)
+	tell script "hbPhotosUtilities" to spotlight media item by id mediaItemUUID
 end run

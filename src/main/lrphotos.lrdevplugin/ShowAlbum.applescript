@@ -7,5 +7,5 @@ on run argv
 	else
 		set albumPath to first item of argv
 	end if
-	tell script "hbPhotosUtilities" to photosAlbumDisplay(albumPath, true)
+	tell script "hbPhotosUtilities" to spotlight album by path albumPath with create if not exists
 end run
