@@ -20,7 +20,7 @@ local editionDetailsID = "at.homebrew.lreditiondetails"
 
 PhotosPublishTask = {}
 
--- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
@@ -167,7 +167,7 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function setPhotosID(albumPath)
+local function setPhotosID(albumPath, exportContext)
     local activeCatalog = LrApplication.activeCatalog()
     local f = assert(io.open(Utils.getPhotosFile(albumPath), "r"))
 
@@ -181,6 +181,16 @@ local function setPhotosID(albumPath)
             if (photo ~= nil) then
                 logger.trace("PhotosID: " .. tokens[4])
                 photo:setPropertyForPlugin(_PLUGIN, 'photosId', tokens[4])
+                if photo:getPropertyForPlugin(_PLUGIN, 'localId') == nil then
+                    photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
+                end
+                local catName = LrPathUtils.leafName(photo.catalog:getPath())
+                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
+                if photo:getRawMetadata("fileFormat") == "VIDEO" then
+                    photo:setPropertyForPlugin(_PLUGIN, 'format', exportContext.propertyTable.LR_export_videoFormat)
+                else
+                    photo:setPropertyForPlugin(_PLUGIN, 'format', exportContext.propertyTable.LR_format)
+                end
             end
         end
     end)
@@ -275,6 +285,7 @@ local function renderPhotos(exportContext, progressScope)
                 pID = ""
             end
             photoIDs[#photoIDs + 1] = getPhotoDescriptor(photo, pathOrMessage , lrcatName)
+            --[[
             local activeCatalog = LrApplication.activeCatalog()
             activeCatalog:withWriteAccessDo("Set photos ID", function()
                 photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
@@ -282,6 +293,7 @@ local function renderPhotos(exportContext, progressScope)
                 photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
                 photo:setPropertyForPlugin(_PLUGIN, 'format', LrPathUtils.extension(pathOrMessage))
             end)
+            --]]
         end
     end
     logger.trace("PhotosPublishTask.renderPhotos end")
@@ -394,6 +406,8 @@ end
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     logger.trace("PhotosPublishTask.processRenderedPhotos start")
     logger.trace("collection=" .. exportContext.publishedCollectionInfo.name)
+    LrMobdebug.start()
+    LrMobdebug.on()
 
     local albumPath = getFullAlbumPath(
             exportContext.propertyTable.albumBy,
@@ -454,7 +468,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         return
     end
 
-    setPhotosID(albumPath)
+    setPhotosID(albumPath, exportContext)
     recordPhotoIDs(renditions)
     deleteQueueEntry(queueEntry)
     logger.trace("PhotosPublishTask.processRenderedPhotos end")

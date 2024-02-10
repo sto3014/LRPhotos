@@ -47,5 +47,7 @@
 "$$$/Photos/Collection/MissingInPhotos=Missing in Photos"
 "$$$/Photos/Collection/MissingInLightroom=Missing in Lightroom"
 "$$$/Photos/CollectionSet/Photos=Photos"
+"$$$/Photos/MsgError/MissingPhotosFound=^1 published Lightroom photos could not be found in Photos."
+"$$$/Photos/MsgError/AllPhotosFound=All published Lightroom photos were found in Photos."
 
 

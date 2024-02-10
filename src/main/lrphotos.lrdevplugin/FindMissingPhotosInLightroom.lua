@@ -43,7 +43,7 @@ local function processAnswer(maintenanceDir)
 
     local activeCatalog = LrApplication.activeCatalog()
     local f = assert(io.open(maintenanceDir .. "/fromPhotos/Photos.txt"), "r")
-    local photos = {}
+    local missingPhotos = {}
 
     activeCatalog:withWriteAccessDo("Maintenance", function()
 
@@ -56,31 +56,28 @@ local function processAnswer(maintenanceDir)
             local photo = activeCatalog:findPhotoByUuid(lrUUID)
             logger.trace("Photo: " .. tostring(photo))
 
-            if #tokens < 3 then
+            logger.trace("tokens[2]=" .. tostring(tokens[2]))
+            if tokens[2] == "missing" then
                 logger.trace("Photos does not exist in Photos App")
-                photos[#photos + 1] = photo
-            else
-                -- Previous version of Photos has no localID set which is used as filename in Photos
-                if photo:getPropertyForPlugin(_PLUGIN, 'localId') == nil then
-                    local filename = tokens[2]
-                    logger.trace("filename: " .. filename)
-                    logger.trace("Set " .. filename .. " as localId")
-                    photo:setPropertyForPlugin(_PLUGIN, 'localId', filename)
-                end
-                -- Previous version of Photos has no format set
-                if photo:getPropertyForPlugin(_PLUGIN, 'format') == nil then
-                    local format = tokens[3]
-                    logger.trace("format: " .. format)
-                    logger.trace("Set " .. format .. " as format")
-                    photo:setPropertyForPlugin(_PLUGIN, 'format', format)
-                end
+                missingPhotos[#missingPhotos + 1] = photo
             end
 
         end
     end)
     f:close()
-    if #photos > 0 then
-        addToCollection(photos)
+    if #missingPhotos > 0 then
+        addToCollection(missingPhotos)
+        LrDialogs.message(
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/MsgError/MissingPhotosFound=^1 published Lightroom photos could not be found in Photos.", #missingPhotos),
+                "error"
+        )
+    else
+        LrDialogs.message(
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/MsgError/AllPhotosFound=All published Lightroom photos were found in Photos."),
+                "info"
+        )
     end
     logger.trace("processAnswer() end")
 
@@ -91,23 +88,27 @@ end
 local function sendPhotosToApp(action, maintenanceDir)
     logger.trace("sendPhotosToApp() start")
 
-    local command="empty"
-    LrFileUtils.createAllDirectories(maintenanceDir .. "/fromPhotos")
+    local command = ""
     LrFileUtils.delete(maintenanceDir .. "/fromPhotos/photos.txt")
-
---[[
-    if LrFileUtils.exists(LrPathUtils.child(_PLUGIN.path, "PhotosMaintenance/PhotosMaintenance.app")) then
-        command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosMaintenance/PhotosMaintenance.app") .. "\" "
+    logger.trace("1")
+    local exePathDev = _PLUGIN.path .. "/" .. "PhotosMaintenance/PhotosMaintenance.app"
+    local exePathProd = _PLUGIN.path .. "/" .. "PhotosMaintenance.app"
+    logger.trace("exePathDev=" .. tostring(exePathDev))
+    if LrFileUtils.exists(exePathDev) then
+        logger.trace("2")
+        command = "osascript \"" .. exePathDev .. "\" "
                 .. action
                 .. " \"" .. maintenanceDir .. "\""
     else
-        command = "osascript \"" .. LrPathUtils.child(_PLUGIN.path, "PhotosMaintenance.app") .. "\" "
+        logger.trace("3")
+        command = "osascript \"" .. exePathProd .. "\" "
                 .. action
                 .. " \"" .. maintenanceDir .. "\""
     end
-    --]]
-    logger.trace(command)
-    -- local result = LrTasks.execute(command)
+
+    logger.trace("command=" .. tostring(command))
+    local result = LrTasks.execute(command)
+    logger.trace("result=" .. tostring(result))
     logger.trace("sendPhotosToApp() end")
     return result
 end
@@ -123,8 +124,12 @@ local function waitForPhotosApp(maintenanceDir)
     while done == false do
         logger.trace("Photos App still not send an answer.")
         if LrFileUtils.exists(answerFile) then
-            logger.trace("Photos App answer found.")
-            done = true;
+            if LrFileUtils.exists(answerFile .. ".lck") then
+                logger.trace("Photos App is writing the answer.")
+            else
+                logger.trace("Photos App answer found.")
+                done = true;
+            end
         end
         LrTasks.sleep(2)
     end
@@ -192,7 +197,14 @@ local function findMissingReferences(photos)
     Utils.waitForPredecessors(queueEntry)
 
     logger.trace("Send jobfile to app")
-    sendPhotosToApp("photos-references", maintenanceDir)
+    local result = sendPhotosToApp("photos-references", maintenanceDir)
+    if (result ~= 0) then
+        local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
+        LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
+                LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
+        deleteQueueEntry(queueEntry)
+        return
+    end
 
     logger.trace("Wait for Photos app")
     waitForPhotosApp(maintenanceDir)
