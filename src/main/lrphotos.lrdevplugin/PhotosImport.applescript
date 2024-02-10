@@ -404,6 +404,9 @@ on cleanupAlbum(theAlbum)
 		set photoIds to {}
 		repeat with photo in allPhotos
 			set theKeywords to the keywords of photo
+			if theKeywords is missing value then
+				set theKeywords to {}
+			end if
 			set found to false
 			repeat with index from 1 to count of theKeywords
 				if item index of theKeywords is equal to "lr:out-of-date" or item index of theKeywords is equal to "lr:no-longer-published" then
@@ -442,6 +445,9 @@ end cleanupAlbum
 on removeAlbumKeyword(photo, albumName)
 	tell application "Photos"
 		set theseKeywords to the keywords of photo
+		if theseKeywords is missing value then
+			set theseKeywords to {}
+		end if
 		set newKeywords to {}
 		repeat with aKeyword in theseKeywords
 			if aKeyword does not start with "album:" then
@@ -574,7 +580,7 @@ on updateSessionFile(sessionFile, session)
 		"exportDone=" & exportDone of session & linefeed & ¬
 		"ignoreByRegex=" & ignoreByRegex of session & linefeed & ¬
 		"hasErrors=" & hasErrors of session & linefeed & ¬
-		"keepOldPotos=" & keepOldPhotos of session & linefeed & ¬
+		"keepOldPhotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
 	tell script "hbMacRomanUtilities"
 		set utf8Content to transform macroman text romanContent to UTF8
@@ -634,6 +640,9 @@ on getPublishServiceAlbumNames(thePhoto)
 	local psAlbumNames
 	set psAlbumNames to {}
 	tell application id "com.apple.photos" to set currentKeywords to the keywords of thePhoto
+	if currentKeywords is missing value then
+		set currentKeywords to {}
+	end if
 	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "album:"
 	repeat with aKeyword in currentKeywords
@@ -751,7 +760,7 @@ on run argv
 	-- return
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Tests/Fotos"}
+		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Hintergrundbilder *"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

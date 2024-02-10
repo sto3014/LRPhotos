@@ -27,7 +27,7 @@ local PhotosMetadataDefinition = {
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
             browsable = true,
-            readOnly = true,
+            readOnly = false,
         },
         {
             id = 'catalogName',
@@ -35,7 +35,7 @@ local PhotosMetadataDefinition = {
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
             browsable = true,
-            readOnly = true,
+            readOnly = false,
         },
         {
             id = 'format',
@@ -43,7 +43,7 @@ local PhotosMetadataDefinition = {
             dataType = 'string', -- Specifies the data type for this field.
             searchable = true,
             browsable = true,
-            readOnly = true,
+            readOnly = false,
         },
     },
 

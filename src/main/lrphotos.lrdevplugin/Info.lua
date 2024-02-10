@@ -16,4 +16,18 @@ return {
     title = "Photos",  -- this string appears as the export destination
     file = "PhotosServiceProvider.lua",
   },
+  LrLibraryMenuItems = {
+    {
+      title = LOC "$$$/Photos/Menu/Library/ResetAttributes=Reset Photos App Attributes",
+      file = "ResetPhotosAppAttributes.lua",
+    },
+    {
+      title = LOC "$$$/Photos/Menu/Library/MissingInPhotos=Find Photos in Photos App with missing Lightroom Photos",
+      file = "FindMissingPhotosInPhotos.lua",
+    },
+    {
+      title = LOC "$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos",
+      file = "FindMissingPhotosInLightroom.lua",
+    },
+  },
 }

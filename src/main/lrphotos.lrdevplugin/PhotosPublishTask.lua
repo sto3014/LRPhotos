@@ -25,7 +25,6 @@ PhotosPublishTask = {}
  local functions
 -----------------------------------------------------------------------------]]
 --[[---------------------------------------------------------------------------
-f
 -----------------------------------------------------------------------------]]
 local function split (inputstr, sep)
     if sep == nil then
@@ -36,7 +35,6 @@ local function split (inputstr, sep)
         table.insert(t, str)
     end
     return t
-    -----------------------------------------------------------------------------]]
 end
 --[[---------------------------------------------------------------------------
 
@@ -205,6 +203,9 @@ local function removePhotosID(albumPath)
             if (photo ~= nil) then
                 logger.trace("PhotosID removed: " .. tokens[4])
                 photo:setPropertyForPlugin(_PLUGIN, 'photosId', nil)
+                photo:setPropertyForPlugin(_PLUGIN, 'format', nil)
+                photo:setPropertyForPlugin(_PLUGIN, 'localId', nil)
+                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', nil)
             end
         end
     end)

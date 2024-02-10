@@ -5,6 +5,9 @@
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
 local LrApplication = import 'LrApplication'
+local LrTasks = import 'LrTasks'
+
+local logger = require("Logger")
 
 --[[----------------------------------------------------------------------------
 -----------------------------------------------------------------------------]]
@@ -14,7 +17,7 @@ local Utils = {}
 -----------------------------------------------------------------------------]]
 
 function Utils.arraySize(array)
-    count = 0
+    local count = 0
     for _ in pairs(array) do count = count + 1 end
     return count
 end
@@ -104,6 +107,76 @@ function Utils.getQueueEntry()
 end
 --[[----------------------------------------------------------------------------
 -----------------------------------------------------------------------------]]
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
+function Utils.createQueueEntry(comment)
+    local queueEntryPath = LrFileUtils.chooseUniqueFileName(Utils.getQueueEntry())
+    local f = assert(io.open(queueEntryPath , "w"))
+    f:write(comment)
+    f:close()
+    return LrPathUtils.leafName(queueEntryPath)
+end
+--[[---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------]]
+function Utils.waitForPredecessors(queueEntry)
+    logger.trace("waitForPredecessors() start")
+    logger.trace("queueEntry=" .. queueEntry)
+    local done = false
+    while done ~= true do
+        local modDatesToQueueEntry = {}
+        for currentQueueEntry in LrFileUtils.directoryEntries(Utils.getQueueDir()) do
+            local leafName = LrPathUtils.leafName(currentQueueEntry)
+            if (Utils.startsWith(leafName, Utils.getQueueEntryBaseName())) then
+                logger.trace("leafName=" .. leafName)
+                modDatesToQueueEntry[LrFileUtils.fileAttributes(currentQueueEntry).fileModificationDate] = leafName
+            end
+        end
+        local modDates = {}
+        for n in pairs(modDatesToQueueEntry) do
+            table.insert(modDates, n)
+        end
+        table.sort(modDates)
+        local entryToBeProcessed = modDatesToQueueEntry[modDates[1]]
+
+        if (entryToBeProcessed == nil) then
+            logger.trace("No entry found. Should only happen if user delete all files. Proceed processing.")
+            done = true
+        else
+            logger.trace("entryToBeProcessed=" .. entryToBeProcessed)
+            if (entryToBeProcessed == queueEntry) then
+                logger.trace("Processing...")
+                done = true
+            else
+                logger.trace("Waiting...")
+                LrTasks.sleep(2)
+            end
+        end
+    end
+    logger.trace("waitForPredecessors() end")
+end
+
+--[[---------------------------------------------------------------------------
+deleteQueueEntry()
+-----------------------------------------------------------------------------]]
+function Utils.deleteQueueEntry(queueEntry)
+    logger.trace("delete queue-entry \"" .. queueEntry .. "\"")
+    LrFileUtils.delete(LrPathUtils.child(Utils.getQueueDir(), queueEntry))
+end
+--[[---------------------------------------------------------------------------
+-----------------------------------------------------------------------------]]
+function Utils.split (inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
+
 --[[---------------------------------------------------------------------------
 getCatName()
 -----------------------------------------------------------------------------]]
