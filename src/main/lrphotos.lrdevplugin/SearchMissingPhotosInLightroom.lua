@@ -8,7 +8,7 @@ local LrProgressScope = import 'LrProgressScope'
 local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local LrFileUtils = import 'LrFileUtils'
-local LrPathUtils = import 'LrFileUtils'
+
 
 local Utils = require("Utils")
 local logger = require("Logger")
@@ -45,10 +45,18 @@ local function processAnswer(maintenanceDir)
     local f = assert(io.open(maintenanceDir .. "/fromPhotos/Photos.txt"), "r")
     local missingPhotos = {}
 
+    hasError = false
     activeCatalog:withWriteAccessDo("Maintenance", function()
-
         for line in f:lines() do
             logger.trace("Line: " .. line)
+            if string.find(line, "Error", 1, true) ~= nil then
+                LrDialogs.message(
+                        LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+                        LOC("$$$/Photos/MsgError/GeneralErrorMissing=Error while searching for missing references. Message was: ^1", line),
+                        "error")
+                hasError = true
+                return
+            end
             local tokens = Utils.split(line, ":")
             logger.trace("#tokens=" .. #tokens)
             local lrUUID = tokens[1]
@@ -61,20 +69,22 @@ local function processAnswer(maintenanceDir)
                 logger.trace("Photos does not exist in Photos App")
                 missingPhotos[#missingPhotos + 1] = photo
             end
-
         end
     end)
     f:close()
+    if hasError then
+        return
+    end
     if #missingPhotos > 0 then
         addToCollection(missingPhotos)
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
                 LOC("$$$/Photos/MsgError/MissingPhotosFound=^1 published Lightroom photos could not be found in Photos.", #missingPhotos),
                 "error"
         )
     else
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
                 LOC("$$$/Photos/MsgError/AllPhotosFound=All published Lightroom photos were found in Photos."),
                 "info"
         )
@@ -83,7 +93,7 @@ local function processAnswer(maintenanceDir)
 
 end
 --[[---------------------------------------------------------------------------
-
+sendPhotosToApp
 -----------------------------------------------------------------------------]]
 local function sendPhotosToApp(action, maintenanceDir)
     logger.trace("sendPhotosToApp() start")
@@ -114,7 +124,7 @@ local function sendPhotosToApp(action, maintenanceDir)
 end
 
 --[[---------------------------------------------------------------------------
-
+waitForPhotosApp
 -----------------------------------------------------------------------------]]
 local function waitForPhotosApp(maintenanceDir)
     logger.trace("waitForPhotosApp() start")
@@ -138,7 +148,7 @@ local function waitForPhotosApp(maintenanceDir)
 end
 
 --[[---------------------------------------------------------------------------
-findMissingReferences
+createPhotosJobFile
 -----------------------------------------------------------------------------]]
 local function createPhotosJobFile(photos)
     logger.trace("createPhotosJobFile start")
@@ -172,9 +182,9 @@ local function createPhotosJobFile(photos)
     return comDir, toBeProcessed
 end
 --[[---------------------------------------------------------------------------
-findMissingReferences
+searchMissingReferences
 -----------------------------------------------------------------------------]]
-local function findMissingReferences(photos)
+local function searchMissingReferences(photos)
     logger.trace("findMissingReferences start")
 
     local maintenanceDir, toBeProcessed = createPhotosJobFile(photos)
@@ -183,7 +193,7 @@ local function findMissingReferences(photos)
 
     if toBeProcessed == 0 then
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
                 LOC("$$$/Photos/MsgError/NoPhotosFound=No photos found to be processed."),
                 "info"
         )
@@ -200,9 +210,9 @@ local function findMissingReferences(photos)
     local result = sendPhotosToApp("photos-references", maintenanceDir)
     if (result ~= 0) then
         local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
-        LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"),
+        LrDialogs.message(LOC("$$$/Photos/Error/MissingPhotos=Error in Photos app while searching for missing references."),
                 LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
-        deleteQueueEntry(queueEntry)
+        Utils.deleteQueueEntry(queueEntry)
         return
     end
 
@@ -217,26 +227,26 @@ local function findMissingReferences(photos)
     logger.trace("findMissingReferences end")
 end
 --[[---------------------------------------------------------------------------
-findMissingPhotosInLightroom
+searchMissingPhotosInLightroom
 -----------------------------------------------------------------------------]]
-function findMissingPhotosInLightroom(context)
-    logger.trace("findMissingPhotosInLightroom start")
+function searchMissingPhotosInLightroom(context)
+    logger.trace("searchMissingPhotosInLightroom start")
     local activeCatalog = LrApplication.activeCatalog()
     local photos = activeCatalog:getTargetPhotos()
 
     if #photos == 0 then
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
                 LOC("$$$/Photos/MsgInfo/NothingSelected=One or more photos must be selected."),
                 "info"
         )
         logger.trace("No photos selected")
-        logger.trace("findMissingPhotosInLightroom end")
+        logger.trace("searchMissingPhotosInLightroom end")
         return
     end
 
     local result = LrDialogs.confirm(
-            LOC("$$$/Photos/Menu/Library/MissingInLightroom=Find Photos in Lightroom with missing Photos App Photos"),
+            LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
             LOC("$$$/Photos/Msg/MissingInLightroom=Search missing references for ^1 photo(s) in Photos App.", #photos)
     )
 
@@ -251,17 +261,17 @@ function findMissingPhotosInLightroom(context)
         functionContext = context
     })
 
-    findMissingReferences(photos)
+    searchMissingReferences(photos)
 
     progress:done()
-    logger.trace("findMissingPhotosInLightroom end")
+    logger.trace("searchMissingPhotosInLightroom end")
 end
 
 --[[---------------------------------------------------------------------------
 Main function
 -----------------------------------------------------------------------------]]
-LrFunctionContext.callWithContext("FindMissingPhotosInLightroom", function(context)
-    logger.trace("FindMissingPhotosInLightroom start")
-    LrFunctionContext.postAsyncTaskWithContext("findMissingPhotosInLightroom", findMissingPhotosInLightroom)
-    logger.trace("FindMissingPhotosInLightroom end")
+LrFunctionContext.callWithContext("SearchMissingPhotosInLightroom", function(context)
+    logger.trace("SearchMissingPhotosInLightroom start")
+    LrFunctionContext.postAsyncTaskWithContext("searchMissingPhotosInLightroom", searchMissingPhotosInLightroom)
+    logger.trace("SearchMissingPhotosInLightroom end")
 end) -- end main function

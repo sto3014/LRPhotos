@@ -67,4 +67,23 @@ rendition is marked as skipped.
 
 ### Changed
 
-* Refactored AppleScript scripts 
+* Refactored AppleScript scripts
+
+## [2.1.0.0] - 2024-02-11
+
+### Added
+
+* An action has need added that searches for published photos in Lightroom which do not have a corresponded Photos photo.
+* An action has been added that searches for additional photos in Photos that appear to have been published.
+* Added action to clear Photos metadata
+
+### Fixed
+
+* Fixed issue when running multiple jobs.
+* Fixed issue with albums which contains photos without any keywords.
+
+### Changed
+
+* Photos of export format original get "original" as format (metadata).
+* The format is now the export format, not the file extension.
+* Metadata is no longer read-only

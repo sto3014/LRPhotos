@@ -37,7 +37,44 @@ on unlockFile(fileName)
 	set lockFile to POSIX path of fileName & ".lck"
 	do shell script "/bin/rm " & quoted form of lockFile
 end unlockFile
-
+----------------------------------------------------------------------
+-- writeError
+----------------------------------------------------------------------
+on writeError(comDir, errorMessage)
+	local photosFile
+	set photosFile to comDir & "/fromPhotos/photos.txt"
+	set errorMessage to "Error: " & errorMessage
+	lockFile(photosFile)
+	
+	set fileRef to open for access photosFile as «class utf8» with write permission
+	set eof fileRef to 0
+	tell script "hbMacRomanUtilities"
+		set errorMessageUTF8 to transform macroman text errorMessage to UTF8
+	end tell
+	write errorMessageUTF8 to photosFile
+	close access fileRef
+	
+	unlockFile(photosFile)
+	
+end writeError
+----------------------------------------------------------------------
+-- writeExtraInfo
+----------------------------------------------------------------------
+on writeExtraInfo(comDir, extraPhotos)
+	local photosFile
+	set photosFile to comDir & "/fromPhotos/photos.txt"
+	
+	lockFile(photosFile)
+	
+	set fileRef to open for access photosFile as «class utf8» with write permission
+	set eof fileRef to 0
+	
+	write (count of extraPhotos) to photosFile
+	close access fileRef
+	
+	unlockFile(photosFile)
+	
+end writeExtraInfo
 ----------------------------------------------------------------------
 -- writeLightroomReferences
 ----------------------------------------------------------------------
@@ -81,26 +118,22 @@ on readPhotosReferences(comDir)
 	local allLines
 	set allLines to every paragraph of fileContents
 	
-	set currentDelimiter to AppleScript's text item delimiters
+	
 	set AppleScript's text item delimiters to ":"
 	
 	local aLine
 	local aReference
 	repeat with aLine in allLines
-		if (count of aLine) is not equal to 0 then
-			if text item 3 of aLine is missing value then
-				set AppleScript's text item delimiters to currentDelimiter
+		set aReference to text items of aLine
+		set countTokens to count of aReference
+		if countTokens is equal to 1 or countTokens is equal to 3 then
+			set end of photosReferences to aReference
+		else
+			if countTokens is equal to 2 or countTokens is greater than 3 then
 				error "input file " & inputPath & " must have 3 fields per line."
 			end if
-			set aReference to {}
-			set end of aReference to text item 1 of aLine
-			set end of aReference to text item 2 of aLine
-			set end of aReference to text item 3 of aLine
-			set end of photosReferences to aReference
 		end if
 	end repeat
-	
-	set AppleScript's text item delimiters to currentDelimiter
 	
 	return photosReferences
 end readPhotosReferences
@@ -133,37 +166,42 @@ end processPhotosReferences
 ----------------------------------------------------------------------
 -- processLightroomReferences
 ----------------------------------------------------------------------
-on processLightroomReferences(comDir, catalogNames)
-	
-end processLightroomReferences
+on processExtraPhotos(comDir, catalogNames, albumName)
+	set photosReferences to readPhotosReferences(comDir)
+	writeExtraInfo(comDir, {})
+end processExtraPhotos
 ----------------------------------------------------------------------
 -- main
 ----------------------------------------------------------------------
 on run argv
 	if (argv = me) then
-		set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
-		-- set argv to {"lightroom-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "DSTO-v13.lrcat:develope-v13.lrcat"}
+		--set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
+		set argv to {"extra-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "DSTO-v13.lrcat:develope-v13.lrcat", "/Lightroom/Überzählig in Fhotos"}
 	end if
-	
 	if (count of argv) < 2 then
 		display dialog usage
 		return
 	end if
-	
-	if item 1 of argv is equal to "photos-references" then
-		processPhotosReferences(item 2 of argv)
-	else
-		if item 1 of argv is equal to "lightroom-references" then
-			if (count of argv) is not equal to 3 then
+	set cmdDir to item 2 of argv
+	try
+		if item 1 of argv is equal to "photos-references" then
+			processPhotosReferences(cmdDir)
+		else
+			if item 1 of argv is equal to "extra-photos" then
+				if (count of argv) is not equal to 4 then
+					display dialog usage
+					return
+				else
+					processExtraPhotos(cmdDir, item 3 of argv, item 4 of argv)
+				end if
+			else
 				display dialog usage
 				return
-			else
-				processLightroomReferences(item 2 of argv, item 3 of argv)
 			end if
-		else
-			display dialog usage
-			return
 		end if
-	end if
+	on error e
+		writeError(cmdDir, e)
+		return
+	end try
 	
 end run
