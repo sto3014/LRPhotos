@@ -51,7 +51,7 @@ local function processAnswer(maintenanceDir)
             logger.trace("Line: " .. line)
             if string.find(line, "Error", 1, true) ~= nil then
                 LrDialogs.message(
-                        LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+                        LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
                         LOC("$$$/Photos/MsgError/GeneralErrorMissing=Error while searching for missing references. Message was: ^1", line),
                         "error")
                 hasError = true
@@ -78,13 +78,13 @@ local function processAnswer(maintenanceDir)
     if #missingPhotos > 0 then
         addToCollection(missingPhotos)
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
-                LOC("$$$/Photos/MsgError/MissingPhotosFound=^1 published Lightroom photos could not be found in Photos.", #missingPhotos),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
+                LOC("$$$/Photos/MsgError/MissingPhotosFound=^1 published Lightroom photo(s) could not be found in Photos.", #missingPhotos),
                 "error"
         )
     else
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
                 LOC("$$$/Photos/MsgError/AllPhotosFound=All published Lightroom photos were found in Photos."),
                 "info"
         )
@@ -193,7 +193,7 @@ local function searchMissingReferences(photos)
 
     if toBeProcessed == 0 then
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
                 LOC("$$$/Photos/MsgError/NoPhotosFound=No photos found to be processed."),
                 "info"
         )
@@ -236,7 +236,7 @@ function searchMissingPhotosInLightroom(context)
 
     if #photos == 0 then
         LrDialogs.message(
-                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+                LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
                 LOC("$$$/Photos/MsgInfo/NothingSelected=One or more photos must be selected."),
                 "info"
         )
@@ -246,7 +246,7 @@ function searchMissingPhotosInLightroom(context)
     end
 
     local result = LrDialogs.confirm(
-            LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search Photos in Lightroom with missing References"),
+            LOC("$$$/Photos/Menu/Library/MissingInLightroom=Search missing Photos in Photos App"),
             LOC("$$$/Photos/Msg/MissingInLightroom=Search missing references for ^1 photo(s) in Photos App.", #photos)
     )
 

@@ -232,32 +232,12 @@ local function getPhotoDescriptor(photo, photoPath, lrcatName)
     end
     local path = photoPath
 
-    --[[
-    local cameraModel = photo:getFormattedMetadata("cameraModel")
-    if ( cameraModel ~= nil and Utils.startsWith(cameraModel, "iPhone")) then
-        local isHDR = false
-        local keywords = photo:getFormattedMetadata("keywordTags")
-
-        if ( keywords ~=nil) then
-            for token in string.gmatch(keywords, "[^,]+") do
-                local keyword = Utils.trim(token)
-                if ( keyword == "iso_hdr") then
-                    isHDR = true
-                    break
-                end
-            end
-        end
-        if ( isHDR) then
-             path = photo:getRawMetadata("path")
-        end
-    end
-    ]]--
     local destPath = LrPathUtils.addExtension(LrPathUtils.child(LrPathUtils.parent(path), tostring(photo.localIdentifier)), LrPathUtils.extension(path))
     if LrFileUtils.move(path, destPath) then
         logger.trace("Rename " .. path .. " to " .. destPath)
         return destPath .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
     else
-        logger.error("File " .. path .. " could not be renamed to " .. destPath)
+        logger.trace("File " .. path .. " could not be renamed to " .. destPath)
         return path .. ":" .. photo:getRawMetadata("uuid") .. ":" .. lrcatName .. ":" .. pID
     end
 
@@ -266,7 +246,7 @@ end
 
 -----------------------------------------------------------------------------]]
 local function renderPhotos(exportContext, progressScope)
-    local photoIDs = {}
+    local exportedPhotos = {}
     local renditions = {}
     logger.trace("PhotosPublishTask.renderPhotos start")
     for i, rendition in exportContext:renditions { stopIfCanceled = true } do
@@ -284,20 +264,11 @@ local function renderPhotos(exportContext, progressScope)
             if (pID == nil) then
                 pID = ""
             end
-            photoIDs[#photoIDs + 1] = getPhotoDescriptor(photo, pathOrMessage , lrcatName)
-            --[[
-            local activeCatalog = LrApplication.activeCatalog()
-            activeCatalog:withWriteAccessDo("Set photos ID", function()
-                photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
-                local catName = LrPathUtils.leafName(photo.catalog:getPath())
-                photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
-                photo:setPropertyForPlugin(_PLUGIN, 'format', LrPathUtils.extension(pathOrMessage))
-            end)
-            --]]
+            exportedPhotos[#exportedPhotos + 1] = { photo = photo, path = pathOrMessage, catName = lrcatName }
         end
     end
     logger.trace("PhotosPublishTask.renderPhotos end")
-    return renditions, photoIDs
+    return renditions, exportedPhotos
 end
 --[[---------------------------------------------------------------------------
 
@@ -434,7 +405,17 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     }
 
     -- Render the photos
-    local renditions, photoIDs = renderPhotos(exportContext, progressScope)
+    local renditions, exportedPhotos = renderPhotos(exportContext, progressScope)
+
+    -- We must wait for the previous import has finished
+    -- Only then will we have the newly generated photo IDs available for the nest steps.
+    local queueEntry = createQueueEntry("Publish to album " .. albumPath)
+    waitForPredecessors(queueEntry)
+
+    local photoIDs = {}
+    for _, exportedPhoto in ipairs(exportedPhotos) do
+        photoIDs[#photoIDs + 1] = getPhotoDescriptor(exportedPhoto.photo, exportedPhoto.path, exportedPhoto.catName)
+    end
 
     writeSessionFile(
             albumPath,
@@ -444,10 +425,9 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             exportContext.propertyTable.keepOldPhotos
     )
 
+
     writePhotosFile(photoIDs, albumPath)
 
-    local queueEntry = createQueueEntry("Publish to album " .. albumPath)
-    waitForPredecessors(queueEntry)
 
     -- Import photos in Photos app
     local result = sendPhotosToApp(albumPath)
@@ -467,7 +447,6 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
 
         return
     end
-
     setPhotosID(albumPath, exportContext)
     recordPhotoIDs(renditions)
     deleteQueueEntry(queueEntry)
@@ -546,6 +525,9 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
                         LOC("$$$/Photos/Error/PhotoNotFoundByPhotosID=Photo could not be found by its Photo-app UID: \"^1\".", lrUUID), "critical")
             else
                 local photosID = PhotosAPI.getPhotosId(photo)
+                if photosID == nil then
+                    photosID = "n.a."
+                end
                 logger.trace("photo=" .. tostring(photo))
                 photoIDs[i] = "n.a." .. ":" .. lrUUID .. ":" .. catName .. ":" .. photosID
             end

@@ -12,6 +12,7 @@ local logger = require("Logger")
 _G.PLUGIN_ID = "at.homebrew.lrphotos"
 _G.TMP_DIR = LrPathUtils.child(LrPathUtils.getStandardFilePath("home") .. "/Library/Caches", _G.PLUGIN_ID)
 _G.QUEUE_DIR = LrPathUtils.child(_G.TMP_DIR, "queue")
+_G.MAINTENANCE_DIR = LrPathUtils.child(_G.TMP_DIR, "maintenance")
 
 function init()
     logger.trace("init start")
@@ -24,6 +25,7 @@ function init()
 
     logger.trace("tmpDir=" .. _G.TMP_DIR)
     logger.trace("queueDir=" .. _G.QUEUE_DIR)
+    logger.trace("maintenanceDir=" .. _G.MAINTENANCE_DIR)
 
     if (not LrFileUtils.exists(_G.TMP_DIR)) then
         logger.trace("Create directory " .. _G.TMP_DIR)
@@ -36,9 +38,19 @@ function init()
         LrFileUtils.delete(_G.QUEUE_DIR)
     end
 
-    if (not LrFileUtils.exists(_G.QUEUE_DIR)) then
-        logger.trace("Create directory " .. _G.QUEUE_DIR)
-        LrFileUtils.createAllDirectories(_G.QUEUE_DIR)
+    logger.trace("Create directory " .. _G.QUEUE_DIR)
+    LrFileUtils.createAllDirectories(_G.QUEUE_DIR)
+
+    local fromLightroomDir = _G.MAINTENANCE_DIR .. "/FromLightroom"
+    if not LrFileUtils.exists(fromLightroomDir) then
+        logger.trace("Create directory " .. fromLightroomDir)
+        LrFileUtils.createAllDirectories(fromLightroomDir)
+    end
+
+    local fromPhotosDir = _G.MAINTENANCE_DIR .. "/FromPhotos"
+    if not LrFileUtils.exists(fromPhotosDir) then
+        logger.trace("Create directory " .. fromPhotosDir)
+        LrFileUtils.createAllDirectories(fromPhotosDir)
     end
 
     logger.trace("init end")

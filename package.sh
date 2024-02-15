@@ -6,10 +6,10 @@ export TARGET_DIR_MAC="$SCRIPT_DIR/target/mac/LRPhotos/Application Support/Adobe
 export TARGET_DIR_SERVICES="$SCRIPT_DIR/target/mac/LRPhotos/Services"
 export TARGET_DIR_SCRIPT_LIBRARIES="$SCRIPT_DIR/target/mac/LRPhotos/Script Libraries"
 export SOURCE_DIR=$SCRIPT_DIR/src/main/$PACKAGE_NAME.lrdevplugin
-export SOURCE_DIR_SERVICES=/Users/dieterstockhausen/Projekte/Automation/Services/workflow
+export SOURCE_DIR_SERVICES=/Users/dieterstockhausen/Projekte/Automation/Services
 export SOURCE_DIR_SCRIPT_LIBRARIES="/Users/dieterstockhausen/Projekte/Automation/Script Libraries/src"
 export RESOURCE_DIR=$SCRIPT_DIR/res
-export VERSION=2.0.0.3
+export VERSION=2.1.0.0
 #
 # mac
 #
@@ -28,13 +28,16 @@ mkdir -p "$TARGET_DIR_SERVICES"
 cp install.sh "$SCRIPT_DIR/target/mac/LRPhotos"
 cp $SOURCE_DIR/* "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 cp -R $SOURCE_DIR/PhotosImport/PhotosImport.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
+cp -R $SOURCE_DIR/PhotosMaintenance/PhotosMaintenance.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 cp -R $SOURCE_DIR/ShowAlbum/ShowAlbum.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
 cp -R $SOURCE_DIR/ShowPhoto/ShowPhoto.app "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
+rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/PhotosMaintenance.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowPhoto.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/ShowAlbum.applescript"
 rm "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin/PhotosImport.applescript"
 
-cp -R "$SOURCE_DIR_SERVICES/hbPhotosDisplayID.workflow" "$TARGET_DIR_SERVICES/"
+cp -R "$SOURCE_DIR_SERVICES/src/hbPhotosServices.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
+cp -R "$SOURCE_DIR_SERVICES/workflow/hbPhotosDisplayID.workflow" "$TARGET_DIR_SERVICES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbMacRomanUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbStringUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"

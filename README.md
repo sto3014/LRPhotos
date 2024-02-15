@@ -35,8 +35,12 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
      * hbStringUtilities.scptd
      * hbPhotosServices.scptd
    * ~/Library/Services
-     * hbPhotosDisplayUUID.workflow
+       * hbPhotosDisplayID.workflow
 4. Restart Lightroom
+
+Adobe Lightroom Classic needs to access System Events using Apple Script. When you try to access the Photos app for the
+first time, the system will ask for permission.
+sudo tccutil reset AppleEvents com.adobe.LightroomClassicCC7
 
 ## Usage
 
