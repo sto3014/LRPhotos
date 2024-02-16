@@ -7,6 +7,7 @@
 use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
+use script "hbLogger"
 
 -- property pPhotosLib : "hbPhotosUtilities"
 -- property pMacRomanLib : "hbMacRomanUtilities"
@@ -15,6 +16,7 @@ use framework "Foundation"
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
 property inputEncoding : "UTF-8"
+
 -------------------------------------------------------------------------------
 -- Extract the album name from the session file
 -------------------------------------------------------------------------------
@@ -756,21 +758,29 @@ end testImport
 -- Run the import script
 -------------------------------------------------------------------------------
 on run argv
-	-- testImport()
-	-- return
+	set logFile to ((path to documents folder) as Unicode text) & "LrClassicLogs:PhotosServiceProviderScript.log"
+	enable logging to file logFile
+	log message "PhotosImport start"
 	
 	if (argv = me) then
 		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Hintergrundbilder *"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
+	log message "tempFolder=" & tempFolder
 	
-	set sessionFile to POSIX file (tempFolder & "/session.txt")
-	open for access sessionFile
-	local sessionContents
-	set sessionContents to (read sessionFile as «class utf8»)
-	close access sessionFile
-	
+	try
+		set sessionFile to tempFolder & "/session.txt"
+		log message "sessionFile=" & sessionFile
+		
+		open for access sessionFile
+		local sessionContents
+		set sessionContents to (read sessionFile as «class utf8»)
+		close access sessionFile
+	on error e
+		log message e as severe
+		return
+	end try
 	local session
 	set session to getSession(sessionContents)
 	set hasErrors of session to false
@@ -779,6 +789,8 @@ on run argv
 			error "Mode is not set."
 		else
 			set photosFile to tempFolder & "/photos.txt"
+			log message "photosFile=" & photosFile
+			
 			open for access photosFile as «class utf8»
 			set photosContents to (read photosFile)
 			close access photosFile
@@ -801,6 +813,7 @@ on run argv
 			end if
 		end if
 	on error e
+		log message e as severe
 		set hasErrors of session to true
 		set errorMsg of session to e
 		updateSessionFile(sessionFile, session)
