@@ -151,14 +151,17 @@ end getPhotoDescriptors
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
+	log message "import() start"
 	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
-	tell script "hbPhotosUtilities"
-		set targetAlbum to album by path albumName of session with create if not exists
-	end tell
 	
 	tell application id "com.apple.photos"
+		tell script "hbPhotosUtilities"
+			set targetAlbum to album by path albumName of session with create if not exists
+		end tell
+		log message "targetAlbum=" & albumName of session
 		set importedPhotos to {}
+		log message "Start import of " & (count of photoDescriptors) & " photos"
 		
 		repeat with aPhotoDescriptor in photoDescriptors
 			-- the posix file path
@@ -179,16 +182,19 @@ on import(photoDescriptors, session)
 					set isUpdate to true
 				end if
 			end try
-			
+			log message "Start import of " & thePhotoFile
+			log message "update=" & isUpdate
 			set previousAlbums to {}
 			try
 				if isUpdate is true then
 					set targetPhotos to (every media item whose id is equal to photosId)
 					if (count of targetPhotos) is greater than 0 then
+						log message "predecessor found"
 						tell script "hbPhotosUtilities"
 							set previousAlbums to every album containing media item id photosId
 						end tell
 						set theTargetPhoto to item 1 of targetPhotos
+						log message "set predecessor out-of-date"
 						-- set the photo out-of-date
 						set newKeywords to {"lr:out-of-date"}
 						set theseKeywords to the keywords of theTargetPhoto
@@ -199,6 +205,7 @@ on import(photoDescriptors, session)
 						end if
 					else
 						-- happens if photos were deleted
+						log message "predecessor not found" as alarm
 						set isUpdate to false
 					end if
 				end if
@@ -210,6 +217,7 @@ on import(photoDescriptors, session)
 			try
 				log "The file: " & thePhotoFile
 				local newPhotos
+				log message "import " & thePhotoFile
 				tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
 				if targetAlbum is missing value then
 					-- on update, the standard album must me ignored.
@@ -225,8 +233,10 @@ on import(photoDescriptors, session)
 			--
 			-- put it into the previous albums			
 			if isUpdate is true then
+				log message "update all albums"
 				repeat with aAlbum in previousAlbums
 					set aAlbumName to name of aAlbum
+					log message "aAlbumName=" & aAlbumName
 					tell script "hbStringUtilities"
 						set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
 					end tell
@@ -234,6 +244,7 @@ on import(photoDescriptors, session)
 					if isValid is true then
 						repeat with newPhoto2 in newPhotos
 							try
+								log message "set album keyword " & "album:" & aAlbumName & " on new photo"
 								set newKeywords2 to {"album:" & aAlbumName}
 								set theseKeywords2 to the keywords of newPhoto2
 								if theseKeywords2 is missing value then
@@ -245,22 +256,27 @@ on import(photoDescriptors, session)
 								error "Can't add new album tag album:" & aAlbumName & " on existing photos. Error was: " & e
 							end try
 							try
+								log message "add new photo to album"
 								add newPhotos to aAlbum
 							on error e
 								error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
 							end try
 							
 						end repeat
+					else
+						log message "album is excluded because of regex " & ignoreByRegex of session
 					end if
 				end repeat
 			end if
 			--
 			-- Update metadata
 			try
+				log message "update target album info on new photo"
 				if (count of newPhotos) is greater than 0 then
 					-- set the name of the LR catalog file
 					set targetAlbumName to name of targetAlbum
-					set newKeywords to {"lr:" & lrCat & ".lrcat", "album:" & targetAlbumName}
+					log message "set new keywords " & "lr:" & lrCat & ".lrcat"
+					set newKeywords to {"lr:" & lrCat & ".lrcat"}
 					set theNewPhoto to item 1 of newPhotos
 					set theseKeywords to the keywords of theNewPhoto
 					if theseKeywords is missing value then
@@ -277,25 +293,25 @@ on import(photoDescriptors, session)
 			on error e
 				error "Can't keywords on imported photo. Error was: " & e
 			end try
-		end repeat
-		--
-		
-		local aAlbumName
-		repeat with aAlbum in previousAlbums
-			set aAlbumName to name of aAlbum
-			tell script "hbStringUtilities"
-				set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
-			end tell
-			
-			if isValid is true then
-				if not keepOldPhotos of session then
-					tell me to cleanupAlbum(aAlbum)
+			local aAlbumName
+			repeat with aAlbum in previousAlbums
+				set aAlbumName to name of aAlbum
+				tell script "hbStringUtilities"
+					set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
+				end tell
+				
+				if isValid is true then
+					if not keepOldPhotos of session then
+						log message "cleanup album " & aAlbumName
+						tell me to cleanupAlbum(aAlbum)
+					end if
 				end if
-			end if
+			end repeat
+			delay 2
 		end repeat
-		delay 2
 	end tell
 	set AppleScript's text item delimiters to currentDelimiter
+	log message "import() end"
 	return importedPhotos
 end import
 -------------------------------------------------------------------------------
@@ -389,6 +405,7 @@ end removePhotosFromAlbum
 -- Removes photos from a single album which are out of date or no onger published
 -------------------------------------------------------------------------------
 on cleanupAlbum(theAlbum)
+	log message "cleanupAlbum() start"
 	tell application id "com.apple.photos"
 		if theAlbum is missing value then
 			return missing value
@@ -404,6 +421,8 @@ on cleanupAlbum(theAlbum)
 		end if
 		set allPhotos to (get media items of theAlbum)
 		set photoIds to {}
+		log message "get for all photos that should be kept in album"
+		log message "count photos: " & (count of allPhotos)
 		repeat with photo in allPhotos
 			set theKeywords to the keywords of photo
 			if theKeywords is missing value then
@@ -427,12 +446,17 @@ on cleanupAlbum(theAlbum)
 			set end of photosToBeKept to item 1 of photos
 		end repeat
 		
+		log message "count photos to keep: " & (count of photosToBeKept)
+		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
+			log message "delete album " & name of theAlbum
 			delete theAlbum
+			log message "recreate album"
 			tell script "hbPhotosUtilities"
 				set theAlbum to album by path albumPath with create if not exists
 			end tell
 			if (count of photosToBeKept) is greater than 0 then
+				log message "add photos to recreated album"
 				add photosToBeKept to theAlbum
 			end if
 		end if
@@ -440,6 +464,8 @@ on cleanupAlbum(theAlbum)
 		return theAlbum
 		
 	end tell
+	log message "cleanupAlbum() end"
+	
 end cleanupAlbum
 -------------------------------------------------------------------------------
 -- removeAlbumKeyword( photo, albumName )
@@ -758,9 +784,9 @@ end testImport
 -- Run the import script
 -------------------------------------------------------------------------------
 on run argv
-	set logFile to ((path to documents folder) as Unicode text) & "LrClassicLogs:PhotosServiceProviderScript.log"
+	set logFile to ((path to documents folder) as Unicode text) & "LrClassicLogs:PhotosServiceProvider.log"
 	enable logging to file logFile
-	log message "PhotosImport start"
+	log message "PhotosImport.app start"
 	
 	if (argv = me) then
 		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Hintergrundbilder *"}
@@ -817,11 +843,13 @@ on run argv
 		set hasErrors of session to true
 		set errorMsg of session to e
 		updateSessionFile(sessionFile, session)
+		log message "PhotosImport.app end"
 		return
 	end try
 	--
 	spotlightTargetAlbum(session)
 	
 	updateSessionFile(sessionFile, session)
+	log message "PhotosImport.app end"
 	
 end run

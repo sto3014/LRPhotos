@@ -124,8 +124,8 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function waitForPhotosApp(albumPath)
-    logger.trace("PhotosPublishTask.waitForPhotosApp() start")
+local function getAnswer(albumPath)
+    logger.trace("getAnswer() start")
     -- Wait for the import to be done
     local done = false
     local hasErrors = false
@@ -136,12 +136,12 @@ local function waitForPhotosApp(albumPath)
         local f = assert(io.open(Utils.getSessionFile(albumPath), "r"))
         for line in f:lines() do
             if string.find(line, 'exportDone=true') then
-                logger.trace("waiting..." .. line)
+                -- logger.trace("waiting..." .. line)
                 done = true
                 break
             else
                 if string.find(line, 'hasErrors=true') then
-                    logger.trace("waiting..." .. line)
+                    -- logger.trace("waiting..." .. line)
                     hasErrors = true
                 else
                     if string.find(line, 'errorMsg') then
@@ -151,7 +151,7 @@ local function waitForPhotosApp(albumPath)
                             -- todo check if unicode or not
                             --errorMsg = string.toutf8_mac(string.sub(line, 10))
                             errorMsg = string.sub(line, 10)
-                            logger.trace("waiting...errorMsg=" .. errorMsg)
+                            -- logger.trace("waiting...errorMsg=" .. errorMsg)
                             done = true
                         end
                     end
@@ -160,7 +160,7 @@ local function waitForPhotosApp(albumPath)
         end
         f:close()
     end
-    logger.trace("PhotosPublishTask.waitForPhotosApp() end")
+    logger.trace("getAnswer() end")
     return hasErrors, errorMsg
 end
 
@@ -439,8 +439,7 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
         return
     end
 
-    -- Wait till photos are imported by reading the session file
-    local hasErrors, errorMsg = waitForPhotosApp(albumPath)
+    local hasErrors, errorMsg = getAnswer(albumPath)
     if (hasErrors) then
         LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
         deleteQueueEntry(queueEntry)
@@ -547,7 +546,7 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
             return
         end
 
-    local hasErrors, errorMsg = waitForPhotosApp(albumPath)
+    local hasErrors, errorMsg = getAnswer(albumPath)
         if (hasErrors) then
             LrDialogs.message(LOC("$$$/Photos/Error/Import=Error while importing photos"), LOC("$$$/Photos/PlaceHolder=^1", errorMsg), "critical")
         end
