@@ -77,6 +77,7 @@ on getMode(sessionContents)
 	end repeat
 	return mode
 end getMode
+
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
@@ -134,184 +135,264 @@ end getSession
 --   image posix file path : LR photo uuid : name of LR catalog file : Photos photo ID
 -------------------------------------------------------------------------------
 on getPhotoDescriptors(photosContents)
-	set photos to {}
+	set photoDescriptors to {}
 	set allLines to every paragraph of photosContents
+	set AppleScript's text item delimiters to ":"
+	
 	repeat with aLine in allLines
 		tell script "hbStringUtilities"
 			set aLine to (remove white space around aLine)
 		end tell
 		log aLine
 		if aLine is not equal to "" then
-			copy aLine to the end of photos
+			set tokens to text items of aLine
+			set photoDescriptor to {imagefile:"", lrId:"", lrCat:"", photosId:""} as record
+			set imagefile of photoDescriptor to item 1 of tokens
+			set lrId of photoDescriptor to item 2 of tokens
+			set lrCat of photoDescriptor to item 3 of tokens
+			if (count of tokens) is equal to 4 then
+				set photosId of photoDescriptor to text item 4 of aLine
+			end if
+			
+			copy photoDescriptor to the end of photoDescriptors
 		end if
 	end repeat
-	return photos
+	
+	set AppleScript's text item delimiters to ""
+	return photoDescriptors
 end getPhotoDescriptors
+
+-------------------------------------------------------------------------------
+-- getPhotoById()
+-------------------------------------------------------------------------------
+on getPhotoById(theId)
+	set thePhote to missing value
+	try
+		tell application "Photos" to set thePhoto to media item id theId
+	on error
+		return missing value
+	end try
+	return thePhoto
+end getPhotoById
+-------------------------------------------------------------------------------
+-- setOutOfDate(thePhoto)
+-------------------------------------------------------------------------------
+on setKeywords(thePhoto, newKeywords)
+	tell application "Photos"
+		set theseKeywords to the keywords of thePhoto
+		if theseKeywords is missing value then
+			set keywords of thePhoto to newKeywords
+		else
+			set keywords of thePhoto to (theseKeywords & newKeywords)
+		end if
+	end tell
+end setKeywords
+-------------------------------------------------------------------------------
+-- importPhoto
+-------------------------------------------------------------------------------
+on importPhoto(imagefile)
+	set aliasPhotoFile to {POSIX file imagefile as alias}
+	tell application "Photos"
+		set newPhotos to import aliasPhotoFile with skip check duplicates
+	end tell
+	return first item of newPhotos
+end importPhoto
+-------------------------------------------------------------------------------
+-- getCurrentAlbums
+-------------------------------------------------------------------------------
+on getCurrentAlbums(photosId, ignoreByRegex)
+	local allCurrentAlbums
+	local currentAlbums
+	local aAlbum
+	set currentAlbums to {}
+	tell script "hbPhotosUtilities"
+		set allCurrentAlbums to (every album containing media item id photosId)
+	end tell
+	tell application "Photos"
+		repeat with aAlbum in allCurrentAlbums
+			set aAlbumName to name of aAlbum
+			tell script "hbStringUtilities"
+				set isValid to not (regex expression ignoreByRegex matches aAlbumName)
+			end tell
+			if isValid then
+				copy aAlbum to the end of currentAlbums
+			end if
+		end repeat
+	end tell
+	return currentAlbums
+end getCurrentAlbums
+-------------------------------------------------------------------------------
+-- getCurrentAlbums
+-------------------------------------------------------------------------------
+on appendAlbumsToList(targetList, source)
+	local source
+	local targetList
+	tell application "Photos"
+		if class of source is equal to list then
+			repeat with sourceItem in source
+				set found to false
+				repeat with targetItem in targetList
+					if id of targetItem is equal to id of sourceItem then
+						set found to true
+						exit repeat
+					end if
+				end repeat
+				if not found then
+					copy sourceItem to the end of targetList
+				end if
+			end repeat
+		else
+			set found to false
+			local targetItem
+			repeat with targetItem in targetList
+				if id of targetItem is equal to id of source then
+					set found to true
+					exit repeat
+				end if
+			end repeat
+			if not found then
+				copy source to the end of targetList
+			end if
+		end if
+	end tell
+	return targetList
+end appendAlbumsToList
 -------------------------------------------------------------------------------
 -- Import exported photos in a new iPhoto album if needed
 -------------------------------------------------------------------------------
 on import(photoDescriptors, session)
 	log message "import() start"
-	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to ":"
 	
-	tell application id "com.apple.photos"
-		tell script "hbPhotosUtilities"
-			set targetAlbum to album by path albumName of session with create if not exists
-		end tell
+	tell application "Photos"
 		log message "targetAlbum=" & albumName of session
+		try
+			tell script "hbPhotosUtilities"
+				set targetAlbum to album by path albumName of session with create if not exists
+			end tell
+		on error e
+			error "Album " & albumName of session & " could not be found or created. Error was: " & e
+		end try
+		
 		set importedPhotos to {}
 		log message "Start import of " & (count of photoDescriptors) & " photos"
 		
-		repeat with aPhotoDescriptor in photoDescriptors
-			-- the posix file path
-			local thePhotoFile
-			set thePhotoFile to text item 1 of aPhotoDescriptor
-			-- the LR id. Not used here, but necessary for the way back to LR
-			local lrId
-			set lrId to text item 2 of aPhotoDescriptor
-			-- used as keyword
-			local lrCat
-			set lrCat to text item 3 of aPhotoDescriptor
-			-- if exists a Photos id, it is an update.
-			set isUpdate to false
-			try
-				local photosId
-				set photosId to text item 4 of aPhotoDescriptor
-				if photosId is not equal to "" then
-					set isUpdate to true
-				end if
-			end try
-			log message "Start import of " & thePhotoFile
+		local allChangedAlbums
+		set allChangedAlbums to {}
+		
+		repeat with photoDescriptor in photoDescriptors
+			log message "Start import of " & imagefile of photoDescriptor
+			
+			set isUpdate to true
+			if photosId of photoDescriptor is equal to "" then
+				set isUpdate to false
+			end if
 			log message "update=" & isUpdate
-			set previousAlbums to {}
+			
+			local currentAlbums
+			set currentAlbums to {}
+			--
+			-- if is update 
+			-- 		get all albums that uses the current photo 
+			-- 		set the current photo to out of date
+			--
 			try
 				if isUpdate is true then
-					set targetPhotos to (every media item whose id is equal to photosId)
-					if (count of targetPhotos) is greater than 0 then
-						log message "predecessor found"
-						tell script "hbPhotosUtilities"
-							set previousAlbums to every album containing media item id photosId
-						end tell
-						set theTargetPhoto to item 1 of targetPhotos
-						log message "set predecessor out-of-date"
-						-- set the photo out-of-date
-						set newKeywords to {"lr:out-of-date"}
-						set theseKeywords to the keywords of theTargetPhoto
-						if theseKeywords is missing value then
-							set keywords of theTargetPhoto to newKeywords
-						else
-							set keywords of theTargetPhoto to (theseKeywords & newKeywords)
-						end if
-					else
-						-- happens if photos were deleted
-						log message "predecessor not found" as alarm
+					tell me to set currentPhoto to getPhotoById(photosId of photoDescriptor)
+					if currentPhoto is missing value then
+						-- happens if the photo was deleted in Photos
+						log message "no current photo found" as alarm
 						set isUpdate to false
+					else
+						log message "current photo found"
+						tell me to set currentAlbums to getCurrentAlbums(photosId of photoDescriptor, ignoreByRegex of session)
+						log message "set predecessor to out of date"
+						tell me to setKeywords(currentPhoto, {"lr:out-of-date"})
 					end if
 				end if
 			on error e
-				error "Can't get all albums for photoID " & photosId & ". Error was " & e
+				error "Can't get all albums for photoID " & photosId of photoDescriptor & ". Error was " & e
 			end try
 			--
-			-- now we import the LR photo
+			-- Import the LR photo
+			--
 			try
-				log "The file: " & thePhotoFile
-				local newPhotos
-				log message "import " & thePhotoFile
-				tell me to set aliasPhotoFile to {POSIX file thePhotoFile as alias}
-				if targetAlbum is missing value then
-					-- on update, the standard album must me ignored.
-					-- later it will  added to the albums of the previous photo version
-					set newPhotos to import aliasPhotoFile with skip check duplicates
-				else
-					-- if new, it goes into the standard album
-					set newPhotos to import aliasPhotoFile into targetAlbum with skip check duplicates
-				end if
+				log message "import " & imagefile of photoDescriptor
+				tell me to set newPhoto to importPhoto(imagefile of photoDescriptor)
 			on error e
 				error "Import of photos failed. Error was: " & e
 			end try
+			
+			-- For more cleaness we create a new list of all albums
+			local newAlbums
+			set newAlbums to currentAlbums
+			tell me to set newAlbums to appendAlbumsToList(newAlbums, targetAlbum)
 			--
-			-- put it into the previous albums			
-			if isUpdate is true then
-				log message "update all albums"
-				repeat with aAlbum in previousAlbums
-					set aAlbumName to name of aAlbum
-					log message "aAlbumName=" & aAlbumName
-					tell script "hbStringUtilities"
-						set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
-					end tell
-					
-					if isValid is true then
-						repeat with newPhoto2 in newPhotos
-							try
-								log message "set album keyword " & "album:" & aAlbumName & " on new photo"
-								set newKeywords2 to {"album:" & aAlbumName}
-								set theseKeywords2 to the keywords of newPhoto2
-								if theseKeywords2 is missing value then
-									set keywords of newPhoto2 to newKeywords2
-								else
-									set keywords of newPhoto2 to (theseKeywords2 & newKeywords2)
-								end if
-							on error e
-								error "Can't add new album tag album:" & aAlbumName & " on existing photos. Error was: " & e
-							end try
-							try
-								log message "add new photo to album"
-								add newPhotos to aAlbum
-							on error e
-								error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
-							end try
-							
-						end repeat
-					else
-						log message "album is excluded because of regex " & ignoreByRegex of session
-					end if
-				end repeat
-			end if
+			-- Add new photo to all albums	(current ones and the targeAlbum)
+			--		
+			log message "update all albums"
+			repeat with aAlbum in newAlbums
+				set aAlbumName to name of aAlbum
+				log message "aAlbumName=" & aAlbumName
+				try
+					log message "set album keyword " & "album:" & aAlbumName & " on new photo"
+					tell me to setKeywords(newPhoto, {"album:" & aAlbumName})
+				on error e
+					error "Can't add new album tag album:" & aAlbumName & " on existing photos. Error was: " & e
+				end try
+				try
+					log message "add new photo to album"
+					set newPhotoList to {}
+					copy newPhoto to end of newPhotoList
+					add newPhotoList to aAlbum
+				on error e
+					error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
+				end try
+			end repeat
+			-- 
+			-- Add catalog keyword to new photos 
 			--
-			-- Update metadata
 			try
 				log message "update target album info on new photo"
-				if (count of newPhotos) is greater than 0 then
-					-- set the name of the LR catalog file
-					set targetAlbumName to name of targetAlbum
-					log message "set new keywords " & "lr:" & lrCat & ".lrcat"
-					set newKeywords to {"lr:" & lrCat & ".lrcat"}
-					set theNewPhoto to item 1 of newPhotos
-					set theseKeywords to the keywords of theNewPhoto
-					if theseKeywords is missing value then
-						set keywords of theNewPhoto to newKeywords
-					else
-						set keywords of theNewPhoto to (theseKeywords & newKeywords)
-					end if
-					-- store the id for LR
-					set photosId to get the id of theNewPhoto
-					set newEntry to thePhotoFile & ":" & lrId & ":" & lrCat & ":" & photosId
-					log newEntry
-					copy newEntry to the end of importedPhotos
-				end if
+				log message "set new keywords " & "lr:" & lrCat of photoDescriptor & ".lrcat"
+				tell me to setKeywords(newPhoto, {"lr:" & lrCat of photoDescriptor & ".lrcat"})
 			on error e
 				error "Can't keywords on imported photo. Error was: " & e
 			end try
+			
+			--
+			-- Add new photo ID for LR
+			--
+			set photosId to get the id of newPhoto
+			set newEntry to imagefile of photoDescriptor & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId
+			log message "add new photo id for LR: " & newEntry
+			copy newEntry to the end of importedPhotos
+			
+			--
+			-- Add newAlbums to the global list
+			--
+			tell me to appendAlbumsToList(allChangedAlbums, newAlbums)
+		end repeat
+		
+		--
+		-- Remove predecessor photos from albums
+		--
+		if not keepOldPhotos of session then
+			log message "remove predecessor photos from " & (count of allChangedAlbums) & " album(s)"
 			local aAlbumName
-			repeat with aAlbum in previousAlbums
+			repeat with aAlbum in allChangedAlbums
 				set aAlbumName to name of aAlbum
-				tell script "hbStringUtilities"
-					set isValid to not (regex expression ignoreByRegex of session matches aAlbumName)
-				end tell
-				
-				if isValid is true then
-					if not keepOldPhotos of session then
-						log message "cleanup album " & aAlbumName
-						tell me to cleanupAlbum(aAlbum)
-					end if
-				end if
+				log message "cleanup album " & aAlbumName
+				tell me to cleanupAlbum(aAlbum)
 			end repeat
 			delay 2
-		end repeat
+		else
+			log message "predecessor photos will not be removed from albums"
+		end if
 	end tell
-	set AppleScript's text item delimiters to currentDelimiter
 	log message "import() end"
+	set AppleScript's text item delimiters to ""
+	
 	return importedPhotos
 end import
 -------------------------------------------------------------------------------
@@ -446,7 +527,7 @@ on cleanupAlbum(theAlbum)
 			set end of photosToBeKept to item 1 of photos
 		end repeat
 		
-		log message "count photos to keep: " & (count of photosToBeKept)
+		log message "photos to keep: " & (count of photosToBeKept)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			log message "delete album " & name of theAlbum
@@ -457,7 +538,11 @@ on cleanupAlbum(theAlbum)
 			end tell
 			if (count of photosToBeKept) is greater than 0 then
 				log message "add photos to recreated album"
-				add photosToBeKept to theAlbum
+				try
+					add photosToBeKept to theAlbum
+				on error e
+					error "Photo(s) can't be added to album " & albumPath & ". Error was: " & e
+				end try
 			end if
 		end if
 		
@@ -515,7 +600,7 @@ end setNoLongerPublished
 -- Remove photos from albums
 -------------------------------------------------------------------------------
 on remove(photoDescriptors, session)
-	set currentDelimiter to AppleScript's text item delimiters
+	log message "remove() start"
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
@@ -523,61 +608,63 @@ on remove(photoDescriptors, session)
 		set targetAlbum to album by path albumName of session without create if not exists
 	end tell
 	if targetAlbum is missing value then
+		log message "Album " & albumName of session & " as not found." as severe
 		return removedPhotos
 	end if
 	
-	tell application id "com.apple.photos"
+	tell application "Photos"
 		set photosToBeRemovedFromAlbum to {}
-		repeat with aPhotoDescriptor in photoDescriptors
-			-- the LR id. For future use
-			set lrId to text item 2 of aPhotoDescriptor
-			-- name of cataloge
-			set lrCat to text item 3 of aPhotoDescriptor
-			-- Photos app UID
-			set photosId to text item 4 of aPhotoDescriptor
-			
+		repeat with photoDescriptor in photoDescriptors
 			try
-				set targetPhotos to (every media item whose id is equal to photosId)
-				if (count of targetPhotos) is greater than 0 then
-					-- the photo exists
-					set theTargetPhoto to item 1 of targetPhotos
-					
+				log message "remove photo " & photosId of photoDescriptor & " from album " & name of targetAlbum
+				tell me to set targetPhoto to getPhotoById(photosId of photoDescriptor)
+				if targetPhoto is missing value then
+					log message "photos was not found" as fault
+					-- target photo was not found at all.
+					-- but as it was sent from LR we should clear photosId in LR
+					set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId
+					copy newEntry to the end of removedPhotos
+				else
+					-- the photo exists					
 					local psAlbums
-					tell me to set psAlbums to getPublishServiceAlbums(theTargetPhoto)
+					log message "get all albums that uses the photo and are maintained by the publish service"
+					tell me to set psAlbums to getPublishServiceAlbums(targetPhoto)
 					
 					if (count of psAlbums) is equal to 0 then
+						log message "no album uses this photo" as alarm
 						-- This should never happen
 						-- Clean up album:* keywords
-						tell me to removeAlbumKeyword(theTargetPhoto, "*")
+						log message "clean up album:* keywords"
+						tell me to removeAlbumKeyword(targetPhoto, "*")
 						-- set no longer published
-						tell me to setNoLongerPublished(theTargetPhoto)
+						tell me to setNoLongerPublished(targetPhoto)
 						-- remove ID in Lightroom
-						set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
+						set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId of photoDescriptor
 						copy newEntry to the end of removedPhotos
 					else
+						log message "found " & (count of psAlbums) & " that uses the photo"
 						tell me to set hasAlbum to containsAlbum(psAlbums, targetAlbum)
 						if hasAlbum then
 							-- remove photo from album
-							set end of photosToBeRemovedFromAlbum to theTargetPhoto
+							log message "mark photo for removal"
+							set end of photosToBeRemovedFromAlbum to targetPhoto
 							-- remove album:keyword
-							tell me to removeAlbumKeyword(theTargetPhoto, name of targetAlbum)
+							log message "remove album:* keyword"
+							tell me to removeAlbumKeyword(targetPhoto, name of targetAlbum)
 							if (count of psAlbums) is equal to 1 then
-								tell me to setNoLongerPublished(theTargetPhoto)
+								log message "as this was the last album that uses the photo, we set keyword no-longer-publish"
+								tell me to setNoLongerPublished(targetPhoto)
 								-- remove ID in Lightroom
-								set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
+								set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId of photoDescriptor
 								copy newEntry to the end of removedPhotos
 							end if
 						else
+							log message "the target album does not use the photo" as warn
 							-- This should never happen
 							-- But there is no metadata which we have to clean up.
 							-- Even the ID in Lightroom may not be deleted.
 						end if
 					end if
-				else
-					-- target photo was not found at all.
-					-- but as it was sent from LR we should clear photosId in LR
-					set newEntry to "n.a." & ":" & lrId & ":" & lrCat & ":" & photosId
-					copy newEntry to the end of removedPhotos
 				end if
 			on error e
 				error "Can't remove photo from album for photoID " & photosId & ". Error was " & e
@@ -586,7 +673,9 @@ on remove(photoDescriptors, session)
 		--
 		tell me to set targetAlbum to removePhotosFromAlbum(targetAlbum, photosToBeRemovedFromAlbum)
 	end tell
-	set AppleScript's text item delimiters to currentDelimiter
+	log message "remove() end"
+	set AppleScript's text item delimiters to ""
+	
 	return removedPhotos
 end remove
 
@@ -594,7 +683,9 @@ end remove
 -- Update status flag in session file to tell Lightroom we are finished here
 -------------------------------------------------------------------------------
 on updateSessionFile(sessionFile, session)
+	log message "updateSessionFile() start"
 	-- tell application "Finder" to delete POSIX file sessionFile
+	log message "sessionFile=" & sessionFile
 	set fileRef to open for access sessionFile as «class utf8» with write permission
 	set eof fileRef to 0
 	if hasErrors of session then
@@ -615,11 +706,14 @@ on updateSessionFile(sessionFile, session)
 	end tell
 	write utf8Content to sessionFile
 	close access fileRef
+	log message "updateSessionFile() start"
 end updateSessionFile
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
 on updatePhotosFile(photosFile, photosList)
+	log message "updatePhotosFile() start"
+	log message "photosFile=" & photosFile
 	open for access photosFile as «class utf8» with write permission
 	set eof of photosFile to 0
 	repeat with thePhotoFile in photosList
@@ -628,6 +722,7 @@ on updatePhotosFile(photosFile, photosList)
 " to photosFile
 	end repeat
 	close access photosFile
+	log message "updatePhotosFile() start"
 end updatePhotosFile
 -------------------------------------------------------------------------------
 -- getPublishServiceAlbums(photosId)
@@ -671,7 +766,6 @@ on getPublishServiceAlbumNames(thePhoto)
 	if currentKeywords is missing value then
 		set currentKeywords to {}
 	end if
-	set currentDelimiter to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "album:"
 	repeat with aKeyword in currentKeywords
 		if aKeyword starts with "album:" then
@@ -679,7 +773,7 @@ on getPublishServiceAlbumNames(thePhoto)
 			copy aAlbumName to the end of psAlbumNames
 		end if
 	end repeat
-	set AppleScript's text item delimiters to currentDelimiter
+	set AppleScript's text item delimiters to ""
 	return psAlbumNames
 end getPublishServiceAlbumNames
 -------------------------------------------------------------------------------
@@ -789,7 +883,7 @@ on run argv
 	log message "PhotosImport.app start"
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Hintergrundbilder *"}
+		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Tests/Fotos"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv

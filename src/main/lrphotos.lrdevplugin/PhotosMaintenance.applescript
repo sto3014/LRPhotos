@@ -1,5 +1,6 @@
 use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
+use script "hbLogger"
 
 property usage : "usage: PhotosMaintennce <photos-references|lightroom-references> <comDir> [catalog-name1:catalog-name2:...]"
 ----------------------------------------------------------------------
@@ -147,25 +148,36 @@ end readPhotosReferences
 -- processPhotosReferences
 ----------------------------------------------------------------------
 on processPhotosReferences(comDir)
+	log message "processPhotosReferences() start"
+	log message "read list of Lightroom photos from " & comDir
 	set photosReferences to readPhotosReferences(comDir)
+	log message "read " & (count of photosReferences) & " photos"
 	local lightroomReferences
 	local aReference
 	set lightroomReferences to {}
 	tell application "Photos"
+		log message "search for photos that are missing"
+		set found to 0
+		set missing to 0
 		repeat with aReference in photosReferences
 			set aLightroomReference to {}
 			set end of aLightroomReference to item 3 of aReference
 			try
 				set thePhoto to media item id (contents of first item of aReference)
 				set end of aLightroomReference to "found"
+				set found to found + 1
 			on error e
 				set end of aLightroomReference to "missing"
+				set missing to missing + 1
 			end try
 			set end of lightroomReferences to aLightroomReference
 		end repeat
 	end tell
+	log message "found=" & found
+	log message "missing=" & missing
 	
 	writeLightroomReferences(comDir, lightroomReferences)
+	log message "processPhotosReferences() start"
 end processPhotosReferences
 
 ----------------------------------------------------------------------
@@ -189,14 +201,15 @@ end isActiveMediaItem
 -- processLightroomReferences
 ----------------------------------------------------------------------
 on processExtraPhotos(comDir, catalogNames, albumName)
-	local aMediaItem
-	local photosReferences
-	local aCatalog
-	local targetAlbum
-	local catalogList
-	local theMediaItems
+	log message "processExtraPhotos() start"
+	
+	log message "catalogNames=" & catalogNames
+	log message "albumName=" & albumName
+	log message "read list of Lightroom photos from " & comDir
 	
 	set photosReferences to readPhotosReferences(comDir)
+	log message "read " & (count of photosReferences) & " photos"
+	
 	set AppleScript's text item delimiters to ":"
 	set catalogList to text items of catalogNames
 	set extraMediaItems to {}
@@ -205,7 +218,10 @@ on processExtraPhotos(comDir, catalogNames, albumName)
 	tell application "Photos"
 		repeat with aCatalog in catalogList
 			-- set aCatalog to "develope"
+			log message "get all photos of catalog " & aCatalog
 			set theMediaItems to search for aCatalog
+			log message "count=" & (count of theMediaItems)
+			log message "filter for extra photos"
 			repeat with aMediaItem in theMediaItems
 				set photosId to id of aMediaItem
 				if photosReferences does not contain photosId then
@@ -216,6 +232,7 @@ on processExtraPhotos(comDir, catalogNames, albumName)
 					end tell
 				end if
 			end repeat
+			log message "extra=" & (count of extraMediaItems)
 		end repeat
 	end tell
 	
@@ -227,11 +244,16 @@ on processExtraPhotos(comDir, catalogNames, albumName)
 		end tell
 	end if
 	writeExtraInfo(comDir, extraMediaItems)
+	log message "processExtraPhotos() end"
+	
 end processExtraPhotos
 ----------------------------------------------------------------------
 -- main
 ----------------------------------------------------------------------
 on run argv
+	set logFile to ((path to documents folder) as Unicode text) & "LrClassicLogs:PhotosServiceProvider.log"
+	enable logging to file logFile
+	log message "PhotosMaintenance.app start"
 	if (argv = me) then
 		set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
 		-- set argv to {"extra-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "Develop-v13.lrcat", "/Lightroom/Überzählig in Fhotos"}
@@ -258,8 +280,10 @@ on run argv
 			end if
 		end if
 	on error e
+		log message e as severe
 		writeError(cmdDir, e)
 		return
 	end try
+	log message "PhotosMaintenance.app end"
 	
 end run

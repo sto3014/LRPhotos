@@ -41,6 +41,7 @@ cp -R "$SOURCE_DIR_SERVICES/workflow/hbPhotosDisplayID.workflow" "$TARGET_DIR_SE
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbPhotosUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbMacRomanUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbStringUtilities.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
+cp -R "$SOURCE_DIR_SCRIPT_LIBRARIES/hbLogger.scptd" "$TARGET_DIR_SCRIPT_LIBRARIES/"
 
 # compile
 #cd "$TARGET_DIR_MAC/Modules/$PACKAGE_NAME.lrplugin"
