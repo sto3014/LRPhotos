@@ -29,6 +29,7 @@ local PhotosServiceProvider = {
   viewForCollectionSettings = PhotosPublishTask.viewForCollectionSettings,
   viewForCollectionSetSettings = PhotosPublishTask.viewForCollectionSetSettings,
   deletePhotosFromPublishedCollection = PhotosPublishTask.deletePhotosFromPublishedCollection,
+  deletePublishedCollection= PhotosPublishTask.deletePublishedCollection,
   titleForGoToPublishedPhoto=LOC "$$$/Photos/TitleForGoToPublishedPhoto=Show in Photos",
   titleForGoToPublishedCollection = LOC "$$$/Photos/TitleForGoToPublishedCollection=Show album in Photos",
   goToPublishedPhoto=PhotosPublishTask.goToPublishedPhoto,

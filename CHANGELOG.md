@@ -69,7 +69,7 @@ rendition is marked as skipped.
 
 * Refactored AppleScript scripts
 
-## [2.1.0.0] - 2024-02-11
+## [2.1.0.0] - 2024-02-18
 
 ### Added
 
@@ -80,6 +80,7 @@ rendition is marked as skipped.
 ### Fixed
 
 * Fixed issue when running multiple jobs.
+* Fixed issue when removing photos from albums.
 * Fixed issue with albums which contains photos without any keywords.
 
 ### Changed

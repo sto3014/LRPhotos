@@ -239,6 +239,7 @@ on processExtraPhotos(comDir, catalogNames, albumName)
 	if (count of extraMediaItems) is greater than 0 then
 		tell script "hbPhotosUtilities" to set targetAlbum to album by path albumName with create if not exists
 		tell application "Photos"
+			activate
 			add extraMediaItems to targetAlbum
 			spotlight targetAlbum
 		end tell

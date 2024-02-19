@@ -100,17 +100,14 @@ local function sendPhotosToApp(action, maintenanceDir)
 
     local command = ""
     LrFileUtils.delete(maintenanceDir .. "/fromPhotos/photos.txt")
-    logger.trace("1")
     local exePathDev = _PLUGIN.path .. "/" .. "PhotosMaintenance/PhotosMaintenance.app"
     local exePathProd = _PLUGIN.path .. "/" .. "PhotosMaintenance.app"
     logger.trace("exePathDev=" .. tostring(exePathDev))
     if LrFileUtils.exists(exePathDev) then
-        logger.trace("2")
         command = "osascript \"" .. exePathDev .. "\" "
                 .. action
                 .. " \"" .. maintenanceDir .. "\""
     else
-        logger.trace("3")
         command = "osascript \"" .. exePathProd .. "\" "
                 .. action
                 .. " \"" .. maintenanceDir .. "\""

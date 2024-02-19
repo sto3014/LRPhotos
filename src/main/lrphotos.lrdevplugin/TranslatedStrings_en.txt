@@ -57,3 +57,7 @@
 "$$$/Photos/MsgError/GeneralErrorExtra=Error while searching for extra photos. Message was: ^1"
 "$$$/Photos/MsgError/GeneralErrorMissing=Error while searching for missing references. Message was: ^1"
 "$$$/Photos/MsgError/ExtraPhotosFound=^1 extra photo(s) found. See album '^2' for a list of extra photos."
+"$$$/Photos/Progress/DeletePublishedCollection=Deleting published collection ^[^1^]"
+"$$$/Photos/Msg/Title/DeletePublishedCollection=Deleting collection"
+"$$$/Photos/Msg/DeletePublishedCollection=Deleting collections and removing photos from the Photos app is currently not supported."
+

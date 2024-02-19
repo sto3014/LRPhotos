@@ -53,3 +53,6 @@
 "$$$/Photos/Error/ExtraPhotos=Fehler in Fotos App bei der Suche nach fehlenden Referenzen."
 "$$$/Photos/MsgError/GeneralError=Fehler bei der Suche nach überzähligen Fotos. Meldung war: ^1"
 "$$$/Photos/MsgError/ExtraPhotosFound=^1 überzählige(s) Foto(s) gefunden. Siehe Album '^2 für eine Liste von extra Fotos."
+"$$$/Photos/Progress/DeletePublishedCollection=Lösche publizierte Sammlung ^[^1^]"
+"$$$/Photos/Msg/DeletePublishedCollection=Das Löschen von Sammlungen und das Entfernen von Fotos aus der Fotos-App wird derzeit nicht unterstützt."
+"$$$/Photos/Msg/Title/DeletePublishedCollection=Löschen Sammlung"

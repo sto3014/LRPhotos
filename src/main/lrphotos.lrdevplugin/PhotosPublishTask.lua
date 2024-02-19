@@ -20,7 +20,7 @@ local editionDetailsID = "at.homebrew.lreditiondetails"
 
 PhotosPublishTask = {}
 
-local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
+-- local LrMobdebug = import 'LrMobdebug' -- Import LR/ZeroBrane debug module
 --[[---------------------------------------------------------------------------
  local functions
 -----------------------------------------------------------------------------]]
@@ -377,8 +377,6 @@ end
 function PhotosPublishTask.processRenderedPhotos(_, exportContext)
     logger.trace("PhotosPublishTask.processRenderedPhotos start")
     logger.trace("collection=" .. exportContext.publishedCollectionInfo.name)
-    LrMobdebug.start()
-    LrMobdebug.on()
 
     local albumPath = getFullAlbumPath(
             exportContext.propertyTable.albumBy,
@@ -562,6 +560,18 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
 
 end
 
+--[[---------------------------------------------------------------------------
+ deletePublishedCollection
+-----------------------------------------------------------------------------]]
+function PhotosPublishTask.deletePublishedCollection( publishSettings, info )
+    LrDialogs.message(LOC("$$$/Photos/Msg/Title/DeletePublishedCollection=Deleting collection"),
+            LOC("$$$/Photos/Msg/DeletePublishedCollection=Deleting collections and removing photos from the Photos app is currently not supported."))
+    error(LOC("$$$/Photos/Msg/DeletePublishedCollection=Deleting collections and removing photos from the Photos app is currently not supported."))
+end
+
+--[[---------------------------------------------------------------------------
+ showPhoto
+-----------------------------------------------------------------------------]]
 local function showPhoto(thePhoto)
     local photoId = PhotosAPI.getPhotosId(thePhoto)
     local queueEntry = createQueueEntry("Show photo " .. photoId)
@@ -579,13 +589,20 @@ local function showPhoto(thePhoto)
     return result
 end
 
+--[[---------------------------------------------------------------------------
+ goToPublishedPhoto
+-----------------------------------------------------------------------------]]
 function PhotosPublishTask.goToPublishedPhoto( publishSettings, info )
     logger.trace("goToPublishedPhoto() start")
     showPhoto(info.photo)
     logger.trace("goToPublishedPhoto() end")
 end
 
-function showCollection(publishSettings, info)
+--[[---------------------------------------------------------------------------
+ showCollection
+-----------------------------------------------------------------------------]]
+
+local function showCollection(publishSettings, info)
     local albumPath = getFullAlbumPath(
             publishSettings.albumBy,
             publishSettings.useAlbum,
@@ -608,6 +625,9 @@ function showCollection(publishSettings, info)
     return result
 
 end
+--[[---------------------------------------------------------------------------
+goToPublishedCollection
+-----------------------------------------------------------------------------]]
 function PhotosPublishTask.goToPublishedCollection( publishSettings, info )
     logger.trace("goToPublishedCollection() start")
     showCollection(publishSettings, info)
