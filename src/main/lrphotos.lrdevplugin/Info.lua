@@ -4,7 +4,7 @@ return {
 
   LrPluginName = 'Photos',
   LrToolkitIdentifier = 'at.homebrew.lrphotos',
-  VERSION = { major = 2, minor = 1, revision = 0, build = 0, },
+  VERSION = { major = 2, minor = 1, revision = 0, build = 1, },
   LrInitPlugin = "InitPlugin.lua",
   -- Add the Metadata Definition File
   LrMetadataProvider = 'PhotosMetadataDefinition.lua',

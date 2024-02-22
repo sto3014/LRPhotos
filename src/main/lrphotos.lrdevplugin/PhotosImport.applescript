@@ -195,6 +195,7 @@ on importPhoto(imagefile)
 	tell application "Photos"
 		set newPhotos to import aliasPhotoFile with skip check duplicates
 	end tell
+	log message "id of new photo: " & id of first item of newPhotos
 	return first item of newPhotos
 end importPhoto
 -------------------------------------------------------------------------------
@@ -270,6 +271,8 @@ on import(photoDescriptors, session)
 			tell script "hbPhotosUtilities"
 				set targetAlbum to album by path albumName of session with create if not exists
 			end tell
+			log message "id of target album: " & id of targetAlbum
+			log message "class of target album: " & class of targetAlbum
 		on error e
 			error "Album " & albumName of session & " could not be found or created. Error was: " & e
 		end try
@@ -344,7 +347,10 @@ on import(photoDescriptors, session)
 					log message "add new photo to album"
 					set newPhotoList to {}
 					copy newPhoto to end of newPhotoList
-					add newPhotoList to aAlbum
+					log message "id of album " & aAlbumName & " is: " & id of aAlbum
+					log message "class of album " & aAlbumName & " is: " & class of aAlbum
+					-- add newPhotoList to aAlbum
+					add newPhotoList to album id (aAlbum's id)
 				on error e
 					error "Can't add imported photos to album '" & aAlbumName & "'. Maybe it's a smart album and you should exlude it. Error was: " & e
 				end try
@@ -874,6 +880,18 @@ on testImport()
 	set thePath to getPathByAlbum(targetAlbum)
 	set dummy to 0
 end testImport
+
+-------------------------------------------------------------------------------
+-- startPhotos
+-------------------------------------------------------------------------------
+on startPhotos()
+	if application "Photos" is not running then
+		tell application "Photos"
+			activate
+			delay 3
+		end tell
+	end if
+end startPhotos
 -------------------------------------------------------------------------------
 -- Run the import script
 -------------------------------------------------------------------------------
@@ -916,6 +934,7 @@ on run argv
 			close access photosFile
 			local photoDescriptors
 			set photoDescriptors to getPhotoDescriptors(photosContents)
+			-- startPhotos()
 			if mode of session is equal to "publish" then
 				set importedPhotos to import(photoDescriptors, session)
 				if (count of importedPhotos) is equal to 0 then

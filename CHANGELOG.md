@@ -88,3 +88,17 @@ rendition is marked as skipped.
 * Photos of export format original get "original" as format (metadata).
 * The format is now the export format, not the file extension.
 * Metadata is no longer read-only
+
+## [2.1.0.1] - 2024-02-22
+
+### Fixed
+
+* Fixed issue when publish process must start Photos app and thereby, import or photo fails.
+
+### Changed
+
+* Remove version from install script
+
+
+
+
