@@ -19,7 +19,7 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 
 ---
 
-1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.1.0.0_mac.zip).
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.1.0.1_mac.zip).
 2. Extract the archive in the download folder
 3. Copy plug-in, applescript files and automator workflow into ~/Library  
    Open a terminal window, change to Downloads/LRPhotos and execute install.sh:
