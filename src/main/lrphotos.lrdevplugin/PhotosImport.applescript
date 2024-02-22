@@ -472,7 +472,7 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		end repeat
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
-			delete theAlbum
+			delete album id (theAlbum's id)
 			tell script "hbPhotosUtilities"
 				set theAlbum to album by path albumPath with create if not exists
 			end tell
