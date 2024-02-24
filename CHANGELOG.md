@@ -93,12 +93,16 @@ rendition is marked as skipped.
 
 ### Fixed
 
-* Fixed issue when publish process must start Photos app and thereby, import or photo fails.
+* Fixed issue that occurs when publish process must start Photos app and thereby, import or photo fails.
 
 ### Changed
 
 * Remove version from install script
 
+## [2.1.0.2] - 2024-02-24
 
+### Fixed
+
+* Fixed issue that occurs when removing a photo if the UUID of Photos is not present in Photos.
 
 

@@ -614,7 +614,7 @@ on remove(photoDescriptors, session)
 		set targetAlbum to album by path albumName of session without create if not exists
 	end tell
 	if targetAlbum is missing value then
-		log message "Album " & albumName of session & " as not found." as severe
+		log message "Album " & albumName of session & " was not found." as severe
 		return removedPhotos
 	end if
 	
@@ -625,10 +625,10 @@ on remove(photoDescriptors, session)
 				log message "remove photo " & photosId of photoDescriptor & " from album " & name of targetAlbum
 				tell me to set targetPhoto to getPhotoById(photosId of photoDescriptor)
 				if targetPhoto is missing value then
-					log message "photos was not found" as fault
+					log message "photo was not found" as alarm
 					-- target photo was not found at all.
 					-- but as it was sent from LR we should clear photosId in LR
-					set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId
+					set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId of photoDescriptor
 					copy newEntry to the end of removedPhotos
 				else
 					-- the photo exists					
@@ -712,7 +712,7 @@ on updateSessionFile(sessionFile, session)
 	end tell
 	write utf8Content to sessionFile
 	close access fileRef
-	log message "updateSessionFile() start"
+	log message "updateSessionFile() end"
 end updateSessionFile
 -------------------------------------------------------------------------------
 --
@@ -901,7 +901,7 @@ on run argv
 	log message "PhotosImport.app start"
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Tests/Fotos"}
+		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Test/Fotos"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
