@@ -8,6 +8,7 @@ use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 use framework "Foundation"
 use script "hbLogger"
+use script "hbPhotosUtilities"
 
 -- property pPhotosLib : "hbPhotosUtilities"
 -- property pMacRomanLib : "hbMacRomanUtilities"
@@ -440,7 +441,7 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		local photoIds
 		local albumPath
 		local aKeyword
-		tell me to set albumPath to getPathByAlbum(theAlbum)
+		set albumPath to path by album theAlbum
 		if albumPath is missing value then
 			return missing value
 		end if
@@ -502,7 +503,9 @@ on cleanupAlbum(theAlbum)
 		local photoIds
 		local albumPath
 		local aKeyword
-		tell me to set albumPath to getPathByAlbum(theAlbum)
+		tell script "hbPhotosUtilities"
+			set albumPath to path by album theAlbum
+		end tell
 		if albumPath is missing value then
 			return missing value
 		end if
@@ -625,7 +628,7 @@ on remove(photoDescriptors, session)
 				log message "remove photo " & photosId of photoDescriptor & " from album " & name of targetAlbum
 				tell me to set targetPhoto to getPhotoById(photosId of photoDescriptor)
 				if targetPhoto is missing value then
-					log message "photo was not found" as alarm
+					log message "photo was not found" as fault
 					-- target photo was not found at all.
 					-- but as it was sent from LR we should clear photosId in LR
 					set newEntry to "n.a." & ":" & lrId of photoDescriptor & ":" & lrCat of photoDescriptor & ":" & photosId of photoDescriptor
@@ -728,7 +731,7 @@ on updatePhotosFile(photosFile, photosList)
 " to photosFile
 	end repeat
 	close access photosFile
-	log message "updatePhotosFile() start"
+	log message "updatePhotosFile() end"
 end updatePhotosFile
 -------------------------------------------------------------------------------
 -- getPublishServiceAlbums(photosId)
@@ -796,80 +799,6 @@ on containsAlbum(theList, theAlbum)
 	return false
 end containsAlbum
 -------------------------------------------------------------------------------
--- getPathByAlbum(theAlbum)
---
--- Returns full path of theAlbum
---
--- format of path: "/folder1/folder2/..../album"
--------------------------------------------------------------------------------
-on getPathByAlbum(theAlbum)
-	local thePath
-	set thePath to missing value
-	local theAlbums
-	tell application "Photos"
-		set theAlbums to get albums whose id is equal to id of theAlbum
-		-- repeat with aAlbum in albums
-		--	if id of aAlbum equals 
-		--end
-		if theAlbums is not {} then
-			return "/" & name of first item of theAlbums
-		end if
-		repeat with aFolder in folders
-			local folderName
-			set folderName to name of aFolder
-			tell me to set thePath to _getPathByAlbum(aFolder, theAlbum, thePath)
-			if thePath is not missing value then
-				set thePath to "/" & thePath
-				return thePath
-			end if
-		end repeat
-	end tell
-	return missing value
-end getPathByAlbum
-
--- recursive function used by getPathByAlbum()
-on _getPathByAlbum(thisFolder, theAlbum, thePath)
-	local theAlbums
-	local thePath
-	local thisFolderName
-	tell application "Photos"
-		tell thisFolder
-			set thisFolderName to name of thisFolder
-			set theAlbums to albums whose id is equal to id of theAlbum
-			if theAlbums is not {} then
-				return thisFolderName & "/" & name of first item of theAlbums
-			end if
-			repeat with aFolder in folders
-				local folderName
-				set folderName to name of aFolder
-				tell me to set thePath to _getPathByAlbum(aFolder, theAlbum, thePath)
-				if thePath is not missing value then
-					set thePath to thisFolderName & "/" & thePath
-					return thePath
-				end if
-			end repeat
-		end tell
-	end tell
-	return missing value
-end _getPathByAlbum
--------------------------------------------------------------------------------
--- spotlightTargetAlbum(session)
---
---  activates import album
--------------------------------------------------------------------------------
-on spotlightTargetAlbum(session)
-	tell script "hbPhotosUtilities"
-		set targetAlbum to album by path albumName of session without create if not exists
-	end tell
-	tell application id "com.apple.photos"
-		if targetAlbum is not missing value then
-			tell targetAlbum
-				spotlight
-			end tell
-		end if
-	end tell
-end spotlightTargetAlbum
--------------------------------------------------------------------------------
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
@@ -877,21 +806,9 @@ on testImport()
 		set targetAlbum to album by path "/Test/Test3/Test4/Test5/Test6/Yield7" without create if not exists
 	end tell
 	local thePath
-	set thePath to getPathByAlbum(targetAlbum)
+	set thePath to path by album targetAlbum
 	set dummy to 0
 end testImport
-
--------------------------------------------------------------------------------
--- startPhotos
--------------------------------------------------------------------------------
-on startPhotos()
-	if application "Photos" is not running then
-		tell application "Photos"
-			activate
-			delay 3
-		end tell
-	end if
-end startPhotos
 -------------------------------------------------------------------------------
 -- Run the import script
 -------------------------------------------------------------------------------
@@ -901,7 +818,7 @@ on run argv
 	log message "PhotosImport.app start"
 	
 	if (argv = me) then
-		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Test/Fotos"}
+		set argv to {"/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/Dieses und Dases/Test/Test2/Test3"}
 	end if
 	-- Read the directory from the input and define the session file
 	set tempFolder to item 1 of argv
@@ -959,8 +876,9 @@ on run argv
 		log message "PhotosImport.app end"
 		return
 	end try
-	--
-	spotlightTargetAlbum(session)
+	
+	log message "spotlight album '" & albumName of session & "'"
+	spotlight album by path albumName of session without create if not exists
 	
 	updateSessionFile(sessionFile, session)
 	log message "PhotosImport.app end"
