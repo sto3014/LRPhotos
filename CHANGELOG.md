@@ -105,4 +105,10 @@ rendition is marked as skipped.
 
 * Fixed issue that occurs when removing a photo if the UUID of Photos is not present in Photos.
 
+## [2.1.0.3] 
+
+### Changed
+
+* Move Applescript handler to script library
+* Add logging to script library
 

@@ -9,10 +9,8 @@ use scripting additions
 use framework "Foundation"
 use script "hbLogger"
 use script "hbPhotosUtilities"
-
--- property pPhotosLib : "hbPhotosUtilities"
--- property pMacRomanLib : "hbMacRomanUtilities"
--- property pStringLib : "hbStringUtilities"
+use script "hbStringUtilities"
+use script "hbMacRomanUtilities"
 
 -- classes, constants, and enums used
 property NSRegularExpressionSearch : a reference to 1024
@@ -141,9 +139,7 @@ on getPhotoDescriptors(photosContents)
 	set AppleScript's text item delimiters to ":"
 	
 	repeat with aLine in allLines
-		tell script "hbStringUtilities"
-			set aLine to (remove white space around aLine)
-		end tell
+		set aLine to (remove white space around aLine)
 		log aLine
 		if aLine is not equal to "" then
 			set tokens to text items of aLine
@@ -207,15 +203,11 @@ on getCurrentAlbums(photosId, ignoreByRegex)
 	local currentAlbums
 	local aAlbum
 	set currentAlbums to {}
-	tell script "hbPhotosUtilities"
-		set allCurrentAlbums to (every album containing media item id photosId)
-	end tell
+	set allCurrentAlbums to (every album containing media item id photosId)
 	tell application "Photos"
 		repeat with aAlbum in allCurrentAlbums
 			set aAlbumName to name of aAlbum
-			tell script "hbStringUtilities"
-				set isValid to not (regex expression ignoreByRegex matches aAlbumName)
-			end tell
+			set isValid to not (regex expression ignoreByRegex matches aAlbumName)
 			if isValid then
 				copy aAlbum to the end of currentAlbums
 			end if
@@ -269,9 +261,7 @@ on import(photoDescriptors, session)
 	tell application "Photos"
 		log message "targetAlbum=" & albumName of session
 		try
-			tell script "hbPhotosUtilities"
-				set targetAlbum to album by path albumName of session with create if not exists
-			end tell
+			set targetAlbum to album by path albumName of session with create if not exists
 			log message "id of target album: " & id of targetAlbum
 			log message "class of target album: " & class of targetAlbum
 		on error e
@@ -429,6 +419,7 @@ end removeItemFromList
 -- Removes photos from a single album
 -------------------------------------------------------------------------------
 on removePhotosFromAlbum(theAlbum, thePhotos)
+	
 	tell application id "com.apple.photos"
 		if theAlbum is missing value then
 			return missing value
@@ -441,7 +432,8 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		local photoIds
 		local albumPath
 		local aKeyword
-		set albumPath to path by album theAlbum
+		set albumId to theAlbum's id
+		set albumPath to path for album id albumId
 		if albumPath is missing value then
 			return missing value
 		end if
@@ -474,9 +466,7 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete album id (theAlbum's id)
-			tell script "hbPhotosUtilities"
-				set theAlbum to album by path albumPath with create if not exists
-			end tell
+			set theAlbum to album by path albumPath with create if not exists
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -503,9 +493,8 @@ on cleanupAlbum(theAlbum)
 		local photoIds
 		local albumPath
 		local aKeyword
-		tell script "hbPhotosUtilities"
-			set albumPath to path by album theAlbum
-		end tell
+		set albumId to theAlbum's id
+		set albumPath to path for album id albumId
 		if albumPath is missing value then
 			return missing value
 		end if
@@ -542,9 +531,7 @@ on cleanupAlbum(theAlbum)
 			log message "delete album " & name of theAlbum
 			delete theAlbum
 			log message "recreate album"
-			tell script "hbPhotosUtilities"
-				set theAlbum to album by path albumPath with create if not exists
-			end tell
+			set theAlbum to album by path albumPath with create if not exists
 			if (count of photosToBeKept) is greater than 0 then
 				log message "add photos to recreated album"
 				try
@@ -613,9 +600,7 @@ on remove(photoDescriptors, session)
 	set AppleScript's text item delimiters to ":"
 	set removedPhotos to {}
 	local targetAlbum
-	tell script "hbPhotosUtilities"
-		set targetAlbum to album by path albumName of session without create if not exists
-	end tell
+	set targetAlbum to album by path albumName of session without create if not exists
 	if targetAlbum is missing value then
 		log message "Album " & albumName of session & " was not found." as severe
 		return removedPhotos
@@ -710,9 +695,7 @@ on updateSessionFile(sessionFile, session)
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPhotos=" & keepOldPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
-	tell script "hbMacRomanUtilities"
-		set utf8Content to transform macroman text romanContent to UTF8
-	end tell
+	set utf8Content to transform macroman text romanContent to UTF8
 	write utf8Content to sessionFile
 	close access fileRef
 	log message "updateSessionFile() end"
@@ -748,9 +731,7 @@ on getPublishServiceAlbums(thePhoto)
 	set allPSAlbumNames to getPublishServiceAlbumNames(thePhoto)
 	tell application id "com.apple.photos"
 		local allAlbums
-		tell script "hbPhotosUtilities"
-			set allAlbums to every album containing media item id (get id of thePhoto)
-		end tell
+		set allAlbums to every album containing media item id (get id of thePhoto)
 		repeat with aAlbum in allAlbums
 			repeat with aPSAlbumName in allPSAlbumNames
 				if aPSAlbumName as string is equal to name of aAlbum then
@@ -802,11 +783,10 @@ end containsAlbum
 -- testImport
 -------------------------------------------------------------------------------
 on testImport()
-	tell script "hbPhotosUtilities"
-		set targetAlbum to album by path "/Test/Test3/Test4/Test5/Test6/Yield7" without create if not exists
-	end tell
+	set targetAlbum to album by path "/Test/Test3/Test4/Test5/Test6/Yield7" without create if not exists
 	local thePath
-	set thePath to path by album targetAlbum
+	tell application "Photos" to set albumId to targetAlbum's id
+	set thePath to path for album id albumId
 	set dummy to 0
 end testImport
 -------------------------------------------------------------------------------
