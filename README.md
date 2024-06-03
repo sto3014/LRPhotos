@@ -157,6 +157,12 @@ occur when published photos were deleted manually in the Photos app. The action 
 Lightroom collection /Photos app/Missing in Photos.
 The search will be only done for the selected photos (unpublished photos will be ignored).
 
+## Settings
+
+* Lightroom Catalog: Truncate Version   
+  If not checked (default) the version in the catalog name (e.g. "-v13") will be included in the lr:<catalog> keyword in
+  of photos. If checked the version will be truncated.
+
 ## Known issues
 
 * When adding a lot of photos, or when you update a large album, Photos displays a modal dialog, to inform you that many

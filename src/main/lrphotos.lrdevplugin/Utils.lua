@@ -6,6 +6,7 @@ local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
 local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
+local LrPrefs = import("LrPrefs")
 
 local logger = require("Logger")
 
@@ -181,11 +182,14 @@ end
 getCatName()
 -----------------------------------------------------------------------------]]
 function Utils.getCatName ()
+    local prefs = LrPrefs.prefsForPlugin()
     local activeCatalog = LrApplication.activeCatalog()
     local catName = LrPathUtils.removeExtension(LrPathUtils.leafName(activeCatalog:getPath()))
-    local i = string.find(catName, "-v")
-    if (i ~= nil and i > 1) then
-        catName = string.sub(catName, 1, i - 1)
+    if ( prefs.truncateCatalogVersion ~= nil and prefs.truncateCatalogVersion == true) then
+        local i = string.find(catName, "-v")
+        if (i ~= nil and i > 1) then
+            catName = string.sub(catName, 1, i - 1)
+        end
     end
     return catName
 end

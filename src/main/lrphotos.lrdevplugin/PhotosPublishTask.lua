@@ -184,7 +184,8 @@ local function setPhotosID(albumPath, exportContext)
                 if photo:getPropertyForPlugin(_PLUGIN, 'localId') == nil then
                     photo:setPropertyForPlugin(_PLUGIN, 'localId', tostring(photo.localIdentifier))
                 end
-                local catName = LrPathUtils.leafName(photo.catalog:getPath())
+                -- local catName = LrPathUtils.leafName(photo.catalog:getPath())
+                local catName = Utils.getCatName() .. ".lrcat"
                 photo:setPropertyForPlugin(_PLUGIN, 'catalogName', catName)
                 if photo:getRawMetadata("fileFormat") == "VIDEO" then
                     photo:setPropertyForPlugin(_PLUGIN, 'format', exportContext.propertyTable.LR_export_videoFormat)
@@ -258,8 +259,8 @@ local function renderPhotos(exportContext, progressScope)
         end -- Check for cancellation again after photo has been rendered
         if success then
             renditions[#renditions + 1] = rendition
-            local lrcatName = LrPathUtils.leafName(LrPathUtils.removeExtension(photo.catalog:getPath()))
-
+            -- local lrcatName = LrPathUtils.leafName(LrPathUtils.removeExtension(photo.catalog:getPath()))
+            local lrcatName = Utils.getCatName()
             local pID = photo:getPropertyForPlugin(_PLUGIN, 'photosId')
             if (pID == nil) then
                 pID = ""

@@ -112,3 +112,8 @@ rendition is marked as skipped.
 * Move Applescript handler to script library
 * Add logging to script library
 
+## [2.1.1.0]
+
+### Added
+
+* Add preference Truncate Version. If set to true the version in the catalog name will be truncated.

@@ -60,4 +60,8 @@
 "$$$/Photos/Progress/DeletePublishedCollection=Deleting published collection ^[^1^]"
 "$$$/Photos/Msg/Title/DeletePublishedCollection=Deleting collection"
 "$$$/Photos/Msg/DeletePublishedCollection=Deleting collections and removing photos from the Photos app is currently not supported."
+"$$$/Photos/PluginSettings=Plug-in Settings"
+"$$$/Photos/CatalogName=Lightroom Catalog"
+"$$$/Photos/CatalogName/TruncateVersion=Truncate Version"
+
 

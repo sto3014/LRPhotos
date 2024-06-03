@@ -56,3 +56,6 @@
 "$$$/Photos/Progress/DeletePublishedCollection=Lösche publizierte Sammlung ^[^1^]"
 "$$$/Photos/Msg/DeletePublishedCollection=Das Löschen von Sammlungen und das Entfernen von Fotos aus der Fotos-App wird derzeit nicht unterstützt."
 "$$$/Photos/Msg/Title/DeletePublishedCollection=Löschen Sammlung"
+"$$$/Photos/PluginSettings=Plug-in Einstellungen"
+"$$$/Photos/CatalogName=Lightroom Katalog"
+"$$$/Photos/CatalogName/TruncateVersion=Entferne Version"

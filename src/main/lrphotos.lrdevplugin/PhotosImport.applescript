@@ -466,7 +466,9 @@ on removePhotosFromAlbum(theAlbum, thePhotos)
 		
 		if (count of photosToBeKept) is not equal to (count of allPhotos) then
 			delete album id (theAlbum's id)
-			set theAlbum to album by path albumPath with create if not exists
+			delay 1
+			tell me to set theAlbum to getAlbumByPath(albumPath, true)
+			-- set theAlbum to album by path albumPath with create if not exists
 			if (count of photosToBeKept) is greater than 0 then
 				add photosToBeKept to theAlbum
 			end if
@@ -779,6 +781,114 @@ on containsAlbum(theList, theAlbum)
 	end tell
 	return false
 end containsAlbum
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- matchesRegex
+-------------------------------------------------------------------------------
+on matchesRegex(theText, theRegex)
+	set theText to current application's NSString's stringWithString:theText
+	set theRange to theText's rangeOfString:(theRegex) options:NSRegularExpressionSearch
+	if |length| of theRange is greater than 0 then
+		return true
+	else
+		return false
+	end if
+end matchesRegex
+
+-------------------------------------------------------------------------------
+-- getAlbumByPath(albumPath, createIfNotExists)
+--
+-- returns the album for the given path
+--
+-- if createIfNotExists is true missing folders are created as well as the album
+-- format of albumPath: "/folder1/folder2/..../album"
+-------------------------------------------------------------------------------
+on getAlbumByPath(albumPath, createIfNotExists)
+	try
+		if albumPath is missing value or albumPath is equal to "" then
+			return missing value
+		end if
+		set isValid to matchesRegex(albumPath, "^(\\/[^\\/]+)+$")
+		if not isValid then
+			error "Albumpath " & albumPath & " is not a valid path."
+		end if
+		set len to the length of albumPath
+		set albumPath to text 2 thru len of albumPath
+		set slashOffset to (offset of "/" in albumPath)
+		
+		set theFolder to missing value
+		if albumPath is missing value or albumPath is equal to "" then return missing value
+		tell application id "com.apple.photos"
+			-- go thru all path components of type folder
+			repeat until slashOffset is less than 1
+				-- there is at least one folder
+				set folderName to text 1 thru (slashOffset - 1) of albumPath
+				if theFolder is missing value then
+					--  we are in the root
+					set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						if createIfNotExists then
+							set theFolder to make new folder named folderName
+						else
+							return missing value
+						end if
+					end if
+				else
+					-- we are in between folders
+					tell theFolder to set allFolders to every folder whose name is folderName
+					if (count of allFolders) is greater than 0 then
+						set theFolder to item 1 of allFolders
+					else
+						if createIfNotExists then
+							set theFolder to make new folder named folderName at theFolder
+						else
+							return missing value
+						end if
+					end if
+				end if
+				set albumPath to text ((offset of "/" in albumPath) + 1) thru -1 of albumPath
+				set slashOffset to (offset of "/" in albumPath)
+			end repeat
+			if theFolder is missing value then
+				--  we are in the root
+				log message "search for album " & albumPath & " in root folder"
+				set allAlbums to albums whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
+				else
+					if createIfNotExists then
+						set theAlbum to make new album named albumPath
+					else
+						return missing value
+					end if
+				end if
+			else
+				-- we are in a folder
+				log message "search for album " & albumPath & " in folder " & name of theFolder
+				tell theFolder to set allAlbums to every album whose name is albumPath
+				if (count of allAlbums) is greater than 0 then
+					set theAlbum to item 1 of allAlbums
+				else
+					if createIfNotExists then
+						set theAlbum to make new album named albumPath at theFolder
+					else
+						return missing value
+					end if
+				end if
+			end if
+			return theAlbum
+		end tell
+	on error e
+		error "Can't get album for path " & albumPath & ". Error was: " & e
+	end try
+	return missing value
+end getAlbumByPath
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 -------------------------------------------------------------------------------
 -- testImport
 -------------------------------------------------------------------------------

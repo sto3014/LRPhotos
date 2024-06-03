@@ -23,6 +23,10 @@ function init()
         prefs.osSupported = false
     end
 
+    if prefs.truncateCatalogVersion == nil then
+        prefs.truncateCatalogVersion=false
+    end
+
     logger.trace("tmpDir=" .. _G.TMP_DIR)
     logger.trace("queueDir=" .. _G.QUEUE_DIR)
     logger.trace("maintenanceDir=" .. _G.MAINTENANCE_DIR)
