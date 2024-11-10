@@ -18,6 +18,7 @@ local PhotosServiceProvider = {
     { key = 'ignoreRegex', default = "^!|!$" },
     { key = 'rootFolder', default = "/" },
     { key = 'keepOldPhotos', default = true },
+    { key = 'keepNoLongerPublishedPhotos', default = false},
   },
   canExportVideo = true,
   sectionsForBottomOfDialog = PhotosPublishDialogSections.sectionsForBottomOfDialog,

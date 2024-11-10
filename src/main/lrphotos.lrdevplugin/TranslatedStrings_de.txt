@@ -59,3 +59,4 @@
 "$$$/Photos/PluginSettings=Plug-in Einstellungen"
 "$$$/Photos/CatalogName=Lightroom Katalog"
 "$$$/Photos/CatalogName/TruncateVersion=Entferne Version"
+"$$$/Photos/KeepNoLongerPublishedPhotos=Behalte nicht mehr publizierte Fotos in den Alben."

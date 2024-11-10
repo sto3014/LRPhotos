@@ -93,7 +93,7 @@ end
 --[[---------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------]]
-local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode, keepOldPhotos)
+local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode, keepOldPhotos, keepNoLongerPublishedPhotos)
     -- Write Lightroom input to a session.txt file for AppleScript later on
     logger.trace("sessionFile=" .. Utils.getSessionFile(albumPath))
     local f = assert(io.open(Utils.getSessionFile(albumPath), "w+"))
@@ -101,6 +101,7 @@ local function writeSessionFile(albumPath, ignoreAlbums, ignoreRegex, mode, keep
     f:write("exportDone=false\n")
     f:write("albumName=" .. albumPath .. "\n")
     f:write("keepOldPhotos=" .. tostring(keepOldPhotos) .. "\n")
+    f:write("keepNoLongerPublishedPhotos=" .. tostring(keepNoLongerPublishedPhotos) .. "\n")
 
     if ignoreAlbums == true then
         f:write("ignoreByRegex=" .. ignoreRegex .. "\n")
@@ -421,7 +422,8 @@ function PhotosPublishTask.processRenderedPhotos(_, exportContext)
             exportContext.propertyTable.ignoreAlbums,
             exportContext.propertyTable.ignoreRegex,
             "publish",
-            exportContext.propertyTable.keepOldPhotos
+            exportContext.propertyTable.keepOldPhotos,
+            exportContext.propertyTable.keepNoLongerPublishedPhotos
     )
 
 
@@ -510,7 +512,14 @@ function PhotosPublishTask.deletePhotosFromPublishedCollection(publishSettings, 
             return
         end
 
-    writeSessionFile(albumPath, publishSettings.ignoreAlbums, publishSettings.ignoreRegex, "remove", publishSettings.keepOldPhotos)
+    writeSessionFile(
+            albumPath,
+            publishSettings.ignoreAlbums,
+            publishSettings.ignoreRegex,
+            "remove",
+            publishSettings.keepOldPhotos,
+            publishSettings.keepNoLongerPublishedPhotos)
+
         local activeCatalog = LrApplication.activeCatalog()
         local catName = LrPathUtils.leafName(activeCatalog:getPath())
 

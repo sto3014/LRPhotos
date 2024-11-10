@@ -15,11 +15,11 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
 * MacOS 10.10 (Yosemite) or later.
 * Windows is not supported.
 
-## Installation
+## Installaftion
 
 ---
 
-1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.1.1.0_mac.zip).
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.1.2.0_mac.zip).
 2. Extract the archive in the download folder
 3. Copy plug-in, applescript files and automator workflow into ~/Library  
    Open a terminal window, change to Downloads/LRPhotos and execute install.sh:
@@ -74,10 +74,13 @@ The re-publishing process…
 * puts re-published photos into the same albums as their predecessors.
 * puts tag __lr:out-of-date__ on the predecessor
 * removes out-of-date photos if collection configuration __Keep out of date photos in albums__ is un-checked.
+* removes photos that were removed from publish service if collection configuration __Keep no longer published photos in
+  albums__ is unchecked.
 
 ### Remove photos from publishing service
 
-* Removes the photo from the Photos album.
+* Removes the photo from the Photos album if collection configuration __Keep no longer published photos in albums__ is
+  unchecked.
 * Set tag __lr:no-longer-published__ to the current media item in Photos if it is no longer used in any album
 * Set back the Photos metadata in Lightroom, if the photo is no longer used in any album.
 

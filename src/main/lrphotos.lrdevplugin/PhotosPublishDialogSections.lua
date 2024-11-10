@@ -94,20 +94,15 @@ function PhotosPublishDialogSections.sectionsForBottomOfDialog( f, _ )
         },
       },
       f:row {
-        --       f:spacer
-        --        width = share 'labelWidth'
-        --       },
-
-        --[[
-        f:static_text({
-          title = LOC("$$$/Photos/KeepOldPhotos=Keep out of date photos in albums:"),
-          width_in_chars = 25,
-        }),
-        ]]--
-
         f:checkbox {
           title = LOC "$$$/Photos/KeepOldPhotos=Keep out of date photos in albums.",
           value = bind 'keepOldPhotos',
+        },
+      },
+      f:row {
+        f:checkbox {
+          title = LOC "$$$/Photos/KeepNoLongerPublishedPhotos=Keep no longer published photos in albums.",
+          value = bind 'keepNoLongerPublishedPhotos',
         },
       },
     },

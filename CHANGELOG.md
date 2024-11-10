@@ -117,3 +117,10 @@ rendition is marked as skipped.
 ### Added
 
 * Add preference Truncate Version. If set to true the version in the catalog name will be truncated.
+
+## [2.1.2.0]
+
+### Added
+
+* Add collection configuration "Keep no longer published photos in albums". If set to false (default value) photos will
+  be removed from Photos app if they are removed from collection, otherwise photos must be removed from album manually.

@@ -82,7 +82,7 @@ end getMode
 -------------------------------------------------------------------------------
 on getSession(sessionContents)
 	local session
-	set session to {mode:"", albumName:"", ignoreByRegex:"", hasErrors:false, errorMsg:"", exportDone:false, keepOldPhotos:true} as record
+	set session to {mode:"", albumName:"", ignoreByRegex:"", hasErrors:false, errorMsg:"", exportDone:false, keepOldPhotos:true, keepNoLongerPublishedPhotos:true} as record
 	local allLines
 	set allLines to every paragraph of sessionContents
 	repeat with aLine in allLines
@@ -117,6 +117,10 @@ on getSession(sessionContents)
 								else
 									if aKey is equal to "keepOldPhotos" then
 										set keepOldPhotos of session to value is equal to "true"
+									else
+										if aKey is equal to "keepNoLongerPublishedPhotos" then
+											set keepNoLongerPublishedPhotos of session to value is equal to "true"
+										end if
 									end if
 								end if
 							end if
@@ -667,7 +671,9 @@ on remove(photoDescriptors, session)
 			end try
 		end repeat
 		--
-		tell me to set targetAlbum to removePhotosFromAlbum(targetAlbum, photosToBeRemovedFromAlbum)
+		if not keepNoLongerPublishedPhotos of session then
+			tell me to set targetAlbum to removePhotosFromAlbum(targetAlbum, photosToBeRemovedFromAlbum)
+		end if
 	end tell
 	log message "remove() end"
 	set AppleScript's text item delimiters to ""
@@ -696,6 +702,7 @@ on updateSessionFile(sessionFile, session)
 		"ignoreByRegex=" & ignoreByRegex of session & linefeed & ¬
 		"hasErrors=" & hasErrors of session & linefeed & ¬
 		"keepOldPhotos=" & keepOldPhotos of session & linefeed & ¬
+		"keepNoLongerPublishedPhotos=" & keepNoLongerPublishedPhotos of session & linefeed & ¬
 		"errorMsg=" & errorMsg of session
 	set utf8Content to transform macroman text romanContent to UTF8
 	write utf8Content to sessionFile
