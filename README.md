@@ -1,4 +1,4 @@
-# LRPhotos
+# LR Photos
 
 ---
 LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
