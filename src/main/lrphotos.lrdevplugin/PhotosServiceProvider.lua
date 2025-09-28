@@ -13,7 +13,7 @@ local PhotosServiceProvider = {
   exportPresetFields = {
     { key = 'useAlbum', default = true },
     { key = 'albumBy', default = "service" },
-    { key = 'albumNameForService', default = LOC '$$$/PhotosExportService/NewAlbumForService=/Lightroom/Import' },
+    { key = 'albumNameForService', default = LOC '$$$/PhotosExportService/NewAlbumForService=/LR Photos/Import' },
     { key = 'ignoreAlbums', default = true },
     { key = 'ignoreRegex', default = "^!|!$" },
     { key = 'rootFolder', default = "/" },

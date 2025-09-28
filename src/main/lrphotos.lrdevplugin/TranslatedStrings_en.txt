@@ -1,7 +1,7 @@
 "$$$/PhotosExportService/Title=Photos"
 "$$$/PhotosExportService/UseAlbum=Use Album:"
-"$$$/PhotosExportService/NewAlbumForService=/Lightroom/Import"
-"$$$/PhotosExportService/NewAlbumForCollection=/Lightroom/Import"
+"$$$/PhotosExportService/NewAlbumForService=/LR Photos/Import"
+"$$$/PhotosExportService/NewAlbumForCollection=/LR Photos/Import"
 "$$$/PhotosExportService/ProgressMany=Importing ^1 photos in Photos"
 "$$$/PhotosExportService/ProgressOne=Importing one photo in Photos"
 "$$$/Photos/Metadata/Fields/PhotosId=Photos UUID"
@@ -48,7 +48,7 @@
 "$$$/Photos/MsgError/AllPhotosFound=All selected Lightroom photos were found in Photos."
 "$$$/Photos/MsgInfo/NoPublishedPhotosFound=No published photo found."
 "$$$/Photos/Menu/Library/ExtraInPhotos=Search extra Photos in Photos App"
-"$$$/Photos/Album/ExtraInPhotos=/Lightroom/Extra Photos"
+"$$$/Photos/Album/ExtraInPhotos=/LR Photos/Extra Photos"/
 "$$$/Photos/Msg/ExtraInPhotos=Search extra photos in Photos app. Currently, there are ^1 published photo(s) in Lightroom."
 "$$$/Photos/Menu/Library/ExtraProcess=Searching for extra Photos in Photos App"
 "$$$/Photos/MsgError/NoExtraPhotosFound=No extra photos were found in Photos."

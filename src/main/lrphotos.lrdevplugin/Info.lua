@@ -4,7 +4,7 @@ return {
 
   LrPluginName = 'Photos',
   LrToolkitIdentifier = 'at.homebrew.lrphotos',
-  VERSION = { major = 2, minor = 1, revision = 2, build = 0, },
+  VERSION = { major = 2, minor = 1, revision = 3, build = 0, },
   LrInitPlugin = "InitPlugin.lua",
   -- Add the Metadata Definition File
   LrMetadataProvider = 'PhotosMetadataDefinition.lua',
@@ -30,5 +30,5 @@ return {
       file = "SearchMissingPhotosInLightroom.lua",
     },
   },
-  LrPluginInfoProvider = "InfoProvider.lua",
+  LrPluginFInfoProvider = "InfoProvider.lua",
 }

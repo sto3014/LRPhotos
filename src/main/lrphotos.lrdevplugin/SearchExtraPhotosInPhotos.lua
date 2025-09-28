@@ -141,7 +141,7 @@ local function processAnswer(maintenanceDir)
             LrDialogs.message(
                     LOC("$$$/Photos/Menu/Library/ExtraInPhotos=Search extra Photos in Photos App"),
                     LOC("$$$/Photos/MsgError/ExtraPhotosFound=^1 extra photo(s) found. See album '^2' for a list of extra photos.", answer,
-                    LOC("$$$/Photos/Album/ExtraInPhotos=/Lightroom/Extra Photos")),
+                    LOC("$$$/Photos/Album/ExtraInPhotos=/LR Photos/Extra Photos")),
                     "error"
             )
         else
@@ -183,7 +183,7 @@ local function searchExtraPhotos(photos)
     Utils.waitForPredecessors(queueEntry)
 
     logger.trace("Send jobfile to app")
-    local result = sendPhotosToApp("extra-photos", maintenanceDir, catalogNames, LOC("$$$/Photos/Album/ExtraInPhotos=/Lightroom/Extra Photos"))
+    local result = sendPhotosToApp("extra-photos", maintenanceDir, catalogNames, LOC("$$$/Photos/Album/ExtraInPhotos=/LR Photos/Extra Photos"))
     if (result ~= 0) then
         local errorMsg = "Error code from PhotosImport.app is " .. tostring(result)
         LrDialogs.message(LOC("$$$/Photos/Error/ExtraPhotos=Error in Photos app while searching for extra  photos."),
