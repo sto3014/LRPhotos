@@ -144,3 +144,8 @@ Only the documentation has changed. No need to update.
 
 * Changed standard folder name on Photos app from /Lightroom to /LR Photos
 
+## [2.2.0.0]
+
+### Added
+
+* Add action that adds source photos into album /LR Photos/Source Photos

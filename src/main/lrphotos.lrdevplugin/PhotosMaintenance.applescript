@@ -99,6 +99,24 @@ on writeLightroomReferences(comDir, lightroomReferences)
 	
 end writeLightroomReferences
 ----------------------------------------------------------------------
+-- writeCountSourcePhotos
+----------------------------------------------------------------------
+on writeCountSourcePhotos(comDir, countPhotos)
+	local photosFile
+	set photosFile to comDir & "/fromPhotos/photos.txt"
+	
+	lockFile(photosFile)
+	
+	set fileRef to open for access photosFile as «class utf8» with write permission
+	set eof fileRef to 0
+	set aLine to "count=" & countPhotos
+	write aLine to photosFile
+	close access fileRef
+	
+	unlockFile(photosFile)
+	
+end writeCountSourcePhotos
+----------------------------------------------------------------------
 -- readPhotosReferences(comDir)
 -- return photosReferences
 -- format of photosReferences:
@@ -177,8 +195,57 @@ on processPhotosReferences(comDir)
 	log message "missing=" & missing
 	
 	writeLightroomReferences(comDir, lightroomReferences)
-	log message "processPhotosReferences() start"
+	log message "processPhotosReferences() end"
 end processPhotosReferences
+----------------------------------------------------------------------
+-- readSourcePhotos(comDir)
+----------------------------------------------------------------------
+on readSourcePhotos(comDir)
+	local sourcePhotos
+	set inputPath to comDir & "/fromLightroom/photos.txt"
+	
+	set inputFile to POSIX file (inputPath)
+	open for access inputFile
+	set fileContents to (read inputFile as «class utf8»)
+	close access inputFile
+	
+	local sourcePhotos
+	set sourcePhotos to every paragraph of fileContents
+	
+	return sourcePhotos
+end readSourcePhotos
+
+----------------------------------------------------------------------
+-- processSourcePhotos
+----------------------------------------------------------------------
+on processSourcePhotos(comDir, albumName)
+	log message "processSourcePhotos() start"
+	log message "read list of Lightroom source photos leafNames from " & comDir
+	set sourcePhotos to readSourcePhotos(comDir)
+	log message "read " & (count of sourcePhotos) & " photos"
+	
+	tell application "Photos"
+		log message "search for source photos"
+		set found to 0
+		set missing to 0
+		repeat with leafName in sourcePhotos
+			set mediaItems to (media items whose filename contains leafName)
+			if (count of mediaItems) is greater than 0 then
+				tell script "hbPhotosUtilities" to set targetAlbum to album by path albumName with create if not exists
+				tell application "Photos"
+					activate
+					add mediaItems to targetAlbum
+				end tell
+				set found to found + (count of mediaItems)
+			end if
+		end repeat
+		-- spotlight targetAlbum
+	end tell
+	log message "found=" & found
+	
+	writeCountSourcePhotos(comDir, found)
+	log message "processSourcePhotos() end"
+end processSourcePhotos
 
 ----------------------------------------------------------------------
 -- isNoLongerPublished
@@ -213,7 +280,6 @@ on processExtraPhotos(comDir, catalogNames, albumName)
 	set AppleScript's text item delimiters to ":"
 	set catalogList to text items of catalogNames
 	set extraMediaItems to {}
-	
 	
 	tell application "Photos"
 		repeat with aCatalog in catalogList
@@ -256,8 +322,9 @@ on run argv
 	enable logging to file logFile
 	log message "PhotosMaintenance.app start"
 	if (argv = me) then
-		set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
+		-- set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
 		-- set argv to {"extra-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "Develop-v13.lrcat", "/Lightroom/Überzählig in Fhotos"}
+		set argv to {"source-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "/LR Photos/Quell-Fotos"}
 	end if
 	if (count of argv) < 2 then
 		display dialog usage
@@ -276,7 +343,11 @@ on run argv
 					processExtraPhotos(cmdDir, item 3 of argv, item 4 of argv)
 				end if
 			else
-				display dialog usage
+				if item 1 of argv is equal to "source-photos" then
+					processSourcePhotos(cmdDir, item 3 of argv)
+				else
+					display dialog usage
+				end if
 				return
 			end if
 		end if

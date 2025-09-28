@@ -64,5 +64,13 @@
 "$$$/Photos/CatalogName=Lightroom Catalog"
 "$$$/Photos/CatalogName/TruncateVersion=Truncate Version"
 "$$$/Photos/KeepNoLongerPublishedPhotos=Keep no longer published photos in albums."
+"$$$/Photos/Menu/Library/SourceFromPhotos=Search source Photos in Photos App"
+"$$$/Photos/Msg/SourcePhotosInPhotos=Search source photos for ^1 photo(s) in Photos App."
+"$$$/Photos/Error/SourcePhotos=Error in Photos app while searching for source photos."
+"$$$/Photos/MsgError/GeneralErrorSource=Error while searching for source photos. Message was: ^1"
+"$$$/Photos/Error/SourcePhotosUnexpectedAnswer=Unexpected return value from Photos App"
+"$$$/Photos/Msg/SourcePhotosFound=Found ^1 source photo(s)."
+"$$$/Photos/Album/SourcePhotos=/LR Photos/Source Photos"
+
 
 
