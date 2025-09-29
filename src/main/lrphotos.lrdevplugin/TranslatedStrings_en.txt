@@ -69,7 +69,7 @@
 "$$$/Photos/Error/SourcePhotos=Error in Photos app while searching for source photos."
 "$$$/Photos/MsgError/GeneralErrorSource=Error while searching for source photos. Message was: ^1"
 "$$$/Photos/Error/SourcePhotosUnexpectedAnswer=Unexpected return value from Photos App"
-"$$$/Photos/Msg/SourcePhotosFound=Found ^1 source photo(s)."
+"$$$/Photos/Msg/SourcePhotosFound=Added ^1 source photo(s) into album ^2."
 "$$$/Photos/Album/SourcePhotos=/LR Photos/Source Photos"
 
 

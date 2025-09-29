@@ -210,7 +210,14 @@ on readSourcePhotos(comDir)
 	close access inputFile
 	
 	local sourcePhotos
-	set sourcePhotos to every paragraph of fileContents
+	set sourcePhotos to {}
+	local allLines
+	set allLines to every paragraph of fileContents
+	repeat with aLine in allLines
+		if length of aLine > 0 then
+			set sourcePhotos to sourcePhotos & aLine
+		end if
+	end repeat
 	
 	return sourcePhotos
 end readSourcePhotos
@@ -224,21 +231,38 @@ on processSourcePhotos(comDir, albumName)
 	set sourcePhotos to readSourcePhotos(comDir)
 	log message "read " & (count of sourcePhotos) & " photos"
 	
-	tell application "Photos"
-		log message "search for source photos"
-		set found to 0
-		set missing to 0
-		repeat with leafName in sourcePhotos
-			set mediaItems to (media items whose filename contains leafName)
-			if (count of mediaItems) is greater than 0 then
-				tell script "hbPhotosUtilities" to set targetAlbum to album by path albumName with create if not exists
-				tell application "Photos"
-					activate
-					add mediaItems to targetAlbum
-				end tell
-				set found to found + (count of mediaItems)
-			end if
+	log message "search for source photos"
+	tell script "hbPhotosUtilities" to set targetAlbum to album by path albumName with create if not exists
+	local mediaItems
+	set mediaItems to {}
+	set batchSize to 50 -- tune to taste
+	local upperLevel
+	repeat with i from 1 to count sourcePhotos by batchSize
+		set upperLevel to i + batchSize - 1
+		if (upperLevel > (count of sourcePhotos)) then
+			set upperLevel to count of sourcePhotos
+		end if
+		set batch to items i thru upperLevel of sourcePhotos
+		local batchClause
+		set batchClause to ""
+		local baseName
+		repeat with baseName in batch
+			log message "baseName=" & baseName
+			set batchClause to batchClause & "filename contains \"" & (baseName as string) & "\" or "
 		end repeat
+		set batchClause to text 1 thru -5 of batchClause -- trim last " or "
+		local localScript
+		set localScript to "tell application \"Photos\" to (every media item whose (" & batchClause & "))"
+		set found to run script localScript
+		set mediaItems to mediaItems & found
+	end repeat
+	local found
+	set found to count of mediaItems
+	tell application "Photos"
+		if found is greater than 0 then
+			-- activate
+			add mediaItems to targetAlbum
+		end if
 		-- spotlight targetAlbum
 	end tell
 	log message "found=" & found
@@ -318,13 +342,14 @@ end processExtraPhotos
 -- main
 ----------------------------------------------------------------------
 on run argv
-	set logFile to ((path to documents folder) as Unicode text) & "LrClassicLogs:PhotosServiceProvider.log"
+	local logFile
+	set logFile to ((path to home folder) as Unicode text) & "Library:Logs:Adobe:Lightroom:LrClassicLogs:PhotosServiceProvider.log"
 	enable logging to file logFile
 	log message "PhotosMaintenance.app start"
 	if (argv = me) then
 		-- set argv to {"photos-references", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance"}
 		-- set argv to {"extra-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "Develop-v13.lrcat", "/Lightroom/Überzählig in Fhotos"}
-		set argv to {"source-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "/LR Photos/Quell-Fotos"}
+		set argv to {"source-photos", "/Users/dieterstockhausen/Library/Caches/at.homebrew.lrphotos/maintenance", "/LR Photos/Quellfotos"}
 	end if
 	if (count of argv) < 2 then
 		display dialog usage

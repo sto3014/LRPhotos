@@ -77,7 +77,7 @@ local function processAnswer(maintenanceDir)
     else
         LrDialogs.message(
             LOC("$$$/Photos/Menu/Library/SourceFromPhotos=Search source Photos in Photos App"),
-            LOC("$$$/Photos/Msg/SourcePhotosFound=Found ^1 source photo(s).", countSourcePhotos),
+            LOC("$$$/Photos/Msg/SourcePhotosFound=Added ^1 source photo(s) into album ^2.", countSourcePhotos, LOC("$$$/Photos/Album/SourcePhotos=/LR Photos/Source Photos")),
             "info"
         )
     end

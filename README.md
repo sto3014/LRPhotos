@@ -2,24 +2,28 @@
 
 ---
 LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
+
 ## Features
 
 ---
+
 * Publishing photos to Photos.app
 * Tagging photos in Photos.app
 * Store Photos.app IDs in Lightroom
+* Search for duplicates between Lightroom and Photos by file name
 
 ## Requirements
 
 ---
+
 * MacOS 10.10 (Yosemite) or later.
 * Windows is not supported.
 
-## Installaftion
+## Installation
 
 ---
 
-1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.1.3.0_mac.zip).
+1. Download the zip archive from [GitHub](https://github.com/sto3014/LRPhotos/blob/main/target/LRPhotos2.2.0.0_mac.zip).
 2. Extract the archive in the download folder
 3. Copy plug-in, applescript files and automator workflow into ~/Library  
    Open a terminal window, change to Downloads/LRPhotos and execute install.sh:
@@ -28,14 +32,14 @@ LRPhotos is a Lightroom Classic publishing service for Apple's Photos app.
    -> ./install.sh 
     ```
    Install.sh copies the plug-in, the applescript files and the automator workflow into:
-   * ~/Library/Application Support/Adobe/Lightroom/Modules/LRPhotos.lrplugin
-   * ~/Library/Script Libraries
-     * hbPhotosUtilities.scptd
-     * hbMacRomanUtilities.scptd
-     * hbStringUtilities.scptd
-     * hbPhotosServices.scptd
-   * ~/Library/Services
-       * hbPhotosDisplayID.workflow
+    * ~/Library/Application Support/Adobe/Lightroom/Modules/LRPhotos.lrplugin
+    * ~/Library/Script Libraries
+        * hbPhotosUtilities.scptd
+        * hbMacRomanUtilities.scptd
+        * hbStringUtilities.scptd
+        * hbPhotosServices.scptd
+    * ~/Library/Services
+        * hbPhotosDisplayID.workflow
 4. Restart Lightroom
 
 Adobe Lightroom Classic needs to access System Events using Apple Script. When you access the Photos app for the
@@ -44,8 +48,11 @@ first time, the system will ask for permission.
 ## Usage
 
 ---
+
 ### Publishing
+
 The publish process…
+
 * imports photos into Photos.app
     * the file name of the photo will be different from the file name in Lightroom.
         * The name is set to the photo ID in Lightroom. This ID is also displayed in the Lightroom metadata.
@@ -57,10 +64,11 @@ The publish process…
 * saves "Photos app" metadata in Lightroom
     * Lightroom catalog: The name of lightroom catalog
     * Lightroom ID: The internal Lightroom id
-  * Format: The format of the Photos file
-    * Photos UUID: The unique Photos ID
+    * Format: The format of the Photos file
+        * Photos UUID: The unique Photos ID
 
 When creating a new publishing service, there are three predefined options which are not default by Adobe:
+
 * Quality for JPEGs is 85% not 60%
 * Person info will NOT be removed from metadata
 * Location info will NOT be removed from metadata
@@ -70,7 +78,9 @@ Remarks: If you don't export videos as original, the create-date of the video wi
 Of course, you may change these settings for your service definition.
 
 ### Re-Publishing
+
 The re-publishing process…
+
 * puts re-published photos into the same albums as their predecessors.
 * puts tag __lr:out-of-date__ on the predecessor
 * removes out-of-date photos if collection configuration __Keep out of date photos in albums__ is un-checked.
@@ -89,24 +99,27 @@ The re-publishing process…
 Deleting collections and removing photos from the Photos app is currently not supported.
 
 ### Configuration
-The __Use Album__ configuration in the publishing service setup defines the name of the album where photos are imported in.
+
+The __Use Album__ configuration in the publishing service setup defines the name of the album where photos are imported
+in.
 The first option allows you to use a single album for all collections in a service. The second option uses the name
 of the collection as the album name. The album name includes the name of the Photos.app album as well as the folders.
 Examples:
+
 * /Holidays in Spain  
   The album __Holidays in Spain__ will be created directly under __My Albums__
 * /2021/Holidays in Spain  
-The album  __Holidays in Spain__ will be created in the folder __2021__  
-  
+  The album  __Holidays in Spain__ will be created in the folder __2021__
+
 Remarks: As the slash is used as directory separator you can not use it for a name of an album.
 
-The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing. During re-publishing, 
+The __Ignore Albums by Regex__ is used to define albums which are ignored during republishing. During re-publishing,
 the updated photos go into all albums where their predecessors are in. For technical reason,
 smart albums must be explicitly excluded. This can be done by a naming convention.  
 For instance, the default regex expression
 __^!|!$__ excludes all albums which have an exclamation mark at the beginning or at the end of their names.
 
-The __Root Folder for Albums__ is used to define a global folder for all albums in this service. 
+The __Root Folder for Albums__ is used to define a global folder for all albums in this service.
 
 The checkbox __Keep out of date photos in albums__ decides if a out-of-date photo is removed from the album.
 Remarks: In Applescript it is not possible to remove media items from an album therefor, the album is deleted an
@@ -116,6 +129,7 @@ recreated.
 
 ---
 The applescript interface for Photos.app is restricted:
+
 * It does not support deleting of photos
 * It does not allow put photos into shared albums.
 * It is not possible to remove media items from an album. Therefor, the album is deleted an
@@ -127,7 +141,8 @@ You can delete "old" photos manually after a re-publish.
 Therefore, a smart album helps which filters by lr:out-of-date tag and may be by lr:<catalog name> as well.
 
 ### Update smart albums
-If you are using shared albums, you must manually add the updated photos into these albums. Therefore, a second 
+
+If you are using shared albums, you must manually add the updated photos into these albums. Therefore, a second
 smart album is helpful which filters by the date, when photos were added to Photos.app.
 
 ## Maintenance
@@ -137,6 +152,7 @@ Three menu action under Library/Plug-In Extras
 * Reset Photos app Attributes
 * Search extra Photos in Photos app
 * Search missing Photos in Photos app
+* Search source Photos in Photos app
 
 ### Reset Photos App Attributes
 
@@ -160,6 +176,17 @@ occur when published photos were deleted manually in the Photos app. The action 
 Lightroom collection /Photos app/Missing in Photos.
 The search will be only done for the selected photos (unpublished photos will be ignored).
 
+### Search source Photos in Photos app
+
+This action searches for images in Photos app that habe the same file name (without suffix) as the one selected in
+Lightroom. The photos that were found are added to the album /Lr Photos/Source Photos. This can be helpful to remove
+duplicates. But take care. The same file name in Photos may represent a different photo in Lightroom.
+
+Nevertheless, if you use the Project Indigo camera instead of the Lightroom Mobile camera you will get a lot of
+duplicates. The Project Indigo file names pretty unique so you normally won't run into a problem if you remove
+duplicates. After removing duplicates you should set a keyword on the checked photos (e.g.
+projectindigo_duplicates_removed) to avoid that the searches become bigger and bigger.
+
 ## Settings
 
 * Lightroom Catalog: Truncate Version   
@@ -169,11 +196,14 @@ The search will be only done for the selected photos (unpublished photos will be
 ## Known issues
 
 * When adding a lot of photos, or when you update a large album, Photos displays a modal dialog, to inform you that many
-  photos were added. Since the Photos app window may not be in the foreground, you miss this dialog and after a timeout the
+  photos were added. Since the Photos app window may not be in the foreground, you miss this dialog and after a timeout
+  the
   publish action fails.
-.
+  .
+
 ## Acknowledgements
 
 --
-Special thanks to [Simon Schoeters](https://www.suffix.be/blog/lightroom-iphoto-export/). His export provider plug-in was
+Special thanks to [Simon Schoeters](https://www.suffix.be/blog/lightroom-iphoto-export/). His export provider plug-in
+was
 the base for LRPhotos.

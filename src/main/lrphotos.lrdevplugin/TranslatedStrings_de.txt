@@ -65,5 +65,5 @@
 "$$$/Photos/Error/SourcePhotos=Fehler in Fotos App bei der Suche nach Quellfotos."
 "$$$/Photos/MsgError/GeneralErrorSource=Fehler während der Suche nach Quellfotos. Meldung war: ^1"
 "$$$/Photos/Error/SourcePhotosUnexpectedAnswer=Unerwarteter Rückgabewert von Fotos App"
-"$$$/Photos/Msg/SourcePhotosFound=Es wurden ^1 Quellfoto(s) gefunden."
+"$$$/Photos/Msg/SourcePhotosFound=Es wurde(n) ^1 Quellfoto(s) dem Album ^2 hinzugefügt."
 "$$$/Photos/Album/SourcePhotos=/LR Photos/Quellfotos"
